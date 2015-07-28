@@ -1,2 +1,3 @@
 #!/bin/bash
-exec /usr/sbin/httpd -D FOREGROUND
+source /etc/apache2/envvars
+exec apache2 -D FOREGROUND
