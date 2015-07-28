@@ -16,7 +16,7 @@ RUN \
         grep perl ack \
         git \
         mysql-client \
-        \openssh-client rsync \
+        openssh-client rsync \
         lynx && \
     rm -fr /var/cache/apk/*
 
