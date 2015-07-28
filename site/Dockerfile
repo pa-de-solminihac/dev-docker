@@ -2,23 +2,22 @@ FROM alpine:latest
 MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 
 # Set the locale
-RUN \
-    apk add --update \
-        apache2 php-apache2 php-apcu \
-        php-intl php-iconv php-gettext \
-        php-mysql php-mysqli php-pgsql php-pdo php-pdo_mysql php-pdo_pgsql \
-        php-openssl \
-        php-json \
-        php-zlib \
-        php-imap php-curl php-gd \
-        bash bash-completion docker-bash-completion git-bash-completion \
-        ncdu vim vimdiff ncurses \
-        grep perl ack \
-        git \
-        mysql-client \
-        openssh-client rsync \
-        lynx && \
-    rm -fr /var/cache/apk/*
+RUN apk update
+RUN apk add apache2 php-apache2 php-opcache php-apcu
+RUN apk add php-intl php-iconv php-gettext
+RUN apk add php-mysql php-mysqli php-pgsql php-pdo php-pdo_mysql php-pdo_pgsql
+RUN apk add php-openssl
+RUN apk add php-json php-xml php-xsl
+RUN apk add php-zlib
+RUN apk add php-imap php-curl php-gd
+RUN apk add bash bash-completion docker-bash-completion git-bash-completion
+RUN apk add ncdu vim vimdiff ncurses
+RUN apk add grep perl ack
+RUN apk add git
+RUN apk add mysql-client
+RUN apk add openssh-client rsync
+RUN apk add lynx
+RUN rm -fr /var/cache/apk/*
 
 # Workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
