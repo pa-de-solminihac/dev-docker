@@ -2,22 +2,25 @@ FROM debian:jessie
 MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 
 # Set the locale
-RUN apt-get update
-RUN apt-get -y install apache2 libapache2-mod-php5 php5-apcu # php-opcache
-RUN apt-get -y install php5-intl php-gettext # php-iconv
-RUN apt-get -y install php5-mysqlnd php5-pgsql # php-pdo php-pdo_mysql php-pdo_pgsql php5-mysql
-# RUN apt-get -y install php-openssl
-RUN apt-get -y install php5-json php5-xsl # php-xml
-#RUN apt-get -y install php-zlib
-RUN apt-get -y install php5-imap php5-curl php5-gd
-RUN apt-get -y install bash bash-completion # docker-bash-completion git-bash-completion
-RUN apt-get -y install ncdu vim ncurses-bin # vimdiff
-RUN apt-get -y install grep ack-grep # perl
-RUN apt-get -y install git
-RUN apt-get -y install mysql-client
-RUN apt-get -y install openssh-client rsync
-RUN apt-get -y install lynx
-RUN apt-get clean
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 libapache2-mod-php5 php5-apcu # php-opcache
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext # php-iconv
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql # php-pdo php-pdo_mysql php-pdo_pgsql php5-mysql
+# RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-openssl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl # php-xml
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-zlib
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap php5-curl php5-gd
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion # docker-bash-completion git-bash-completion
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu vim ncurses-bin # vimdiff
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep # perl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install git
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-client
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx
+RUN DEBIAN_FRONTEND=noninteractive apt-get clean
 
 # Workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
