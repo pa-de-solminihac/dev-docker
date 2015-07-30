@@ -26,7 +26,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install git
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-client
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
 RUN DEBIAN_FRONTEND=noninteractive apt-get clean
 
 # config apache
