@@ -29,14 +29,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx
 RUN DEBIAN_FRONTEND=noninteractive apt-get clean
 
-# Apache mods
+# config apache
 RUN a2enmod rewrite
 RUN a2enmod headers
 RUN a2enmod expires
 RUN a2enmod ssl
-
-# config apache
 RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
+RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=docker_site/g" /etc/apache2/envvars
 RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=group_docker_site/g" /etc/apache2/envvars
 
@@ -63,4 +62,3 @@ EXPOSE 80
 
 # attention ici à bien utiliser des " et non des ' sinon ça ne marche tout simplement pas...
 CMD ["/run.sh"]
-
