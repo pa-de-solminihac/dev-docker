@@ -6,32 +6,44 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 libapache2-mod-php5 php5-apcu # php-opcache
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext # php-iconv
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql # php-pdo php-pdo_mysql php-pdo_pgsql php5-mysql
-# RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-openssl
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl # php-xml
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 libapache2-mod-php5 php5-apcu
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-opcache
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-iconv
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-pdo php-pdo_mysql php-pdo_pgsql php5-mysql
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-openssl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-xml
 #RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-zlib
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap php5-curl php5-gd
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion # docker-bash-completion git-bash-completion
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu vim ncurses-bin # vimdiff
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep # perl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install docker-bash-completion git-bash-completion
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu vim ncurses-bin
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install vimdiff
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install perl
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install git
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-client
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx
 RUN DEBIAN_FRONTEND=noninteractive apt-get clean
 
-# Workaround for write permission on write to MacOS X volumes
-# See https://github.com/boot2docker/boot2docker/pull/534
-#RUN usermod -u 1000 www-data
-RUN adduser --no-create-home --disabled-login --gecos "" docker_site # --uid 1000 
-RUN addgroup group_docker_site # --gid 50
+# Apache mods
+RUN a2enmod rewrite
+RUN a2enmod headers
+RUN a2enmod expires
+RUN a2enmod ssl
 
 # config apache
 RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=docker_site/g" /etc/apache2/envvars
 RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=group_docker_site/g" /etc/apache2/envvars
+
+# Workaround for write permission on write to MacOS X volumes
+# See https://github.com/boot2docker/boot2docker/pull/534
+RUN adduser --no-create-home --disabled-login --gecos "" docker_site # --uid 1000
+RUN addgroup group_docker_site # --gid 50
 
 # outils de base pour configuration minimale
 RUN cd /root/ && \
@@ -43,19 +55,6 @@ RUN cd /root/ && \
     ln -s ~/configuration/vim/.vimrc_common && \
     mkdir -p bin && \
     ln -s ~/configuration/bin/diffconflicts bin/
-
-#RUN apt-get install locales
-#RUN locale-gen en_US.UTF-8
-#RUN locale-gen fr_FR.UTF-8
-
-# Install PDO MySQL driver
-# See https://github.com/docker-library/php/issues/62
-#RUN docker-php-ext-install pdo mysql
-#RUN apt-get install -y libapache2-mod-php5
-#RUN service apache2 restart
-
-# Enable Apache mod_rewrite
-#RUN a2enmod rewrite
 
 ADD run.sh /run.sh
 RUN chmod 755 /run.sh
