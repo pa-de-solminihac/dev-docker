@@ -1,26 +1,30 @@
 site:
   build: site
   ports :
-   - "8081:80"
+    - "8081:80"
   volumes:
-   - /Users/pa/public_html/dockersite/www:/var/www/html/
-  links:
-   - database
-phpmyadmin:
-   image: corbinu/docker-phpmyadmin
-   ports :
-    - "8082:80"
-   environment:
-    - MYSQL_USERNAME=root
-    - MYSQL_PASSWORD=j8YeyNQwQA6PRF0g
-   links:
-    - database:mysql
-database:
-  image: mysql:5.5
-  ports:
-   - "8306:3306"
-  environment:
-     - MYSQL_ROOT_PASSWORD=j8YeyNQwQA6PRF0g
-     - MYSQL_DATABASE=dockersite
-     - MYSQL_USER=dockersite
-     - MYSQL_PASSWORD=OueKD4QZtvhoxFnf
+    - /Users/pa/public_html/dockersite/www:/var/www/html
+    - /Users/pa/public_html/dockersite/database:/var/lib/mysql
+#  links:
+#    - database
+
+# phpmyadmin:
+#    image: corbinu/docker-phpmyadmin
+#    ports :
+#      - "8082:80"
+#    environment:
+#      - MYSQL_USERNAME=root
+#      - MYSQL_PASSWORD=j8YeyNQwQA6PRF0g
+#    links:
+#      - database:mysql
+# 
+# database:
+#   image: mysql:5.5
+#   ports:
+#     - "8306:3306"
+#   environment:
+#       - MYSQL_ROOT_PASSWORD=j8YeyNQwQA6PRF0g
+#       - MYSQL_DATABASE=dockersite
+#       - MYSQL_USER=dockersite
+#       - MYSQL_PASSWORD=OueKD4QZtvhoxFnf
+

@@ -24,10 +24,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu vim ncurses-bin
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep
 #RUN DEBIAN_FRONTEND=noninteractive apt-get -y install perl
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install git
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-client
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-client
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
-RUN DEBIAN_FRONTEND=noninteractive apt-get clean
 
 # config apache
 RUN a2enmod rewrite
@@ -36,13 +35,16 @@ RUN a2enmod expires
 RUN a2enmod ssl
 RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
 RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
-RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=docker_site/g" /etc/apache2/envvars
-RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=group_docker_site/g" /etc/apache2/envvars
+RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
+RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
 
 # Workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
-RUN adduser --no-create-home --disabled-login --gecos "" docker_site # --uid 1000
-RUN addgroup group_docker_site # --gid 50
+RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 1000
+RUN usermod -G staff mysql
+
+# installation mariadb en local
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server
 
 # outils de base pour configuration minimale
 RUN cd /root/ && \
@@ -60,5 +62,8 @@ RUN chmod 755 /run.sh
 
 EXPOSE 80
 
-# attention ici à bien utiliser des " et non des ' sinon ça ne marche tout simplement pas...
+# cleanup
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
+
+# warning : " != '
 CMD ["/run.sh"]
