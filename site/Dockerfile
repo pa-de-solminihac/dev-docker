@@ -27,6 +27,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install git
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-client
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install phpmyadmin
 
 # config apache
 RUN a2enmod rewrite
@@ -37,6 +38,10 @@ RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
 RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
 RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
+
+# config phpmyadmin
+RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
+RUN sed -i 's/.*\($cfg..Servers...$i...AllowNoPassword.. *= *\).*/\1TRUE;/g' /etc/phpmyadmin/config.inc.php
 
 # Workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
