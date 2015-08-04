@@ -1,5 +1,7 @@
 # dev-docker
 
+Une image pour se faire une machine de dev
+
 ## Note pour l'installation sous Windows
 
 Il faut faire une "Full install" de boot2docker (testé avec la version 1.7.1)
