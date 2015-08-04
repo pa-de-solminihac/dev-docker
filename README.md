@@ -2,9 +2,10 @@
 
 Une image pour se faire une machine de dev
 
-## Note pour l'installation sous Windows
 
-Il faut faire une "Full install" de boot2docker (testé avec la version 1.7.1)
+# Notes concernant l'installation sous Windows
+
+Il faut faire une **Full install** de `boot2docker` (testé avec la version `1.7.1`)
 
 Puis il faut retoucher la configuration de VirtualBox :
 
@@ -29,3 +30,27 @@ Puis il faut retoucher la configuration de VirtualBox :
     Click OK
 
     Double click on the Boot2Docker Start icon to reinitialize everything.
+
+
+## Remarques supplémentaires
+
+Sous windows, on ne peut monter que des sous-dossiers de `C:\Users\...`, sous la forme `/c/Users/...`
+
+On lancera le conteneur ainsi :
+```bash
+docker run -p 80:80 -v "/c/Users/.../dockersite/www:/var/www/html" -v "/c/Users/.../dockersite/database:/var/lib/mysql" monimage
+```
+
+
+## Cheatsheet
+
+```bash
+# générer l'image
+docker build -f site/Dockerfile -t monimage site
+
+# sauver l'image dans un fichier .tar
+docker save -o tstpa.tar tstpa
+
+# importer l'image à partir du fichier .tar
+docker load -i tstpa.tar
+```
