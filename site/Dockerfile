@@ -6,7 +6,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 libapache2-mod-php5 php5-apcu
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install memcached php5-memcache php5-memcached
 #RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-opcache
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext
 #RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-iconv
@@ -29,15 +31,23 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install phpmyadmin
 
+# dossier pour les logs
+RUN mkdir -p /var/log/dockersite
+RUN chmod 777 /var/log/dockersite
+
 # config apache
 RUN a2enmod rewrite
 RUN a2enmod headers
 RUN a2enmod expires
 RUN a2enmod ssl
+RUN mkdir -p /etc/apache2/dockersite-vhosts
+RUN echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf
 RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
 RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
 RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
+RUN sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars
+ADD 000-default.conf /etc/apache2/sites-enabled/
 
 # config phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
@@ -48,8 +58,17 @@ RUN sed -i 's/.*\($cfg..Servers...$i...AllowNoPassword.. *= *\).*/\1TRUE;/g' /et
 RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 1000
 RUN usermod -G staff mysql
 
-# installation mariadb en local
+# install mysql (mariadb)
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server
+
+# config mysql
+RUN sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf
+RUN sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf
+RUN sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf
+RUN sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf
+RUN sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf
+RUN sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf
+RUN sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
 
 # outils de base pour configuration minimale
 RUN cd /root/ && \
@@ -62,13 +81,22 @@ RUN cd /root/ && \
     mkdir -p bin && \
     ln -s ~/configuration/bin/diffconflicts bin/
 
-ADD run.sh /run.sh
-RUN chmod 755 /run.sh
+# install drush
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install drush
 
-EXPOSE 80
+# install wp-wned.sh
+ADD wp-wned.sh /usr/local/bin/
+
+# install wp-cli
+RUN cd /usr/local/bin && curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && chmod +x wp-cli.phar && mv wp-cli.phar wp
 
 # cleanup
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 
-# warning : " != '
+# expose port 80
+EXPOSE 80
+
+# run : attention, CMD fonctionne avec le caractère " mais pas avec le caractère ' !!!
+ADD run.sh /run.sh
+RUN chmod 755 /run.sh
 CMD ["/run.sh"]
