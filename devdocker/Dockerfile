@@ -49,6 +49,13 @@ RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" 
 RUN sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars
 ADD 000-default.conf /etc/apache2/sites-enabled/
 
+# config php
+RUN sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe/Paris'/g" /etc/php5/apache2/php.ini
+
 # config phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
 RUN sed -i 's/.*\($cfg..Servers...$i...AllowNoPassword.. *= *\).*/\1TRUE;/g' /etc/phpmyadmin/config.inc.php
