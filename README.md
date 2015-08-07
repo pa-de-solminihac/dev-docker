@@ -36,11 +36,6 @@ Puis il faut retoucher la configuration de VirtualBox :
 
 Sous windows, on ne peut monter que des sous-dossiers de `C:\Users\...`, sous la forme `/c/Users/...`
 
-On lancera le conteneur ainsi :
-```bash
-DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" ./run.sh
-```
-
 
 ## Cheatsheet
 
@@ -56,3 +51,8 @@ docker load -i devdocker.tar
 
 ```
  
+On lancera le conteneur ainsi :
+```bash
+DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" ./run.sh
+```
+
