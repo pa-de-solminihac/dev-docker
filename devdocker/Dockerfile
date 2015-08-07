@@ -78,7 +78,7 @@ RUN sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cn
 RUN sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
 
 # copy your readonly mounted ssh keys
-RUN echo "cp -f /root/.ssh-readonly/id_* /root/.ssh/" >> ~/.bashrc
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo "cp -f /root/.ssh-readonly/id_* /root/.ssh/" >> ~/.bashrc
 
 # install sitesync
 RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
