@@ -54,7 +54,7 @@ RUN sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, pas
 RUN sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini
 RUN sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini
 RUN sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe/Paris'/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini
 
 # config phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
