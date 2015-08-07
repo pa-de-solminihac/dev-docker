@@ -30,6 +30,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-client
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-client rsync
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install phpmyadmin
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install manpages
 
 # dossier pour les logs
 RUN mkdir -p /var/log/dockersite
