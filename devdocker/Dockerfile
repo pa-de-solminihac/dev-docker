@@ -77,6 +77,10 @@ RUN sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cn
 RUN sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf
 RUN sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
 
+# install sitesync
+RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
+    echo 'export PATH="$PATH:/sitesync"' >> ~/.bashrc
+
 # outils de base pour configuration minimale
 RUN cd /root/ && \
     git clone https://github.com/pa-de-solminihac/configuration.git && \
@@ -102,6 +106,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 
 # expose port 80
 EXPOSE 80
+
+# cd au login
+RUN echo 'cd /var/www/html' >> ~/.bashrc
 
 # run : attention, CMD fonctionne avec le caractère " mais pas avec le caractère ' !!!
 ADD run.sh /run.sh
