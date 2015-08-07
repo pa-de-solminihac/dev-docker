@@ -16,7 +16,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/vhosts:/etc/apache2/vhosts" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
-        dockersite)"
+        devdocker)"
     echo "Attaching to freshly started container $DEVDOCKER_ID"
 else
     echo "Attaching to already running container $DEVDOCKER_ID"

@@ -92,6 +92,9 @@ RUN cd /root/ && \
     mkdir -p bin && \
     ln -s ~/configuration/bin/diffconflicts bin/
 
+# cd dans /var/www/html au login
+RUN echo 'cd /var/www/html' >> ~/.bashrc
+
 # install drush
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install drush
 
@@ -106,9 +109,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 
 # expose port 80
 EXPOSE 80
-
-# cd au login
-RUN echo 'cd /var/www/html' >> ~/.bashrc
 
 # run : attention, CMD fonctionne avec le caractère " mais pas avec le caractère ' !!!
 ADD run.sh /run.sh
