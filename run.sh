@@ -8,14 +8,14 @@ function usage() {
     Usage
     =====
 
-    DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" SSH_DIR="/c/Users/...../path/to/.ssh" ./run.sh
+    DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" [SSH_DIR="/c/Users/...../path/to/.ssh"] ./run.sh
 EOF
 }
 
 # check parameters
 if [ "$DOCKERSITE_ROOT" == "" ] || [ ! -d "$DOCKERSITE_ROOT" ]; then
-    echo "Error: missing DOCKERSITE_ROOT value or not pointing to a directory $DOCKERSITE_ROOT"
     echo
+    echo "Error: missing DOCKERSITE_ROOT value or not pointing to a directory $DOCKERSITE_ROOT"
     usage
     exit
 fi
@@ -25,8 +25,8 @@ if [ "$SSH_DIR" == "" ]; then
 fi
 
 if [ ! -d "$SSH_DIR" ]; then
-    echo "Error: missing SSH_DIR value or not pointing to a directory $SSH_DIR"
     echo
+    echo "Error: missing SSH_DIR value or not pointing to a directory $SSH_DIR"
     usage
     exit
 fi
