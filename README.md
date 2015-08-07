@@ -38,7 +38,7 @@ Sous windows, on ne peut monter que des sous-dossiers de `C:\Users\...`, sous la
 
 On lancera le conteneur ainsi :
 ```bash
-docker run -p 80:80 -v "/c/Users/.../dockersite/www:/var/www/html" -v "/c/Users/.../dockersite/database:/var/lib/mysql" monimage
+DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" ./run.sh
 ```
 
 
@@ -46,12 +46,13 @@ docker run -p 80:80 -v "/c/Users/.../dockersite/www:/var/www/html" -v "/c/Users/
 
 ```bash
 # générer l'image
-docker build -f site/Dockerfile -t monimage site
+docker build -f devdocker/Dockerfile -t devdocker devdocker
 
 # sauver l'image dans un fichier .tar
-docker save -o tstpa.tar tstpa
+docker save -o devdocker.tar devdocker
 
-# importer l'image à partir du fichier .tar
-docker load -i tstpa.tar
+# importer l'image (sur une autre machine par exemple) à partir du fichier .tar
+docker load -i devdocker.tar
+
 ```
  
