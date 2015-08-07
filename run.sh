@@ -20,7 +20,11 @@ if [ "$DOCKERSITE_ROOT" == "" ] || [ ! -d "$DOCKERSITE_ROOT" ]; then
     exit
 fi
 
-if [ "$SSH_DIR" == "" ] || [ ! -d "$SSH_DIR" ]; then
+if [ "$SSH_DIR" == "" ]; then
+    SSH_DIR="$HOME/.ssh"
+fi
+
+if [ ! -d "$SSH_DIR" ]; then
     echo "Error: missing SSH_DIR value or not pointing to a directory $SSH_DIR"
     echo
     usage
