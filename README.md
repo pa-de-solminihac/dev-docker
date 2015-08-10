@@ -27,7 +27,7 @@ Divers outils en ligne de commande avec une [configuration de base](https://gith
 
 # Installation
 
-Il faut [installer Docker](#Requirements)
+Il faut [installer Docker](#requirements)
 
 ```bash
 git clone https://github.com/pa-de-solminihac/dev-docker
