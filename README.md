@@ -1,6 +1,6 @@
 # dev-docker
 
-Une image pour se faire une machine de dev
+Une image Docker pour se faire une machine de dev
 
 # Il y a quoi dans la boîte ?
 
