@@ -27,6 +27,8 @@ Divers outils en ligne de commande avec une [configuration de base](https://gith
 
 # Installation
 
+Il faut [installer Docker](#Requirements)
+
 ```bash
 git clone https://github.com/pa-de-solminihac/dev-docker
 cd dev-docker
@@ -49,15 +51,24 @@ Puis réglez les variables selon votre installation.
 
 # Utilisation
 
+## Lancer les services
 ```bash
-# lancer l'environnement
 ./run.sh
 ```
+
+## Couper les services
+```bash
+./stop.sh
+```
+
+## Remarque
 
 Sous Linux, l'environnement expose MySQL sur le port 3306 et Apache sur le port 80. Il faut donc qu'ils soient disponibles. Sous Windows et OS X c'est masqué par le fait que l'environnement tourne dans une machine virtuelle Boot2docker.
 
 
-# Requirements : Docker / Boot2docker
+# Requirements
+
+Installer Docker / Boot2docker
 
 ## Linux
 
@@ -116,9 +127,3 @@ docker save -o devdocker.tar devdocker
 docker load -i devdocker.tar
 
 ```
- 
-On lancera le conteneur ainsi :
-```bash
-DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" ./run.sh
-```
-
