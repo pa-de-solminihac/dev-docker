@@ -18,11 +18,11 @@ Divers outils en ligne de commande avec une [configuration de base](https://gith
 
 ## Dossiers montés
 
-- www : les fichiers sources de vos sites
-- database : contient les bases de données de Mysql (dossier monté sous `/var/lib/mysql`)
-- log : fichiers logs des différents services (Apache access_log et error_log, PHP error_log, MySQL slow queries)
-- vhosts : pour configurer des `<VirtualHost>` Apache supplémentaires
-- conf-sitesync : fichiers de configuration à utiliser sous la forme `sitesync --conf=/sitesync/etc/...`
+- `www` : les fichiers sources de vos sites
+- `database` : contient les bases de données de Mysql (dossier monté sous `/var/lib/mysql`)
+- `log` : fichiers logs des différents services (Apache access_log et error_log, PHP error_log, MySQL slow queries)
+- `vhosts` : pour configurer des `<VirtualHost>` Apache supplémentaires
+- `conf-sitesync` : fichiers de configuration à utiliser sous la forme `sitesync --conf=/sitesync/etc/...`
 
 
 # Installation
