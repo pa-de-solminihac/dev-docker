@@ -1,0 +1,4 @@
+# chemins
+DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite"
+SSH_DIR="/c/Users/...../path/to/.ssh" # defaults to "$HOME/.ssh"
+

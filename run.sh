@@ -1,6 +1,8 @@
 #!/bin/bash
 # run in background, attaching a shell
 
+BASE_PATH="$(dirname "$0")"
+
 # usage
 function usage() {
     cat <<EOF
@@ -8,9 +10,31 @@ function usage() {
     Usage
     =====
 
-    DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite" [SSH_DIR="/c/Users/...../path/to/.ssh"] ./run.sh
+    ./run.sh
 EOF
 }
+
+# chargement du fichier de config
+if [ ! -f "$BASE_PATH/etc/config" ]; then
+    cat <<EOF
+    Fichier de configuration non trouvé.
+    Vous devez créer un fichier etc/config
+
+    cp sample/config etc/config
+EOF
+    exit
+else
+    source $BASE_PATH/etc/config
+fi
+
+# run boot2docker if necessary
+BOOT2DOCKER="$(which boot2docker 2>/dev/null)"
+if [ -x "$BOOT2DOCKER" ];
+then
+    if [ "$(boot2docker status)" != "running" ]; then
+        ./boot2docker_start.sh
+    fi
+fi
 
 # check parameters
 if [ "$DOCKERSITE_ROOT" == "" ] || [ ! -d "$DOCKERSITE_ROOT" ]; then
