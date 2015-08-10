@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # run in background, attaching a shell
 
 BASE_PATH="$(dirname "$0")"
@@ -37,7 +37,7 @@ then
 fi
 
 # check parameters
-if [ "$DOCKERSITE_ROOT" == "" ] || [ ! -d "$DOCKERSITE_ROOT" ]; then
+if [ "$DOCKERSITE_ROOT" == "" ]; then
     echo
     echo "Error: missing DOCKERSITE_ROOT value or not pointing to a directory $DOCKERSITE_ROOT"
     usage
@@ -56,7 +56,7 @@ if [ ! -d "$SSH_DIR" ]; then
 fi
 
 # attach to running container if possible, or spawn a new one
-DEVDOCKER_ID="$(docker ps | grep devdocker | head -n 1 | awk '{print $1}')"
+DEVDOCKER_ID="$(docker ps | grep '\<devdocker\>' | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     DEVDOCKER_ID="$(docker run -d -i -p 80:80 \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
