@@ -45,12 +45,13 @@ RUN mkdir -p /etc/apache2/dockersite-vhosts
 RUN echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf
 RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
 RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
-RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
-RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
 RUN sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars
 ADD 000-default.conf /etc/apache2/sites-enabled/
 
 # config php
+RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php5/apache2/php.ini
 RUN sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php5/apache2/php.ini
 RUN sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini
 RUN sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini
@@ -78,8 +79,13 @@ RUN sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cn
 RUN sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf
 RUN sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
 
+# hack perms because of boo2docker's limitations
+RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
+RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
+RUN chgrp mysql /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
+
 # copy your readonly mounted ssh keys and config
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo "cp -f /root/.ssh-readonly/* /root/.ssh/" >> ~/.bashrc
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo "cp -f /root/.ssh-readonly/* /root/.ssh/ 2>/dev/null" >> ~/.bashrc
 
 # install sitesync
 RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
