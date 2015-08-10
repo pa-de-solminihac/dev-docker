@@ -57,7 +57,6 @@ fi
 
 # attach to running container if possible, or spawn a new one
 DEVDOCKER_ID="$(docker ps | grep devdocker | head -n 1 | awk '{print $1}')"
-echo "$DEVDOCKER_ID" 
 if [ "$DEVDOCKER_ID" == "" ]; then
     DEVDOCKER_ID="$(docker run -d -i -p 80:80 \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
