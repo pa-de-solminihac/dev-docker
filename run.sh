@@ -68,6 +68,8 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         devdocker)"
     echo "Attaching to freshly started container $DEVDOCKER_ID"
 else
+    # get latest image from local repository
+    docker pull quai2.quai13.com:5000/devdocker
     echo "Attaching to already running container $DEVDOCKER_ID"
 fi
 docker exec -i -t "$DEVDOCKER_ID" bash
