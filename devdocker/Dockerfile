@@ -109,6 +109,11 @@ RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cl
 # cleanup
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 
+# fix docker exec -t
+RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /root/.bashrc && \
+    echo '    export TERM=xterm' >> /root/.bashrc && \
+    echo 'fi' >> /root/.bashrc
+
 # cd /var/www/html at startup
 RUN echo 'cd /var/www/html' >> /root/.bashrc
 
