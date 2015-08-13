@@ -56,7 +56,7 @@ if [ ! -d "$SSH_DIR" ]; then
 fi
 
 # attach to running container if possible, or spawn a new one
-DEVDOCKER_ID="$(docker ps | grep '\<devdocker\>' | head -n 1 | awk '{print $1}')"
+DEVDOCKER_ID="$(docker ps | grep '\<quai2.quai13.com:5000/devdocker\>' | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     DEVDOCKER_ID="$(docker run -d -i -p 80:80 \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
@@ -65,7 +65,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/vhosts:/etc/apache2/vhosts" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
-        devdocker)"
+        quai2.quai13.com:5000/devdocker)"
     echo "Attaching to freshly started container $DEVDOCKER_ID"
 else
     # get latest image from local repository
