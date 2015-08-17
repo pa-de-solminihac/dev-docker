@@ -15,6 +15,7 @@ EOF
 }
 
 # chargement du fichier de config
+source $BASE_PATH/inc/base-config
 if [ ! -f "$BASE_PATH/etc/config" ]; then
     cat <<EOF
     Fichier de configuration non trouvé.
@@ -59,7 +60,7 @@ fi
 DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
-    docker pull $DEVDOCKER_IMAGE
+    docker pull "$DEVDOCKER_IMAGE"
     DEVDOCKER_ID="$(docker run -d -i -p 80:80 \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
@@ -67,7 +68,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/vhosts:/etc/apache2/vhosts" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
-        $DEVDOCKER_IMAGE)"
+        "$DEVDOCKER_IMAGE")"
     echo "Attaching to freshly started container $DEVDOCKER_ID"
 else
     echo "Attaching to already running container $DEVDOCKER_ID"

@@ -53,7 +53,7 @@ Puis réglez les variables selon votre installation.
 
 ## Lancer les services
 ```bash
-./run.sh
+./start.sh
 ```
 
 ## Couper les services

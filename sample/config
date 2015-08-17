@@ -1,5 +1,5 @@
 # chemins
 DEVDOCKER_IMAGE="quai2.quai13.com:5000/devdocker"
 DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite"
-SSH_DIR="$HOME/.ssh" # defaults to "$HOME/.ssh"
+SSH_DIR="$HOME/.ssh" # Note that if you need to sudo, $HOME will be /root/
 
