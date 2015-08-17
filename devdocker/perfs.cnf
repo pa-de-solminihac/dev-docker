@@ -1,0 +1,34 @@
+[mysqld]
+# MODIF PA : optimisation des performances
+
+# limitations arbitraires sur le nombre de connexions
+max_connections = 20
+back_log = 5
+
+# Cache
+query_cache_limit               = 8M
+query_cache_size                = 128M
+query_cache_type                = 1
+
+# Cache tables
+table_cache                     = 4096
+table_open_cache                = 4096
+table_definition_cache          = 4096
+
+# Buffers
+max_allowed_packet              = 32M
+max_heap_table_size             = 64M
+tmp_table_size                  = 64M
+thread_stack                    = 256K
+thread_cache_size               = 8
+key_buffer_size                 = 128M
+join_buffer_size                = 32M
+sort_buffer_size                = 4M
+read_rnd_buffer_size            = 1M
+
+# InnoDB
+innodb_file_per_table
+innodb_log_file_size            = 32M
+innodb_buffer_pool_size         = 768M
+innodb_additional_mem_pool_size = 16M
+innodb_thread_concurrency       = 4
