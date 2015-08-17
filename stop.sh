@@ -1,2 +1,15 @@
 #!/usr/bin/env bash
-docker stop $(docker ps | grep '\<quai2.quai13.com:5000/devdocker\>' | awk '{print $1}')
+
+BASE_PATH="$(dirname "$0")"
+
+# chargement du fichier de config
+if [ ! -f "$BASE_PATH/etc/config" ]; then
+    cat <<EOF
+    Fichier de configuration non trouvé.
+EOF
+    exit
+else
+    source $BASE_PATH/etc/config
+fi
+
+docker stop $(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | awk '{print $1}')

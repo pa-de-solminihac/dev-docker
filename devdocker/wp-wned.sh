@@ -159,7 +159,7 @@ fi
 
 # look for PHP files containing very long strings
 REGEXP_TOO_LONG='[^ :]\{255\}[^ :]\{255\}[^ :]\{255\}'
-SUBCOMMAND_TOO_LONG="EXCERPT=\"\$($CUT -c 1-1534 '%' | $CUT -c 768-1534 | $GREP -v '^$')\"; echo \"%:\$EXCERPT\"; "
+SUBCOMMAND_TOO_LONG="EXCERPT=\"\$($CUT -c 5000-5200 '%' | $GREP -v '^$')\"; echo \"%:\$EXCERPT\"; "
 MATCHES_LONG="$(echo "$PHP_FILES_LIST" | xargs -I % sh -c "$SUBCOMMAND_TOO_LONG" 2>&1 \
     | $GREP -v ': No such file or directory$' \
     | $GREP -v '\.php:$' \

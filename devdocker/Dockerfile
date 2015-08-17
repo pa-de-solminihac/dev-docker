@@ -69,6 +69,7 @@ RUN sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/ma
 RUN sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf
 RUN sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf
 RUN sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
+COPY perfs.cnf /etc/mysql/conf.d/
 
 # more workaround for write permission
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
