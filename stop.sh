@@ -14,4 +14,9 @@ else
 fi
 
 DEVDOCKER_IDS="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | awk '{print $1}')"
-docker stop "$DEVDOCKER_IDS"
+if [ "$DEVDOCKER_IDS" == "" ]; then
+    echo "No running devdocker containers"
+else
+    echo "Stopping running devdocker containers"
+    docker stop "$DEVDOCKER_IDS"
+fi

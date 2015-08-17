@@ -60,7 +60,7 @@ fi
 DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
-    docker pull "$DEVDOCKER_IMAGE"
+    docker pull "$DEVDOCKER_IMAGE" | grep "^Status: "
     DEVDOCKER_ID="$(docker run -d -i -p 80:80 \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
