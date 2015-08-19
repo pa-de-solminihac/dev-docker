@@ -118,8 +118,9 @@ RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /root/.bashrc && \
 # cd /var/www/html at startup
 RUN echo 'cd /var/www/html' >> /root/.bashrc
 
-# expose port 80
+# expose ports
 EXPOSE 80
+EXPOSE 3306
 
 # caution: CMD works ok with double quotes (") but not with single quotes (')
 COPY run.sh /run.sh
