@@ -29,13 +29,13 @@ else
 fi
 
 # run boot2docker if necessary
-BOOT2DOCKER="$(which boot2docker 2>/dev/null)"
-if [ -x "$BOOT2DOCKER" ];
-then
-    if [ "$(boot2docker status)" != "running" ]; then
-        ./boot2docker_start.sh
-    fi
-fi
+#BOOT2DOCKER="$(which boot2docker 2>/dev/null)"
+#if [ -x "$BOOT2DOCKER" ];
+#then
+#    if [ "$(boot2docker status)" != "running" ]; then
+#        ./boot2docker_start.sh
+#    fi
+#fi
 
 # check parameters
 if [ "$DOCKERSITE_ROOT" == "" ]; then
@@ -61,7 +61,7 @@ DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{prin
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
     docker pull "$DEVDOCKER_IMAGE" | grep "^Status: "
-    DEVDOCKER_ID="$(docker run -d -i -p 80:80 \
+    DEVDOCKER_ID="$(docker run -d -i -p 80:80 -p 3306:3306 \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
