@@ -21,7 +21,9 @@ else
 fi
 
 # setting environment variables
-eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+DOCKER_ENV_VARS="$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+eval "$DOCKER_ENV_VARS"
+echo "$DOCKER_ENV_VARS"
 
 # allowing local repository if necessary
 $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"quai2.quai13.com:5000\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry quai2.quai13.com:5000/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
