@@ -6,7 +6,19 @@ if [ ! -d /var/lib/mysql/mysql ]; then
     mysql_install_db
 fi
 
-exec mysqld_safe &
+# force root password and open to outside
+echo "" > /mysql-force-password.sql && \
+    chown mysql:mysql /mysql-force-password.sql && \
+    chmod 400 /mysql-force-password.sql && \
+    echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION; " >> /mysql-force-password.sql && \
+    echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION; " >> /mysql-force-password.sql && \
+    echo "FLUSH PRIVILEGES; " >> /mysql-force-password.sql
+echo "" > /root/.my.cnf && \
+    chmod 400 /root/.my.cnf && \
+    echo "[client]" > /root/.my.cnf && \
+    echo "password=$MYSQL_ROOT_PASSWORD" >> /root/.my.cnf && \
+
+exec mysqld_safe --init-file=/mysql-force-password.sql &
 
 # wait for mysqld_safe startup and install phpmyadmin database if necessary
 if [ ! -d /var/lib/mysql/phpmyadmin ]; then

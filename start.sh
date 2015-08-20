@@ -61,7 +61,11 @@ DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{prin
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
     docker pull "$DEVDOCKER_IMAGE" | grep "^Status: "
-    DEVDOCKER_ID="$(docker run -d -i -p 80:80 -p 3306:3306 \
+    DEVDOCKER_ID="$(docker run -d -i \
+        -p 80:80 \
+        -p 443:443 \
+        -p 3306:3306 \
+        -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \

@@ -62,6 +62,7 @@ RUN usermod -G staff mysql
 
 # install and config mysql (mariadb)
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server
+RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf
 RUN sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf
 RUN sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf
 RUN sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf
@@ -120,6 +121,7 @@ RUN echo 'cd /var/www/html' >> /root/.bashrc
 
 # expose ports
 EXPOSE 80
+EXPOSE 443
 EXPOSE 3306
 
 # caution: CMD works ok with double quotes (") but not with single quotes (')
