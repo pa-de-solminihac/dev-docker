@@ -53,7 +53,7 @@ RUN sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
 RUN sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php
 RUN sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php
-RUN sed -i "s/^\$dbpass='.*';/\$dbpass='';/g" /etc/phpmyadmin/config-db.php
+RUN sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php
 
 # workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
