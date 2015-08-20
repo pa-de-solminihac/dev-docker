@@ -1,0 +1,32 @@
+# chargement du fichier de config
+source $BASE_PATH/inc/base-config
+if [ ! -f "$BASE_PATH/etc/config" ]; then
+    cat <<EOF
+    Fichier de configuration non trouvé.
+    Vous devez créer un fichier etc/config
+
+    cp sample/config etc/config
+EOF
+    exit
+else
+    source $BASE_PATH/etc/config
+fi
+
+# check parameters
+if [ "$DOCKERSITE_ROOT" == "" ]; then
+    echo
+    echo "Error: missing DOCKERSITE_ROOT value or not pointing to a directory $DOCKERSITE_ROOT"
+    #usage
+    exit
+fi
+
+if [ "$SSH_DIR" == "" ]; then
+    SSH_DIR="$HOME/.ssh"
+fi
+
+if [ ! -d "$SSH_DIR" ]; then
+    echo
+    echo "Error: missing SSH_DIR value or not pointing to a directory $SSH_DIR"
+    #usage
+    exit
+fi

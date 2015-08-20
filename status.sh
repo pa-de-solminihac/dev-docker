@@ -7,20 +7,19 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE" ];
 then
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
-        echo "Already stopped"
+        echo "Docker VM is not running ($DEVDOCKER_VM)"
         exit
     fi
+    echo "Docker VM is running ($DEVDOCKER_VM)"
     # setting environment variables
     eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
 fi
 
-DEVDOCKER_IDS="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | awk '{print $1}')"
-if [ "$DEVDOCKER_IDS" == "" ]; then
-    echo "No running devdocker containers"
-else
-    echo "Stopping running devdocker containers"
-    docker stop "$DEVDOCKER_IDS"
-    echo
-    echo "You can stop docker VM if necessary:"
-    echo "./vm-stop.sh"
+DEVDOCKER_CONTAINERS="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>")"
+if [ "$DEVDOCKER_CONTAINERS" == "" ]; then
+    echo "All devdocker containers stopped"
+    exit
 fi
+echo "Devdocker containers running:"
+docker ps | head -n 1
+echo "$DEVDOCKER_CONTAINERS"

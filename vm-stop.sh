@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
-echo "Stopping docker VM"
-DOCKERMACHINE="$(which docker-machine 2>/dev/null)"
-$DOCKERMACHINE --native-ssh stop $DEVDOCKER_VM
+
+BASE_PATH="$(dirname "$0")"
+source $BASE_PATH/inc/init
+
+# checking if docker VM is running ($DEVDOCKER_VM)
+if [ -x "$DOCKERMACHINE" ];
+then
+    if [ "$( $DOCKERMACHINE --native-ssh status $DEVDOCKER_VM )" != "Running" ]; then
+        echo "VM is not running"
+        exit
+    fi
+    echo "Stopping docker VM (and all containers)"
+    $DOCKERMACHINE --native-ssh stop $DEVDOCKER_VM
+fi
