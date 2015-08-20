@@ -28,14 +28,14 @@ else
     source $BASE_PATH/etc/config
 fi
 
-# run boot2docker if necessary
-#BOOT2DOCKER="$(which boot2docker 2>/dev/null)"
-#if [ -x "$BOOT2DOCKER" ];
-#then
-#    if [ "$(boot2docker status)" != "running" ]; then
-#        ./boot2docker_start.sh
-#    fi
-#fi
+# run docker-machine VM if necessary
+DOCKERMACHINE="$(which docker-machine 2>/dev/null)"
+if [ -x "$DOCKERMACHINE" ];
+then
+    if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
+        ./vm-start.sh
+    fi
+fi
 
 # check parameters
 if [ "$DOCKERSITE_ROOT" == "" ]; then
@@ -65,7 +65,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -p 80:80 \
         -p 443:443 \
         -p 3306:3306 \
-        -e "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
+        -e "MYSQL_FORCED_ROOT_PASSWORD=$MYSQL_FORCED_ROOT_PASSWORD" \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \

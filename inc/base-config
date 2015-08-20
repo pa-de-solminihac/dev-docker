@@ -1,6 +1,7 @@
 # config default values
+DEVDOCKER_VM="devdockervm"
 DEVDOCKER_IMAGE="quai2.quai13.com:5000/devdocker"
 DOCKERSITE_ROOT="$HOME/dev-docker/dockersite"
 SSH_DIR="$HOME/.ssh"
-MYSQL_ROOT_PASSWORD=""
+MYSQL_FORCED_ROOT_PASSWORD=""
 

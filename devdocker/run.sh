@@ -11,13 +11,13 @@ echo "" > /mysql-force-password.sql && \
     chown mysql:mysql /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
     echo "USE mysql; " >> /mysql-force-password.sql && \
-    echo "UPDATE user SET password=PASSWORD('$MYSQL_ROOT_PASSWORD') where User='root'; " >> /mysql-force-password.sql && \
+    echo "UPDATE user SET password=PASSWORD('$MYSQL_FORCED_ROOT_PASSWORD') where User='root'; " >> /mysql-force-password.sql && \
     echo "FLUSH PRIVILEGES; " >> /mysql-force-password.sql
 echo "" > /root/.my.cnf && \
     chmod 400 /root/.my.cnf && \
     echo "[client]" > /root/.my.cnf && \
     echo "host=127.0.0.1" >> /root/.my.cnf && \
-    echo "password=$MYSQL_ROOT_PASSWORD" >> /root/.my.cnf && \
+    echo "password=$MYSQL_FORCED_ROOT_PASSWORD" >> /root/.my.cnf && \
     exec mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
 mysqld_process_pid=""

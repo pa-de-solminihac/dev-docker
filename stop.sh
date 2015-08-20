@@ -19,4 +19,7 @@ if [ "$DEVDOCKER_IDS" == "" ]; then
 else
     echo "Stopping running devdocker containers"
     docker stop "$DEVDOCKER_IDS"
+    echo
+    echo "You can stop docker VM if necessary:"
+    echo "./vm-stop.sh"
 fi
