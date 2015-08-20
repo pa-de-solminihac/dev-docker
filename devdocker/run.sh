@@ -11,7 +11,7 @@ echo "" > /mysql-force-password.sql && \
     chown mysql:mysql /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
     echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION; " >> /mysql-force-password.sql && \
-    echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION; " >> /mysql-force-password.sql && \
+    echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD' WITH GRANT OPTION; " >> /mysql-force-password.sql && \
     echo "FLUSH PRIVILEGES; " >> /mysql-force-password.sql
 echo "" > /root/.my.cnf && \
     chmod 400 /root/.my.cnf && \
