@@ -16,6 +16,7 @@ echo "" > /mysql-force-password.sql && \
 echo "" > /root/.my.cnf && \
     chmod 400 /root/.my.cnf && \
     echo "[client]" > /root/.my.cnf && \
+    echo "host=127.0.0.1" >> /root/.my.cnf && \
     echo "password=$MYSQL_ROOT_PASSWORD" >> /root/.my.cnf && \
     exec mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
