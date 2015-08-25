@@ -10,12 +10,12 @@ if [ ! -x "$DOCKERMACHINE" ]; then
     exit
 fi
 
-echo "Starting docker VM \"$DEVDOCKER_VM\""
+echo "Starting Docker VM: $DEVDOCKER_VM"
 if [ "$($DOCKERMACHINE --native-ssh ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; then
     $DOCKERMACHINE --native-ssh start $DEVDOCKER_VM > /dev/null
 else
     echo
-    echo "VM does not exist, maybe you should create it first: "
+    echo "Docker VM does not exist, maybe you should create it first:"
     echo "$DOCKERMACHINE --native-ssh create -d virtualbox \"$DEVDOCKER_VM\""
     exit
 fi
@@ -29,5 +29,5 @@ echo "$DOCKER_ENV_VARS"
 $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"quai2.quai13.com:5000\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry quai2.quai13.com:5000/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
 
 echo
-echo "Your VM is up and running with IP:"
+echo "Docker VM running: $DEVDOCKER_VM"
 $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM

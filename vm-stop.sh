@@ -7,9 +7,9 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE" ];
 then
     if [ "$( $DOCKERMACHINE --native-ssh status $DEVDOCKER_VM )" != "Running" ]; then
-        echo "VM is not running"
+        echo "Docker VM is not running"
         exit
     fi
-    echo "Stopping docker VM (and all containers)"
+    echo "Stopping Docker VM (and all containers)"
     $DOCKERMACHINE --native-ssh stop $DEVDOCKER_VM
 fi

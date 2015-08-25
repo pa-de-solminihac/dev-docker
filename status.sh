@@ -7,12 +7,14 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE" ];
 then
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
-        echo "Docker VM is not running ($DEVDOCKER_VM)"
+        echo "Docker VM is not running: $DEVDOCKER_VM"
         exit
     fi
-    echo "Docker VM is running ($DEVDOCKER_VM)"
+    echo "Docker VM is running: $DEVDOCKER_VM"
+    $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM
     # setting environment variables
     eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+    echo
 fi
 
 DEVDOCKER_CONTAINERS="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>")"
