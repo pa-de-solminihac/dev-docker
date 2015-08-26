@@ -11,7 +11,11 @@ echo "" > /mysql-force-password.sql && \
     chown mysql:mysql /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
     echo "USE mysql; " >> /mysql-force-password.sql && \
-    echo "UPDATE user SET password=PASSWORD('$MYSQL_FORCED_ROOT_PASSWORD') where User='root'; " >> /mysql-force-password.sql && \
+    echo "CREATE TEMPORARY TABLE devdocker_tmp ENGINE=MyISAM SELECT * FROM user WHERE User='root' LIMIT 1; " >> /mysql-force-password.sql && \
+    echo "UPDATE devdocker_tmp SET Host='%'; " >> /mysql-force-password.sql && \
+    echo "REPLACE INTO user SELECT * FROM devdocker_tmp; " >> /mysql-force-password.sql && \
+    echo "DROP TABLE devdocker_tmp; " >> /mysql-force-password.sql && \
+    echo "UPDATE user SET Password=PASSWORD('$MYSQL_FORCED_ROOT_PASSWORD') WHERE User='root'; " >> /mysql-force-password.sql && \
     echo "FLUSH PRIVILEGES; " >> /mysql-force-password.sql
 echo "" > /root/.my.cnf && \
     chmod 400 /root/.my.cnf && \
