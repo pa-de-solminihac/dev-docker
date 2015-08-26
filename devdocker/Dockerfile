@@ -23,6 +23,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     phpmyadmin \
     manpages
 
+# timezone
+ENV TZ=Europe/Paris
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # logs directory
 RUN mkdir -p /var/log/dockersite
 RUN chmod 777 /var/log/dockersite
