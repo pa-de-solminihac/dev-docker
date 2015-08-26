@@ -20,7 +20,9 @@ DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{prin
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
     echo
-    docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$'
+    if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
+        docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$'
+    fi
     DEVDOCKER_ID="$(docker run -d -i \
         -p 80:80 \
         -p 443:443 \

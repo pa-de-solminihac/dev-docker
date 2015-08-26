@@ -1,6 +1,7 @@
 # chemins
 DEVDOCKER_VM="devdockervm"
 DEVDOCKER_IMAGE="quai2.quai13.com:5000/devdocker"
+DEVDOCKER_AUTOUPDATE="1"
 DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite"
 SSH_DIR="$HOME/.ssh" # Note that if you need to sudo, $HOME will be /root/
 MYSQL_FORCED_ROOT_PASSWORD=""
