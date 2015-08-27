@@ -44,16 +44,19 @@ fi
 # attach to container using SSH
 # port forwarding reserved ports thanks to ssh
 echo
-echo "Sudoing in order to setup port forwarding (may ask for your root password)"
-sudo echo -n # ask for root password only once
 docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh
 # allow user's own public key
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
 docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /root/.ssh/authorized_keys"
-# stop currently running port forwarding
-sudo kill "$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')" > /dev/null 2>&1
-# start new port forwarding and connect through ssh
-sudo $SSH_PORT_FW_CMD -N &
+echo "Sudoing in order to setup port forwarding (may ask for your root password)"
+sudo echo -n # ask for root password only once
+if [ -x "$DOCKERMACHINE" ];
+then
+    # stop currently running port forwarding
+    sudo kill "$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')" > /dev/null 2>&1
+    # start new port forwarding and connect through ssh
+    sudo $SSH_PORT_FW_CMD -N &
+fi
 sudo $SSH_CMD
 
