@@ -13,7 +13,8 @@ else
 fi
 
 # commands based on config values
-SSH_CMD="ssh -i $SSH_PUBKEY -q -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlMaster=yes root@127.0.0.1"
+SSH_PUBKEY="$SSH_PRIVKEY.pub"
+SSH_CMD="ssh -i $SSH_PRIVKEY -q -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlMaster=yes root@127.0.0.1"
 SSH_PORT_FW_CMD="$SSH_CMD -L 80:127.0.0.1:80 -L 443:127.0.0.1:443 -L 3306:127.0.0.1:3306"
 
 # check parameters

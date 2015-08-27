@@ -5,5 +5,4 @@ DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
 DEVDOCKER_AUTOUPDATE="1"
 DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite"
 SSH_DIR="$HOME/.ssh" # note that if you need to sudo, $HOME will be /root/
-SSH_PUBKEY="$SSH_DIR/id_rsa.pub"
 MYSQL_FORCED_ROOT_PASSWORD="" # if left empty, a different random mysql root password will be forced at every startup
