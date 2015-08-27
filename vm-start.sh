@@ -21,28 +21,22 @@ else
 fi
 
 # setting environment variables
-DOCKER_ENV_VARS="$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+DOCKER_ENV_VARS_CMD="$DOCKERMACHINE --native-ssh env $DEVDOCKER_VM"
+DOCKER_ENV_VARS="$($DOCKER_ENV_VARS_CMD)"
 eval "$DOCKER_ENV_VARS"
-echo "$DOCKER_ENV_VARS"
+echo "# Run this command to configure your shell:"
+echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
 
 # allowing local repository if necessary
-$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"quai2.quai13.com:5000\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry quai2.quai13.com:5000/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
+$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry $DEVDOCKER_REPOSITORY/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
 
 echo
 echo "Docker VM running: $DEVDOCKER_VM"
 $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM
 
 # recreate port forwarding rules
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-80" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-80" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-443" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-443" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-3306" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-3306" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-80,tcp,,80,,80"
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-80,udp,,80,,80"
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-443,tcp,,443,,443"
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-443,udp,,443,,443"
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-3306,tcp,,3306,,3306"
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-3306,udp,,3306,,3306"
-
+VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1
+VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1
+VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-8022,tcp,,8022,,8022"
+VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-8022,udp,,8022,,8022"
+# other port forwarding now use sudoed SSH connection so that we don't need to sudo virtualbox

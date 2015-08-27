@@ -18,7 +18,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     grep ack-grep \
     git \
     mariadb-client \
-    openssh-client rsync \
+    openssh-server openssh-client rsync \
     lynx curl wget \
     phpmyadmin \
     manpages
@@ -41,6 +41,8 @@ RUN echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf
 RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
 RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
 RUN sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars
+RUN sed -i "s/Listen 80/Listen 0.0.0.0:80/g" /etc/apache2/ports.conf
+RUN sed -i "s/Listen 443/Listen 0.0.0.0:443/g" /etc/apache2/ports.conf
 COPY 000-default.conf /etc/apache2/sites-enabled/
 
 # config php
@@ -81,8 +83,13 @@ RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /e
 RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
 RUN chgrp mysql /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
+# ssh
+RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config
+RUN sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 # copy your readonly mounted ssh keys and config everytime you login
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo "cp -f /root/.ssh-readonly/* /root/.ssh/ 2>/dev/null" >> /root/.bashrc
+COPY copy-ssh-config.sh /
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
+#RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo "/copy-ssh-config.sh" >> /root/.bashrc
 
 # install sitesync
 WORKDIR /
@@ -124,6 +131,7 @@ RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /root/.bashrc && \
 RUN echo 'cd /var/www/html' >> /root/.bashrc
 
 # expose ports
+EXPOSE 8022
 EXPOSE 80
 EXPOSE 443
 EXPOSE 3306
@@ -132,4 +140,3 @@ EXPOSE 3306
 COPY run.sh /run.sh
 RUN chmod 755 /run.sh
 CMD ["/run.sh"]
-

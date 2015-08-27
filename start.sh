@@ -13,17 +13,18 @@ then
     # setting environment variables
     eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
     #env | grep DOCKER
+    echo
 fi
 
 # attach to running container if possible, or spawn a new one
 DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
-    echo
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
         docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$'
     fi
     DEVDOCKER_ID="$(docker run -d -i \
+        -p 8022:8022 \
         -p 80:80 \
         -p 443:443 \
         -p 3306:3306 \
@@ -39,4 +40,20 @@ if [ "$DEVDOCKER_ID" == "" ]; then
 else
     echo "Attaching to already running container $DEVDOCKER_ID"
 fi
-docker exec -i -t "$DEVDOCKER_ID" bash
+
+# attach to container using SSH
+# port forwarding reserved ports thanks to ssh
+echo
+echo "Sudoing in order to setup port forwarding (may ask for your root password)"
+sudo echo -n # ask for root password only once
+docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh
+# allow user's own public key
+PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
+PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
+docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /root/.ssh/authorized_keys"
+# stop currently running port forwarding
+sudo kill "$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')" > /dev/null 2>&1
+# start new port forwarding and connect through ssh
+sudo $SSH_PORT_FW_CMD -N &
+sudo $SSH_CMD
+

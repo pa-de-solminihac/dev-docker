@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# start ssh
+/etc/init.d/ssh start
+
 # start mysql avec initialisation de la BD si necessaire
 if [ ! -d /var/lib/mysql/mysql ]; then
     echo "Initializing mysql database"

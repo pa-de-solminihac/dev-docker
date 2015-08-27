@@ -15,9 +15,9 @@ then
     #env | grep DOCKER
 fi
 
-docker build $@ -f devdocker/Dockerfile -t quai2.quai13.com:5000/devdocker:latest devdocker
+docker build $@ -f devdocker/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker
 cat <<EOL
 Now you can tag and push the image:
-    docker push quai2.quai13.com:5000/devdocker
+    docker push $DEVDOCKER_IMAGE
 EOL
 
