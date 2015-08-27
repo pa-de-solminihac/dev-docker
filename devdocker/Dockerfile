@@ -119,6 +119,10 @@ RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cl
     chmod +x wp-cli.phar && \
     mv wp-cli.phar wp
 
+# hosts
+WORKDIR /etc
+RUN cp -p hosts hosts.ori
+
 # cleanup
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 

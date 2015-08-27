@@ -32,7 +32,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
-        -v "$DOCKERSITE_ROOT/vhosts:/etc/apache2/vhosts" \
+        -v "$DOCKERSITE_ROOT/vhosts:/etc/apache2/dockersite-vhosts" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
         "$DEVDOCKER_IMAGE")"
@@ -40,6 +40,10 @@ if [ "$DEVDOCKER_ID" == "" ]; then
 else
     echo "Attaching to already running container $DEVDOCKER_ID"
 fi
+
+# copy /etc/hosts at every startup
+ETC_HOSTS="$(cat /etc/hosts)"
+docker exec "$DEVDOCKER_ID" sh -c "cat /etc/hosts.ori > /etc/hosts && echo \"$ETC_HOSTS\" >> /etc/hosts"
 
 # attach to container using SSH
 # port forwarding reserved ports thanks to ssh
