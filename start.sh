@@ -56,11 +56,12 @@ docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorize
 echo "Sudoing in order to setup port forwarding (may ask for your root password)"
 sudo echo -n # ask for root password only once
 # allow sudo to use ssh keys
-sudo echo "Defaults    env_keep+=SSH_AUTH_SOCK" > /etc/sudoers.d/devdocker
-sudo chmod 440 /etc/sudoers.d/devdocker
+if [ -d "/etc/sudoers.d" ]; then
+    sudo echo "Defaults    env_keep+=SSH_AUTH_SOCK" > /etc/sudoers.d/devdocker
+    sudo chmod 440 /etc/sudoers.d/devdocker
+fi
 # forwarding ports only if VM is in use
-if [ -x "$DOCKERMACHINE" ];
-then
+if [ -x "$DOCKERMACHINE" ]; then
     # stop currently running port forwarding
     sudo kill "$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')" > /dev/null 2>&1
     # start new port forwarding and connect through ssh
