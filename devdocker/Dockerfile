@@ -28,64 +28,64 @@ ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # logs directory
-RUN mkdir -p /var/log/dockersite
-RUN chmod 777 /var/log/dockersite
+RUN mkdir -p /var/log/dockersite && \
+    chmod 777 /var/log/dockersite
 
 # config apache
-RUN a2enmod rewrite
-RUN a2enmod headers
-RUN a2enmod expires
-RUN a2enmod ssl
-RUN mkdir -p /etc/apache2/dockersite-vhosts
-RUN echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf
-RUN echo "Servername localhost" >> /etc/apache2/apache2.conf
-RUN sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf
-RUN sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars
-RUN sed -i "s/Listen 80/Listen 0.0.0.0:80/g" /etc/apache2/ports.conf
-RUN sed -i "s/Listen 443/Listen 0.0.0.0:443/g" /etc/apache2/ports.conf
+RUN a2enmod rewrite && \
+    a2enmod headers && \
+    a2enmod expires && \
+    a2enmod ssl && \
+    mkdir -p /etc/apache2/dockersite-vhosts && \
+    echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf && \
+    echo "Servername localhost" >> /etc/apache2/apache2.conf && \
+    sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf && \
+    sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars && \
+    sed -i "s/Listen 80/Listen 0.0.0.0:80/g" /etc/apache2/ports.conf && \
+    sed -i "s/Listen 443/Listen 0.0.0.0:443/g" /etc/apache2/ports.conf
 COPY 000-default.conf /etc/apache2/sites-enabled/
 
 # config php
-RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini
-RUN sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini
+RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini && \
+    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini
 
 # config phpmyadmin
-RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
-RUN sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php
-RUN sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php
-RUN sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_FORCED_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php
+RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
+    sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php && \
+    sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php && \
+    sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_FORCED_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php
 
 # workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
-RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 1000
-RUN usermod -G staff mysql
+RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 1000 && \
+    usermod -G staff mysql
 
 # install and config mysql (mariadb)
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server
-RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf
-RUN sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf
-RUN sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf
-RUN sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf
-RUN sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf
-RUN sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf
-RUN sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf
-RUN sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server && \
+    sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
+    sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
+    sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
+    sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf && \
+    sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf && \
+    sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf && \
+    sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf && \
+    sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
 COPY perfs.cnf /etc/mysql/conf.d/
 
 # more workaround for write permission
-RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars
-RUN sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars
-RUN chgrp mysql /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
+RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars && \
+    sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars && \
+    chgrp mysql /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
 # ssh
-RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config
-RUN sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
+RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config && \
+    sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 # copy your readonly mounted ssh keys and config everytime you login
 COPY copy-ssh-config.sh /
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
