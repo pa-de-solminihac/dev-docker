@@ -20,15 +20,19 @@ else
     exit
 fi
 
-# setting environment variables
+# set environment variables
 DOCKER_ENV_VARS_CMD="$DOCKERMACHINE --native-ssh env $DEVDOCKER_VM"
 DOCKER_ENV_VARS="$($DOCKER_ENV_VARS_CMD)"
 eval "$DOCKER_ENV_VARS"
 echo "# Run this command to configure your shell:"
 echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
 
-# allowing local repository if necessary
+# allow local repository if necessary
 $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry $DEVDOCKER_REPOSITORY/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
+
+# mount $HOME/dev through nfs
+# needs this in /etc/exports: /Users/pa/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
+#$DOCKERMACHINE --native-ssh $DEVDOCKER_VM "sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev"
 
 echo
 echo "Docker VM running: $DEVDOCKER_VM"
