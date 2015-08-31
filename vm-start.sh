@@ -16,7 +16,7 @@ if [ "$($DOCKERMACHINE --native-ssh ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOC
 else
     echo
     echo "Docker VM does not exist, maybe you should create it first:"
-    echo "$DOCKERMACHINE --native-ssh create -d virtualbox \"$DEVDOCKER_VM\""
+    echo "$DOCKERMACHINE --native-ssh create -d virtualbox --virtualbox-memory 2048 --virtualbox-no-share \"$DEVDOCKER_VM\""
     exit
 fi
 

@@ -53,13 +53,15 @@ docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
 docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /root/.ssh/authorized_keys"
-echo "Sudoing in order to setup port forwarding (may ask for your root password)"
-# forwarding ports only if VM is in use
+# forwarding ports only if VM is in use and ports are not already forwarded
 if [ -x "$DOCKERMACHINE" ]; then
-    sudo echo -n # ask for root password only once
-    # stop currently running port forwarding
-    sudo kill "$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')" > /dev/null 2>&1
-    # start new port forwarding and connect through ssh
-    sudo $SSH_PORT_FW_CMD -N &
+    PORT_FW_PID="$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')";
+    if [ "$PORT_FW_PID" == "" ]; then
+        echo "Forwarding ports using SSH (may ask for your root password)"
+        # start new port forwarding and connect through ssh
+        sudo $SSH_PORT_FW_CMD -N &
+    else
+        echo "Ports are already forwarded using SSH"
+    fi
 fi
 $SSH_CMD

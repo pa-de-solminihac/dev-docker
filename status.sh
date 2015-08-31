@@ -18,3 +18,9 @@ fi
 echo "Devdocker containers running:"
 docker ps | head -n 1
 echo "$DEVDOCKER_CONTAINERS"
+
+echo
+PORT_FW_PID="$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')";
+if [ "$PORT_FW_PID" != "" ]; then
+    echo "Ports are forwarded using SSH"
+fi
