@@ -9,11 +9,11 @@ then
     # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
         . ./vm-start.sh
+        echo
     fi
     # setting environment variables
     eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
     #env | grep DOCKER
-    echo
 fi
 
 # attach to running container if possible, or spawn a new one
@@ -36,9 +36,15 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
         "$DEVDOCKER_IMAGE")"
-    echo "Attaching to freshly started container $DEVDOCKER_ID"
+    echo -ne "\033$TERM_COLOR_GREEN"
+    echo "Attaching to freshly started container: "
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo $DEVDOCKER_ID
 else
-    echo "Attaching to already running container $DEVDOCKER_ID"
+    echo -ne "\033$TERM_COLOR_YELLOW"
+    echo "Attaching to already running container: "
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo $DEVDOCKER_ID
 fi
 
 # copy /etc/hosts at every startup
@@ -57,12 +63,16 @@ docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorize
 if [ -x "$DOCKERMACHINE" ]; then
     PORT_FW_PID="$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')";
     if [ "$PORT_FW_PID" == "" ]; then
+        echo -ne "\033$TERM_COLOR_GREEN"
         echo "Forwarding ports using SSH (may ask for your root password)"
+        echo -ne "\033$TERM_COLOR_NORMAL"
         sudo echo -n # ask for root password only once
         # start new port forwarding and connect through ssh
-        sudo $SSH_PORT_FW_CMD -N &
+        sudo $SSH_PORT_FW_CMD -N > /dev/null 2>&1 &
     else
+        echo -ne "\033$TERM_COLOR_YELLOW"
         echo "Ports are already forwarded using SSH"
+        echo -ne "\033$TERM_COLOR_NORMAL"
     fi
 fi
 $SSH_CMD
