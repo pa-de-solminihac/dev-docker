@@ -40,7 +40,12 @@ $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\
 
 # mount $HOME/dev through nfs
 # needs this in /etc/exports: /Users/pa/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
-$DOCKERMACHINE --native-ssh $DEVDOCKER_VM "sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev"
+echo
+echo -ne "\033$TERM_COLOR_GREEN"
+echo -ne "Mounting NFS share: "
+echo -ne "\033$TERM_COLOR_NORMAL"
+echo "$HOME/dev"
+$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q nfs || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed'"
 
 echo
 echo -ne "\033$TERM_COLOR_GREEN"
