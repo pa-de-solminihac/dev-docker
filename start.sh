@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+set -e -o pipefail -o errtrace -o functrace
+trap 'err_handler $?' ERR
+
+err_handler() {
+    trap - ERR
+    let i=0 exit_status=$1
+    echo "Aborting on error $exit_status:"
+    echo "--------------------"
+    while caller $i; do ((i++)); done
+    exit $?
+}
 
 BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
@@ -7,7 +18,7 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE" ];
 then
     # ask for root password as early as possible
-    PORT_FW_PID="$(ps auwx | grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" | awk '{print $2}')";
+    PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" || true) | grep -v "grep\|sudo" | awk '{print $2}')";
     if [ "$PORT_FW_PID" == "" ]; then
         sudo echo -n # ask for root password only once
     fi
@@ -22,7 +33,7 @@ then
 fi
 
 # attach to running container if possible, or spawn a new one
-DEVDOCKER_ID="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>" | head -n 1 | awk '{print $1}')"
+DEVDOCKER_ID="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
