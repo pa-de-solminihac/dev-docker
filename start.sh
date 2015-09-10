@@ -1,24 +1,12 @@
 #!/usr/bin/env bash
-set -e -o pipefail -o errtrace -o functrace
-trap 'err_handler $?' ERR
-
-err_handler() {
-    trap - ERR
-    let i=0 exit_status=$1
-    echo "Aborting on error $exit_status:"
-    echo "--------------------"
-    while caller $i; do ((i++)); done
-    exit $?
-}
 
 BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
-if [ -x "$DOCKERMACHINE" ];
-then
+if [ -x "$DOCKERMACHINE" ]; then
     # ask for root password as early as possible
-    PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" || true) | grep -v "grep\|sudo" | awk '{print $2}')";
+    PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v "grep\|sudo" || true)  | awk '{print $2}')";
     if [ "$PORT_FW_PID" == "" ]; then
         sudo echo -n # ask for root password only once
     fi
@@ -70,7 +58,7 @@ docker exec "$DEVDOCKER_ID" sh -c "cat /etc/hosts.ori > /etc/hosts && echo \"$ET
 # attach to container using SSH
 # port forwarding reserved ports thanks to ssh
 echo
-docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh
+docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh || true
 # allow user's own public key
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"

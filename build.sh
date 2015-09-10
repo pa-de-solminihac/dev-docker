@@ -5,7 +5,6 @@ source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
 if [ -x "$DOCKERMACHINE" ]; then
-    # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
         . ./vm-start.sh
     fi
@@ -15,19 +14,25 @@ if [ -x "$DOCKERMACHINE" ]; then
 fi
 
 BUILD_OK=0
-docker build $@ -f devdocker/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker && BUILD_OK=1
+BUILD_CMD="docker build $@ -f devdocker/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker"
+$BUILD_CMD && BUILD_OK=1
 if [ "$BUILD_OK" == "1" ]; then
-
     if [ -x "$DOCKERMACHINE" ]; then
         echo
+        echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Run this command to configure your shell:"
+        echo -ne "\033$TERM_COLOR_NORMAL"
         echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
         echo
     fi
-
-    cat <<EOL
-Now you can tag and push the image:
-    docker push $DEVDOCKER_IMAGE
-EOL
-
+    echo -ne "\033$TERM_COLOR_GREEN"
+    echo "Now you can tag and push the image:"
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo "    docker push $DEVDOCKER_IMAGE"
+else
+    echo
+    echo -ne "\033$TERM_COLOR_RED"
+    echo "Build failed... there is something wrong with this build command:"
+    echo "$BUILD_CMD"
+    echo -ne "\033$TERM_COLOR_NORMAL"
 fi

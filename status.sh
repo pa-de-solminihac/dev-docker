@@ -4,13 +4,12 @@ BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
-if [ -x "$DOCKERMACHINE" ];
-then
+if [ -x "$DOCKERMACHINE" ]; then
     source $BASE_PATH/vm-status.sh
     echo
 fi
 
-DEVDOCKER_CONTAINERS="$(docker ps | grep "\<$DEVDOCKER_IMAGE\>")"
+DEVDOCKER_CONTAINERS="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true))"
 if [ "$DEVDOCKER_CONTAINERS" == "" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
     echo "All devdocker containers stopped"

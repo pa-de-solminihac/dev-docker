@@ -12,6 +12,14 @@ if [ ! -x "$DOCKERMACHINE" ]; then
     exit
 fi
 
+if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" == "Running" ]; then
+    echo -ne "\033$TERM_COLOR_YELLOW"
+    echo -ne "Docker VM is already running: "
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo $DEVDOCKER_VM
+    exit
+fi
+
 echo -ne "\033$TERM_COLOR_GREEN"
 echo -ne "Starting Docker VM: "
 echo -ne "\033$TERM_COLOR_NORMAL"
@@ -31,7 +39,9 @@ fi
 source $BASE_PATH/inc/vm-eval
 eval "$DOCKER_ENV_VARS"
 echo
+echo -ne "\033$TERM_COLOR_YELLOW"
 echo "# Run this command to configure your shell:"
+echo -ne "\033$TERM_COLOR_NORMAL"
 echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
 
 # allow local repository if necessary
@@ -54,8 +64,8 @@ echo $DEVDOCKER_VM
 $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM
 
 # recreate port forwarding rules
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1
+VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1 || true
+VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1 || true
 VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-8022,tcp,,8022,,8022"
 VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-8022,udp,,8022,,8022"
 # other port forwarding now use sudoed SSH connection so that we don't need to sudo virtualbox

@@ -4,8 +4,7 @@ BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
-if [ -x "$DOCKERMACHINE" ];
-then
+if [ -x "$DOCKERMACHINE" ]; then
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo -ne "Docker VM is not running: "
@@ -23,7 +22,9 @@ then
     source $BASE_PATH/inc/vm-eval
     eval "$DOCKER_ENV_VARS"
     echo
+    echo -ne "\033$TERM_COLOR_YELLOW"
     echo "# Run this command to configure your shell:"
+    echo -ne "\033$TERM_COLOR_NORMAL"
     echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
 
 fi

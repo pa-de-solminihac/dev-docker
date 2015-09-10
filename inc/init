@@ -1,4 +1,20 @@
 # chargement du fichier de config
+
+set -e -o pipefail -o errtrace -o functrace
+trap 'err_handler $?' ERR
+
+err_handler() {
+    trap - ERR
+    let i=0 exit_status=$1
+    echo -ne "\033[0;31m"
+    echo
+    echo "Aborting on error $exit_status:"
+    echo "--------------------"
+    while caller $i; do ((++i)); done
+    echo -ne "\033[0m"
+    exit $?
+}
+
 source $BASE_PATH/inc/base-config
 if [ ! -f "$BASE_PATH/etc/config" ]; then
     cat <<EOF
