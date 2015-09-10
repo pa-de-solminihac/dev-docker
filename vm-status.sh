@@ -18,6 +18,12 @@ then
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "$DEVDOCKER_VM"
     $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM
-    # setting environment variables
-    eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+
+    # set environment variables
+    source $BASE_PATH/inc/vm-eval
+    eval "$DOCKER_ENV_VARS"
+    echo
+    echo "# Run this command to configure your shell:"
+    echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
+
 fi

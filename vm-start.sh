@@ -28,8 +28,7 @@ else
 fi
 
 # set environment variables
-DOCKER_ENV_VARS_CMD="$DOCKERMACHINE --native-ssh env $DEVDOCKER_VM"
-DOCKER_ENV_VARS="$($DOCKER_ENV_VARS_CMD)"
+source $BASE_PATH/inc/vm-eval
 eval "$DOCKER_ENV_VARS"
 echo
 echo "# Run this command to configure your shell:"
@@ -45,7 +44,7 @@ echo -ne "\033$TERM_COLOR_GREEN"
 echo -ne "Mounting NFS share: "
 echo -ne "\033$TERM_COLOR_NORMAL"
 echo "$HOME/dev"
-$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q nfs || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=30,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed'"
+$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q nfs || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed'"
 
 echo
 echo -ne "\033$TERM_COLOR_GREEN"
