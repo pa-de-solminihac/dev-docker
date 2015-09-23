@@ -59,7 +59,9 @@ RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php && \
     sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php && \
-    sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_FORCED_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php
+    sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_FORCED_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php && \
+    echo "<?php" > /etc/phpmyadmin/conf.d/devdocker.php && \
+    echo "$cfg['MaxNavigationItems'] = 500;" >> /etc/phpmyadmin/conf.d/devdocker.php
 
 # workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
@@ -82,6 +84,11 @@ COPY perfs.cnf /etc/mysql/conf.d/
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars && \
     sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars && \
     chgrp mysql /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
+
+# install and config mail server so websites can send emails
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mailutils && \
+    sed -i "s/^dc_eximconfig_configtype='local'/dc_eximconfig_configtype='internet'/g" /etc/exim4/update-exim4.conf.conf && \
+    update-exim4.conf
 
 # ssh
 RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config && \
