@@ -35,9 +35,10 @@ RUN mkdir -p /var/log/dockersite && \
 RUN a2enmod rewrite && \
     a2enmod headers && \
     a2enmod expires && \
+    a2enmod include && \
     a2enmod ssl && \
-    mkdir -p /etc/apache2/dockersite-vhosts && \
-    echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf && \
+    mkdir -p /etc/apache2/dockersite && \
+    echo "IncludeOptional dockersite/*.conf" >> /etc/apache2/apache2.conf && \
     echo "Servername localhost" >> /etc/apache2/apache2.conf && \
     sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf && \
     sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars && \

@@ -36,7 +36,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
-        -v "$DOCKERSITE_ROOT/vhosts:/etc/apache2/dockersite-vhosts" \
+        -v "$DOCKERSITE_ROOT/apache2:/etc/apache2/dockersite" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
         "$DEVDOCKER_IMAGE")"
