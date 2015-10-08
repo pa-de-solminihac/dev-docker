@@ -26,13 +26,13 @@ if [ "$BUILD_OK" == "1" ]; then
         echo
     fi
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo "Now you can tag and push the image:"
+    echo "# Now you can tag and push the image:"
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "    docker push $DEVDOCKER_IMAGE"
 else
     echo
     echo -ne "\033$TERM_COLOR_RED"
-    echo "Build failed... there is something wrong with this build command:"
+    echo "# Build failed... there is something wrong with this build command:"
     echo "$BUILD_CMD"
     echo -ne "\033$TERM_COLOR_NORMAL"
 fi

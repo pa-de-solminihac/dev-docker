@@ -7,13 +7,13 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE" ]; then
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
-        echo -ne "Docker VM is not running: "
+        echo -ne "# Docker VM is not running: "
         echo -ne "\033$TERM_COLOR_NORMAL"
         echo "$DEVDOCKER_VM"
         exit
     fi
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo -ne "Docker VM is running: "
+    echo -ne "# Docker VM is running: "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "$DEVDOCKER_VM"
     $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM

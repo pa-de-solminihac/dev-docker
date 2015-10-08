@@ -7,13 +7,13 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE" ]; then
     if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
-        echo "Docker VM is not running: "
+        echo "# Docker VM is not running: "
         echo -ne "\033$TERM_COLOR_NORMAL"
         echo $DEVDOCKER_VM
         exit
     fi
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo -ne "Stopping Docker VM (and all containers): "
+    echo -ne "# Stopping Docker VM (and all containers): "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo $DEVDOCKER_VM
     # delete port forwarding rules
