@@ -33,6 +33,10 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -p 443:443 \
         -p 3306:3306 \
         -e "MYSQL_FORCED_ROOT_PASSWORD=$MYSQL_FORCED_ROOT_PASSWORD" \
+        -e "BLACKFIRE_SERVER_ID=$BLACKFIRE_SERVER_ID" \
+        -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
+        -e "BLACKFIRE_CLIENT_ID=$BLACKFIRE_CLIENT_ID" \
+        -e "BLACKFIRE_CLIENT_TOKEN=$BLACKFIRE_CLIENT_TOKEN" \
         -v "$SSH_DIR:/root/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
@@ -78,4 +82,4 @@ if [ -x "$DOCKERMACHINE" ]; then
         echo -ne "\033$TERM_COLOR_NORMAL"
     fi
 fi
-$SSH_CMD
+$SSH_CMD || true

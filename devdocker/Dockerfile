@@ -1,6 +1,11 @@
 FROM debian:jessie
 MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 
+# install blackfire.io additional repository
+ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
+RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
+    echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list
+
 # install required packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
     apt-utils \
@@ -21,7 +26,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     openssh-server openssh-client rsync \
     lynx curl wget \
     phpmyadmin \
-    manpages
+    man-db manpages
+
+# install and configure blackfire
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install blackfire-agent blackfire-php
+COPY blackfire-agent /etc/blackfire/agent
+COPY blackfire-client /root/.blackfire.ini
 
 # timezone
 ENV TZ=Europe/Paris
