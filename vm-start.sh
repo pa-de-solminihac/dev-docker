@@ -31,7 +31,7 @@ else
     echo -ne "\033$TERM_COLOR_RED"
     echo "# Docker VM does not exist, maybe you should create it first:"
     echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "$DOCKERMACHINE --native-ssh create -d virtualbox --virtualbox-memory 2048 --virtualbox-no-share \"$DEVDOCKER_VM\""
+    echo "$DOCKERMACHINE --native-ssh create -d virtualbox --virtualbox-memory 2048 \"$DEVDOCKER_VM\""
     exit
 fi
 

@@ -12,7 +12,8 @@ if [ -x "$DOCKERMACHINE" ]; then
         exit
     fi
     # setting environment variables
-    eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+    source $BASE_PATH/inc/vm-eval
+    eval "$DOCKER_ENV_VARS"
 fi
 
 DEVDOCKER_IDS="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | awk '{print $1}')"

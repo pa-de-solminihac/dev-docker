@@ -1,3 +1,3 @@
 # commands based on config values
-DOCKER_ENV_VARS_CMD="$DOCKERMACHINE --native-ssh env $DEVDOCKER_VM"
+DOCKER_ENV_VARS_CMD="$DOCKERMACHINE --native-ssh env --shell bash $DEVDOCKER_VM"
 DOCKER_ENV_VARS="$($DOCKER_ENV_VARS_CMD)"

@@ -16,7 +16,8 @@ if [ -x "$DOCKERMACHINE" ]; then
         echo
     fi
     # setting environment variables
-    eval "$($DOCKERMACHINE --native-ssh env $DEVDOCKER_VM)"
+    source $BASE_PATH/inc/vm-eval
+    eval "$DOCKER_ENV_VARS"
     #env | grep DOCKER
 fi
 
