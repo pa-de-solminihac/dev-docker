@@ -49,13 +49,15 @@ $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\
 
 # mount $HOME/dev through nfs
 # needs this in /etc/exports: /Users/pa/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
-echo
-echo -ne "\033$TERM_COLOR_GREEN"
-echo -ne "# Mounting NFS share: "
-echo -ne "\033$TERM_COLOR_NORMAL"
-echo "$HOME/dev"
-$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q '\.ssh.*nfs' || sudo mkdir -p $HOME/.ssh && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/.ssh $HOME/.ssh || echo 'NFS mount failed: $HOME/.ssh'"
-$DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q '/dev.*nfs' || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed: $HOME/dev'"
+if [ -x "$(which sudo 2> /dev/null)" ]; then
+    echo
+    echo -ne "\033$TERM_COLOR_GREEN"
+    echo -ne "# Mounting NFS share: "
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo "$HOME/dev"
+    $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q '\.ssh.*nfs' || sudo mkdir -p $HOME/.ssh && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/.ssh $HOME/.ssh || echo 'NFS mount failed: $HOME/.ssh'"
+    $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q '/dev.*nfs' || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed: $HOME/dev'"
+fi
 
 echo
 echo -ne "\033$TERM_COLOR_GREEN"
@@ -65,8 +67,10 @@ echo $DEVDOCKER_VM
 $DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM
 
 # recreate port forwarding rules
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1 || true
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1 || true
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-8022,tcp,,8022,,8022"
-VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-8022,udp,,8022,,8022"
+if [ -x "$(which sudo 2> /dev/null)" ]; then
+    VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1 || true
+    VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1 || true
+    VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "tcp-port-8022,tcp,,8022,,8022"
+    VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-8022,udp,,8022,,8022"
+fi
 # other port forwarding now use sudoed SSH connection so that we don't need to sudo virtualbox
