@@ -8,6 +8,7 @@ SSH_DIR="$HOME/.ssh"
 SSH_PRIVKEY="$SSH_DIR/id_rsa"
 MYSQL_FORCED_ROOT_PASSWORD="$(openssl rand -base64 32 | cut -c1-16)"
 DOCKERMACHINE="$(which docker-machine 2>/dev/null)"
+DOCKERMACHINEIP="127.0.0.1"
 # base colors
 TERM_COLOR_NORMAL="[0m"
 TERM_COLOR_RED="[0;31m"
