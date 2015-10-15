@@ -11,7 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     apt-utils \
     dialog \
     locales-all \
-    net-tools \
+    net-tools dnsutils \
     apache2 libapache2-mod-php5 php5-apcu \
     memcached php5-memcache php5-memcached \
     php5-intl php-gettext \
