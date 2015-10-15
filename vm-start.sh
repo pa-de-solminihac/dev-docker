@@ -14,14 +14,14 @@ fi
 
 if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" == "Running" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
-    echo -ne "# Docker VM is already running: "
+    echo "# Docker VM is already running: "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo $DEVDOCKER_VM
     exit
 fi
 
 echo -ne "\033$TERM_COLOR_GREEN"
-echo -ne "# Starting Docker VM: "
+echo "# Starting Docker VM: "
 echo -ne "\033$TERM_COLOR_NORMAL"
 echo $DEVDOCKER_VM
 if [ "$($DOCKERMACHINE --native-ssh ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; then
@@ -52,7 +52,7 @@ $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\
 if [ -x "$(which sudo 2> /dev/null)" ]; then
     echo
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo -ne "# Mounting NFS share: "
+    echo "# Mounting NFS share: "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "$HOME/dev"
     $DOCKERMACHINE --native-ssh ssh $DEVDOCKER_VM "sudo mount | grep -q '\.ssh.*nfs' || sudo mkdir -p $HOME/.ssh && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/.ssh $HOME/.ssh || echo 'NFS mount failed: $HOME/.ssh'"
@@ -61,10 +61,11 @@ fi
 
 echo
 echo -ne "\033$TERM_COLOR_GREEN"
-echo -ne "# Docker VM running: "
+echo "# Docker VM running: "
 echo -ne "\033$TERM_COLOR_NORMAL"
 echo $DEVDOCKER_VM
-$DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM
+DOCKERMACHINEIP="$($DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM)"
+echo "$DOCKERMACHINEIP"
 
 # recreate port forwarding rules
 if [ -x "$(which sudo 2> /dev/null)" ]; then

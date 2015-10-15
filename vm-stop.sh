@@ -13,7 +13,7 @@ if [ -x "$DOCKERMACHINE" ]; then
         exit
     fi
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo -ne "# Stopping Docker VM (and all containers): "
+    echo "# Stopping Docker VM (and all containers): "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo $DEVDOCKER_VM
     # delete port forwarding rules

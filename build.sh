@@ -28,7 +28,7 @@ if [ "$BUILD_OK" == "1" ]; then
     echo -ne "\033$TERM_COLOR_GREEN"
     echo "# Now you can tag and push the image:"
     echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "    docker push $DEVDOCKER_IMAGE"
+    echo "docker push $DEVDOCKER_IMAGE"
 else
     echo
     echo -ne "\033$TERM_COLOR_RED"

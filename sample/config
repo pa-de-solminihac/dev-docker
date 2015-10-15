@@ -11,4 +11,3 @@ BLACKFIRE_SERVER_ID="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_SERVER_TOKEN="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_CLIENT_ID="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_CLIENT_TOKEN="" # cf. https://blackfire.io/getting-started
-DOCKERMACHINEIP="127.0.0.1" # if using windows, put your VM IP here (probably 192.168.99.101)
