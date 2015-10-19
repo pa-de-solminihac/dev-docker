@@ -28,8 +28,10 @@ else
     docker stop "$DEVDOCKER_IDS"
 fi
 
-echo
-echo -ne "\033$TERM_COLOR_GREEN"
-echo "# You can stop Docker VM if necessary:"
-echo -ne "\033$TERM_COLOR_NORMAL"
-echo "./vm-stop.sh"
+if [ -x "$DOCKERMACHINE" ]; then
+    echo
+    echo -ne "\033$TERM_COLOR_GREEN"
+    echo "# You can stop Docker VM if necessary:"
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo "./vm-stop.sh"
+fi
