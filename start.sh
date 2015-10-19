@@ -70,7 +70,6 @@ docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorize
 # forwarding ports only if VM is in use and ports are not already forwarded
 if [ -x "$DOCKERMACHINE" ]; then
     if [ -x "$(which sudo 2> /dev/null)" ]; then
-        source $BASE_PATH/inc/vm-eval
         PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
         if [ "$PORT_FW_PID" == "" ]; then
             echo -ne "\033$TERM_COLOR_GREEN"

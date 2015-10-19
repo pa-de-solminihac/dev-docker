@@ -2,5 +2,6 @@
 DOCKER_ENV_VARS_CMD="$DOCKERMACHINE --native-ssh env --shell bash $DEVDOCKER_VM"
 DOCKER_ENV_VARS="$($DOCKER_ENV_VARS_CMD)"
 DOCKERMACHINEIP="$($DOCKERMACHINE --native-ssh ip $DEVDOCKER_VM)"
+# override SSH_CMD so it connects to VM instead
 SSH_CMD="ssh -i $SSH_PRIVKEY -q -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlMaster=yes root@$DOCKERMACHINEIP"
 SSH_PORT_FW_CMD="$SSH_CMD -L 0.0.0.0:80:$DOCKERMACHINEIP:80 -L 0.0.0.0:443:$DOCKERMACHINEIP:443 -L 0.0.0.0:3306:$DOCKERMACHINEIP:3306 -N"
