@@ -112,7 +112,7 @@ RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 # install sitesync
 WORKDIR /
 RUN git clone https://github.com/pa-de-solminihac/sitesync.git
-ENV PATH /sitesync:$PATH
+COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # better shell config
 WORKDIR /root/
@@ -135,7 +135,8 @@ COPY wp-wned.sh /usr/local/bin/
 WORKDIR /usr/local/bin
 RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && \
     chmod +x wp-cli.phar && \
-    mv wp-cli.phar wp
+    mv wp-cli.phar wp && \
+    echo "alias wp='wp --allow-root '" >> /root/.bashrc
 
 # hosts
 WORKDIR /etc
