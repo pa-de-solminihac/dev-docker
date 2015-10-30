@@ -26,7 +26,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     openssh-server openssh-client rsync \
     lynx curl wget \
     phpmyadmin \
-    man-db manpages
+    man-db manpages \
+    libreoffice-writer openjdk-7-jre
 
 # install and configure blackfire
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install blackfire-agent blackfire-php

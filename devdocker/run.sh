@@ -3,6 +3,9 @@
 # start ssh
 /etc/init.d/ssh start
 
+# start smtp server
+/etc/init.d/exim4 start
+
 # start mysql avec initialisation de la BD si necessaire
 if [ ! -d /var/lib/mysql/mysql ]; then
     echo "Initializing mysql database"
