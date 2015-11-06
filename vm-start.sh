@@ -26,12 +26,15 @@ echo -ne "\033$TERM_COLOR_NORMAL"
 echo $DEVDOCKER_VM
 if [ "$($DOCKERMACHINE --native-ssh ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; then
     $DOCKERMACHINE --native-ssh start $DEVDOCKER_VM > /dev/null
+    # workaround for docker 1.9
+    sleep 60;
 else
     echo
     echo -ne "\033$TERM_COLOR_RED"
     echo "# Docker VM does not exist, maybe you should create it first:"
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "$DOCKERMACHINE --native-ssh create -d virtualbox --virtualbox-memory 2048 \"$DEVDOCKER_VM\""
+    #echo "$DOCKERMACHINE --native-ssh create -d virtualbox --virtualbox-memory 2048 \"$DEVDOCKER_VM\" --virtualbox-no-share"
     exit
 fi
 
