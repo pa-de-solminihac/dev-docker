@@ -4,8 +4,8 @@ BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
-if [ -x "$DOCKERMACHINE" ]; then
-    if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
+if [ -x "$DOCKERMACHINE_PATH" ]; then
+    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
         . ./vm-start.sh
     fi
     # set environment variables
@@ -17,7 +17,7 @@ BUILD_OK=0
 BUILD_CMD="docker build $@ -f devdocker/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker"
 $BUILD_CMD && BUILD_OK=1
 if [ "$BUILD_OK" == "1" ]; then
-    if [ -x "$DOCKERMACHINE" ]; then
+    if [ -x "$DOCKERMACHINE_PATH" ]; then
         echo
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Run this command to configure your shell:"

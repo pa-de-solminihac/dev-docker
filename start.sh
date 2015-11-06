@@ -4,13 +4,13 @@ BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
-if [ -x "$DOCKERMACHINE" ]; then
+if [ -x "$DOCKERMACHINE_PATH" ]; then
     # ask for root password as early as possible
     if [ -x "$(which sudo 2> /dev/null)" ]; then
         sudo echo -n # ask for root password only once
     fi
     # checking if docker VM is running ($DEVDOCKER_VM)
-    if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
+    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
         . ./vm-start.sh
         echo
     fi
@@ -68,7 +68,7 @@ PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
 docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /root/.ssh/authorized_keys"
 # forwarding ports only if VM is in use and ports are not already forwarded
-if [ -x "$DOCKERMACHINE" ]; then
+if [ -x "$DOCKERMACHINE_PATH" ]; then
     if [ -x "$(which sudo 2> /dev/null)" ]; then
         PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
         if [ "$PORT_FW_PID" == "" ]; then

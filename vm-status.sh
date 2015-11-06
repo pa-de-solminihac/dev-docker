@@ -4,8 +4,8 @@ BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
-if [ -x "$DOCKERMACHINE" ]; then
-    if [ "$($DOCKERMACHINE --native-ssh status $DEVDOCKER_VM)" != "Running" ]; then
+if [ -x "$DOCKERMACHINE_PATH" ]; then
+    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Docker VM is not running: "
         echo -ne "\033$TERM_COLOR_NORMAL"
