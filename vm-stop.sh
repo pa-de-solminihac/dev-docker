@@ -19,5 +19,5 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     # delete port forwarding rules
     VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1 || true
     VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1 || true
-    $DOCKERMACHINE stop $DEVDOCKER_VM > /dev/null 2>&1
+    $DOCKERMACHINE stop $DEVDOCKER_VM > /dev/null 2>&1 || true
 fi
