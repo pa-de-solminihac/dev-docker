@@ -1,6 +1,6 @@
 # chemins
 DEVDOCKER_AUTOUPDATE="1"
-DEVDOCKER_VM="devdockervm"
+DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY="quai2.quai13.com:5000"
 DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
 DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite"

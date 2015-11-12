@@ -12,8 +12,19 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
         . ./vm-start.sh
-        echo
+        sleep 1
     fi
+
+    if [ "$($DOCKERMACHINE ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker status')" != "Docker daemon is running" ]; then
+        echo "Docker daemon is not running yet, trying to start it now"
+        # retry without --native-ssh
+        $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker start'
+        sleep 1
+        $DOCKERMACHINE ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker status'
+    fi
+
+    echo
+
     # setting environment variables
     source $BASE_PATH/inc/vm-eval
     eval "$DOCKER_ENV_VARS"

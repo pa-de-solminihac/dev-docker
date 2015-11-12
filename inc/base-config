@@ -1,5 +1,5 @@
 # config default values
-DEVDOCKER_VM="devdockervm"
+DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY="quai2.quai13.com:5000"
 DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
 DEVDOCKER_AUTOUPDATE="1"
