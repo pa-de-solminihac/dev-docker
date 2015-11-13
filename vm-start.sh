@@ -76,3 +76,16 @@ if [ -x "$(which sudo 2> /dev/null)" ]; then
     VBoxManage controlvm "$DEVDOCKER_VM" natpf1 "udp-port-8022,udp,,8022,,8022"
 fi
 # other port forwarding now use sudoed SSH connection so that we don't need to sudo virtualbox
+
+if [ "$($DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker status')" != "Docker daemon is running" ]; then
+    echo
+    echo -ne "\033$TERM_COLOR_YELLOW"
+    echo "# Docker daemon is not running yet, trying to start it now"
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    # retry without --native-ssh
+    $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo pkill docker' || true
+    $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker start'
+    sleep 1
+    $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker status'
+fi
+

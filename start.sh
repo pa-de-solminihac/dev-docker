@@ -12,19 +12,6 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
         . ./vm-start.sh
-        sleep 1
-        echo
-    fi
-
-    if [ "$($DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker status')" != "Docker daemon is running" ]; then
-        echo -ne "\033$TERM_COLOR_YELLOW"
-        echo "# Docker daemon is not running yet, trying to start it now"
-        echo -ne "\033$TERM_COLOR_NORMAL"
-        # retry without --native-ssh
-        $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo pkill docker' || true
-        $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker start'
-        sleep 1
-        $DOCKERMACHINE_PATH ssh $DEVDOCKER_VM 'sudo /etc/init.d/docker status'
         echo
     fi
 
