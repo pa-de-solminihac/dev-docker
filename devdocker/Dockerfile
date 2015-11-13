@@ -80,7 +80,7 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
 
 # workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
-RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 1000 && \
+RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 501 && \
     usermod -G staff mysql
 
 # install and config mysql (mariadb)
