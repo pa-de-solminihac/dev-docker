@@ -5,7 +5,7 @@ source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
+    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Already stopped"
         echo -ne "\033$TERM_COLOR_NORMAL"

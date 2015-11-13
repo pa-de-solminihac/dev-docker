@@ -12,7 +12,7 @@ if [ ! -x "$DOCKERMACHINE_PATH" ]; then
     exit
 fi
 
-if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" == "Running" ]; then
+if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" == "Running" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
     echo "# Docker VM is already running: "
     echo -ne "\033$TERM_COLOR_NORMAL"
@@ -29,10 +29,10 @@ if [ "$($DOCKERMACHINE ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; th
 else
     echo
     echo -ne "\033$TERM_COLOR_RED"
-    echo "# Docker VM does not exist, maybe you should create it first:"
+    echo "# Docker VM does not exist, maybe you should create it first, then run the restart script:"
     echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "$DOCKERMACHINE create -d virtualbox --virtualbox-memory 2048 \"$DEVDOCKER_VM\""
-    #echo "$DOCKERMACHINE create -d virtualbox --virtualbox-memory 2048 \"$DEVDOCKER_VM\" --virtualbox-no-share"
+    echo "$DOCKERMACHINE create -d virtualbox --virtualbox-memory 2048 --virtualbox-no-share \"$DEVDOCKER_VM\" && ./vm-restart.sh"
+    echo
     exit
 fi
 

@@ -10,7 +10,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
         sudo echo -n # ask for root password only once
     fi
     # checking if docker VM is running ($DEVDOCKER_VM)
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM)" != "Running" ]; then
+    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         . ./vm-start.sh
         echo
     fi
