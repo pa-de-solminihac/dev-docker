@@ -29,6 +29,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     man-db manpages \
     libreoffice-writer openjdk-7-jre
 
+# configure git
+COPY gitconfig /root/.gitconfig
+
 # install and configure blackfire
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install blackfire-agent blackfire-php
 COPY blackfire-agent /etc/blackfire/agent
