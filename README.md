@@ -66,17 +66,22 @@ Puis réglez les variables selon votre installation.
 Sous Linux, l'environnement expose MySQL sur le port 3306 et Apache sur le port 80. Il faut donc qu'ils soient disponibles. Sous Windows et OS X c'est masqué par le fait que l'environnement tourne dans une machine virtuelle Boot2docker.
 
 
-# Requirements
+# Pré-requis
 
-Installer Docker / Boot2docker
+Il vous faut une installation fonctionnelle de Docker
 
 ## Linux
 
-Voir https://docs.docker.com/docker/installation/debian/
+C'est le cas le plus simple. Voir https://docs.docker.com/docker/installation/debian/
+
 
 ## Mac OS X
 
-Voir https://docs.docker.com/docker/installation/mac/
+On peut faire l'installation avec Homebrew
+```
+brew cask install dockertoolbox
+```
+
 
 ## Windows
 
