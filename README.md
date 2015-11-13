@@ -55,7 +55,7 @@ cp -pr dockersite ~/dev
 
 Pour OS X, les performances du partage de dossiers de VirtualBox étant médiocres, on va utiliser à la place un partage NFS.
 
-Editer le fichier /etc/exports (avec sudo)
+Editer le fichier /etc/exports (avec sudo, penser à remplacer `UTILISATEUR` par votre nom d'utilisateur)
 
 ```bash
 $ sudo vim /etc/export
