@@ -55,12 +55,17 @@ cp -pr dockersite ~/dev
 
 Pour OS X, les performances du partage de dossiers de VirtualBox étant médiocres, on va utiliser à la place un partage NFS.
 
-```
-# editer le fichier /etc/exports (avec sudo)
-/Users/UTILISATEUR/.ssh -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
-/Users/UTILISATEUR/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
+Editer le fichier /etc/exports (avec sudo)
 
-# puis relancer le service nfsd :
+```bash
+$ sudo vim /etc/export
+/Users/UTILISATEUR/.ssh -alldirs -mapall=UTILISATEUR -network 192.168.99.0 -mask 255.255.255.0
+/Users/UTILISATEUR/dev -alldirs -mapall=UTILISATEUR -network 192.168.99.0 -mask 255.255.255.0
+```
+
+Puis relancer le service `nfsd`
+
+```bash
 sudo nfsd checkexports && sudo nfsd -v -v -v restart && echo "NFS restarted" || echo "NFS error"
 ```
 
