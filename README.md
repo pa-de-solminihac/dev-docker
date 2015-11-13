@@ -32,8 +32,6 @@ Il faut [installer Docker](#requirements)
 ```bash
 git clone https://github.com/pa-de-solminihac/dev-docker
 cd dev-docker
-wget "http://quai2/devdocker.tar"
-docker load -i devdocker.tar
 ```
 
 # Configuration
@@ -44,10 +42,27 @@ cp sample/config etc/config
 
 Puis réglez les variables selon votre installation.
 
-`DOCKERSITE_ROOT` : doit pointer sur votre arborescence `dockersite`. Une arborescence vide est fournie dans ce dépôt comme point de départ.
+`DOCKERSITE_ROOT` : doit pointer sur votre arborescence `dockersite`. Une arborescence vide est fournie dans ce dépôt comme point de départ, on peut par exemple la copier dans le dossier `/Users/$USER/dev`
+
+```bash
+cp -pr dockersite ~/dev
+```
 
 **Remarque** : sous Windows, il faut impérativement que le dossier `dockersite` soit dans `C:\Users\...`
 
+
+### Amélioration des performances
+
+Pour OS X, les performances du partage de dossiers de VirtualBox étant médiocres, on va utiliser à la place un partage NFS.
+
+```
+# editer le fichier /etc/exports (avec sudo)
+/Users/UTILISATEUR/.ssh -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
+/Users/UTILISATEUR/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
+
+# puis relancer le service nfsd :
+sudo nfsd checkexports && sudo nfsd -v -v -v restart && echo "NFS restarted" || echo "NFS error"
+```
 
 # Utilisation
 
