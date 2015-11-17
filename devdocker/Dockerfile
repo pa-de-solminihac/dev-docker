@@ -27,7 +27,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     lynx curl wget \
     phpmyadmin \
     man-db manpages \
-    libreoffice-writer openjdk-7-jre
+    libreoffice-writer openjdk-7-jre \
+    build-essential autoconf pkg-config nasm libtool
 
 # configure git
 COPY gitconfig /root/.gitconfig
@@ -128,6 +129,20 @@ RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
     ln -s /root/configuration/vim/.vimrc_common && \
     mkdir -p bin && \
     ln -s /root/configuration/bin/diffconflicts bin/
+
+# jpeg-archive
+WORKDIR /usr/local/src/
+RUN git clone https://github.com/mozilla/mozjpeg.git && \
+    cd mozjpeg && \
+    autoreconf -fiv && \
+    ./configure --with-jpeg8 && \
+    make && \
+    make install
+WORKDIR /usr/local/src/
+RUN git clone https://github.com/danielgtaylor/jpeg-archive.git && \
+    cd jpeg-archive && \
+    make && \
+    make install
 
 # install drush
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install drush
