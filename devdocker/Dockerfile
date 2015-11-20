@@ -46,19 +46,22 @@ RUN mkdir -p /var/log/dockersite && \
     chmod 777 /var/log/dockersite
 
 # config apache
+COPY 000-default.conf /etc/apache2/sites-enabled/
 RUN a2enmod rewrite && \
     a2enmod headers && \
     a2enmod expires && \
     a2enmod include && \
     a2enmod ssl && \
+    echo 'Servername localhost' >> /etc/apache2/apache2.conf && \
+    sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
+    sed -i 's/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g' /etc/apache2/envvars && \
+    sed -i 's/Listen 80/Listen 0.0.0.0:80/g' /etc/apache2/ports.conf && \
+    sed -i 's/Listen 443/Listen 0.0.0.0:443/g' /etc/apache2/ports.conf && \
+    sed -i 's/CustomLog ${APACHE_LOG_DIR}\/access.log combined/CustomLog ${APACHE_LOG_DIR}\/access.log dockersite/g' /etc/apache2/sites-available/000-default.conf && \
+    sed -i 's/CustomLog ${APACHE_LOG_DIR}\/access.log combined/CustomLog ${APACHE_LOG_DIR}\/access.log dockersite/g' /etc/apache2/sites-available/default-ssl.conf && \
     mkdir -p /etc/apache2/dockersite && \
-    echo "IncludeOptional dockersite/*.conf" >> /etc/apache2/apache2.conf && \
-    echo "Servername localhost" >> /etc/apache2/apache2.conf && \
-    sed -i "s/AllowOverride None/AllowOverride All/g" /etc/apache2/apache2.conf && \
-    sed -i "s/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g" /etc/apache2/envvars && \
-    sed -i "s/Listen 80/Listen 0.0.0.0:80/g" /etc/apache2/ports.conf && \
-    sed -i "s/Listen 443/Listen 0.0.0.0:443/g" /etc/apache2/ports.conf
-COPY 000-default.conf /etc/apache2/sites-enabled/
+    echo 'LogFormat "%V:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" dockersite' >> /etc/apache2/apache2.conf && \
+    echo 'IncludeOptional dockersite/*.conf' >> /etc/apache2/apache2.conf
 
 # config php
 RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini && \
