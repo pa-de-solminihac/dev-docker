@@ -7,28 +7,27 @@ RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
     echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list
 
 # install required packages
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
-    apt-utils \
-    dialog \
-    locales-all \
-    net-tools dnsutils \
-    apache2 libapache2-mod-php5 php5-apcu \
-    memcached php5-memcache php5-memcached \
-    php5-intl php-gettext \
-    php5-mysqlnd php5-pgsql \
-    php5-json php5-xsl \
-    php5-imap php5-curl php5-gd \
-    bash bash-completion \
-    ncdu vim ncurses-bin \
-    grep ack-grep \
-    git \
-    mariadb-client \
-    openssh-server openssh-client rsync \
-    lynx curl wget \
-    phpmyadmin \
-    man-db manpages \
-    libreoffice-writer openjdk-7-jre \
-    build-essential autoconf pkg-config nasm libtool
+RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools dnsutils
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 libapache2-mod-php5 php5-apcu
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install memcached php5-memcache php5-memcached
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap php5-curl php5-gd
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu vim ncurses-bin
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install git
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-client
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-server openssh-client rsync
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install phpmyadmin
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install man-db manpages
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libreoffice-writer openjdk-7-jre
 
 # configure git
 COPY gitconfig /root/.gitconfig
@@ -81,7 +80,8 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
 
 # workaround for write permission on write to MacOS X volumes
 # See https://github.com/boot2docker/boot2docker/pull/534
-RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid 501 && \
+ENV USER_ID 1000
+RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid $USER_ID && \
     usermod -G staff mysql
 
 # install and config mysql (mariadb)
@@ -131,6 +131,7 @@ RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
     ln -s /root/configuration/bin/diffconflicts bin/
 
 # jpeg-archive
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential autoconf pkg-config nasm libtool
 WORKDIR /usr/local/src/
 RUN git clone https://github.com/mozilla/mozjpeg.git && \
     cd mozjpeg && \
