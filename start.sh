@@ -33,7 +33,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -p 80:80 \
         -p 443:443 \
         -p 3306:3306 \
-        -e "UID=$(id -u)"
+        -e "UID=$(id -u)" \
         -e "MYSQL_FORCED_ROOT_PASSWORD=$MYSQL_FORCED_ROOT_PASSWORD" \
         -e "BLACKFIRE_SERVER_ID=$BLACKFIRE_SERVER_ID" \
         -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
