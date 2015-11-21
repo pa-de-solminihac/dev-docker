@@ -70,6 +70,9 @@ sed -i "s/^;blackfire.server_token =.*/blackfire.server_token = $BLACKFIRE_SERVE
 sed -i "s/^;blackfire.log_file = .*/blackfire.log_file = \/tmp\/blackfire.log/g" /etc/php5/mods-available/blackfire.ini
 /etc/init.d/blackfire-agent start
 
+# fix mysql uid so that it matches host user uid
+usermod -u $USER_ID mysql
+
 # start apache
 source /etc/apache2/envvars
 exec apache2 -D FOREGROUND
