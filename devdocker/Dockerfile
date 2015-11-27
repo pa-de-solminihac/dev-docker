@@ -1,6 +1,9 @@
 FROM debian:jessie
 MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 
+# enable debian jessie backports
+RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
+
 # install blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
 RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
@@ -27,7 +30,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-server openssh-cli
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lynx curl wget
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install phpmyadmin
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install man-db manpages
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libreoffice-writer openjdk-7-jre
+
+# install libreoffice from backports
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreoffice-writer
 
 # configure git
 COPY gitconfig /root/.gitconfig
