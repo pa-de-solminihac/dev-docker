@@ -40,6 +40,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap php5-curl php5-gd
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imagick
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-pear
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu vim ncurses-bin
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install grep ack-grep
@@ -102,6 +104,14 @@ RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cl
     mv wp-cli.phar wp && \
     echo "alias wp='wp --allow-root '" >> /root/.bashrc
 
+# install php beautifiers
+WORKDIR /usr/local/bin
+RUN wget http://get.sensiolabs.org/php-cs-fixer.phar -O php-cs-fixer && \
+    chmod a+x php-cs-fixer
+RUN pear install PHP_Beautifier-0.1.15
+RUN git clone https://github.com/pa-de-solminihac/php-auto-indent.git /usr/local/src/php-auto-indent && \
+    chmod a+x /usr/local/src/php-auto-indent && \
+    ln -s /usr/local/src/php-auto-indent/php-auto-indent /usr/local/bin
 
 ###########
 # CONFIGURE
