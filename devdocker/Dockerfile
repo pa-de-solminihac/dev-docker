@@ -56,6 +56,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mariadb-server
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mailutils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install drush
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential autoconf pkg-config nasm libtool
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install rsyslog
 
 # install libreoffice from backports
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
