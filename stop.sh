@@ -28,6 +28,9 @@ else
     docker stop "$DEVDOCKER_IDS"
 fi
 
+# cleanup exited devdocker containers
+docker ps -a -q --filter "ancestor=quai2.quai13.com:5000/devdocker" | xargs -n 1 -I {} docker rm {}
+
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     echo
     echo -ne "\033$TERM_COLOR_GREEN"

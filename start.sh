@@ -21,6 +21,9 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     #env | grep DOCKER
 fi
 
+# cleanup exited devdocker containers
+docker ps -a -q --filter "ancestor=quai2.quai13.com:5000/devdocker" --filter "status=exited" | xargs -n 1 -I {} docker rm {}
+
 # attach to running container if possible, or spawn a new one
 DEVDOCKER_ID="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
