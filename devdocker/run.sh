@@ -12,6 +12,11 @@ if [ ! -d /var/lib/mysql/mysql ]; then
     mysql_install_db
 fi
 
+# fix mysql uid so that it matches host user uid
+usermod -u $USER_ID mysql && \
+    chown -R $USER_ID /var/log/mysql && \
+    chown -R $USER_ID /var/log/mysql.log
+
 # force root password and open to outside
 echo "" > /mysql-force-password.sql && \
     chown mysql:mysql /mysql-force-password.sql && \
@@ -69,9 +74,6 @@ sed -i "s/^;blackfire.server_id =.*/blackfire.server_id = $BLACKFIRE_SERVER_ID/g
 sed -i "s/^;blackfire.server_token =.*/blackfire.server_token = $BLACKFIRE_SERVER_TOKEN/g" /etc/php5/mods-available/blackfire.ini
 sed -i "s/^;blackfire.log_file = .*/blackfire.log_file = \/tmp\/blackfire.log/g" /etc/php5/mods-available/blackfire.ini
 /etc/init.d/blackfire-agent start
-
-# fix mysql uid so that it matches host user uid
-usermod -u $USER_ID mysql
 
 # start apache
 source /etc/apache2/envvars
