@@ -7,7 +7,7 @@ source $BASE_PATH/inc/init
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     # ask for root password as early as possible
     if [ -x "$(which sudo 2> /dev/null)" ]; then
-        sudo echo -n # ask for root password only once
+        sudo echo -n || exit # ask for root password only once
     fi
     # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
@@ -81,7 +81,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
             echo -ne "\033$TERM_COLOR_GREEN"
             echo "# Forwarding ports using SSH"
             echo -ne "\033$TERM_COLOR_NORMAL"
-            sudo echo -n # ask for root password again if sudo timed out
+            sudo echo -n || exit # ask for root password again if sudo timed out
             # start new port forwarding and connect through ssh
             #sudo $SSH_PORT_FW_CMD &
             SILENCE="$(sudo $SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
