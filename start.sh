@@ -43,7 +43,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
         -e "BLACKFIRE_CLIENT_ID=$BLACKFIRE_CLIENT_ID" \
         -e "BLACKFIRE_CLIENT_TOKEN=$BLACKFIRE_CLIENT_TOKEN" \
-        -v "$SSH_DIR:/root/.ssh-readonly:ro" \
+        -v "$SSH_DIR:/home/mysql/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
         -v "$DOCKERSITE_ROOT/apache2:/etc/apache2/dockersite" \
@@ -65,14 +65,13 @@ fi
 ETC_HOSTS="$(cat /etc/hosts)"
 docker exec "$DEVDOCKER_ID" sh -c "cat /etc/hosts.ori > /etc/hosts && echo \"$ETC_HOSTS\" >> /etc/hosts"
 
-# attach to container using SSH
-# port forwarding reserved ports thanks to ssh
+# use SSH to attach to container and forward reserved ports
 echo
 docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh || true
 # allow user's own public key
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
-docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /root/.ssh/authorized_keys"
+docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /home/mysql/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /home/mysql/.ssh/authorized_keys"
 # forwarding ports only if VM is in use and ports are not already forwarded
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     if [ -x "$(which sudo 2> /dev/null)" ]; then

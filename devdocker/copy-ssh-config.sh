@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-cp -f /root/.ssh-readonly/* /root/.ssh/ 2>/dev/null
+cp -f /home/mysql/.ssh-readonly/* /home/mysql/.ssh/ 2>/dev/null
+chown -R mysql: /home/mysql/.ssh

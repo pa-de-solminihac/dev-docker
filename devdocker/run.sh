@@ -33,6 +33,8 @@ echo "" > /root/.my.cnf && \
     echo "[client]" > /root/.my.cnf && \
     echo "host=127.0.0.1" >> /root/.my.cnf && \
     echo "password=$MYSQL_FORCED_ROOT_PASSWORD" >> /root/.my.cnf && \
+    cp -p /root/.my.cnf /home/mysql/.my.cnf && \
+    chown mysql: /home/mysql/.my.cnf && \
     exec mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
 mysqld_process_pid=""
@@ -66,8 +68,8 @@ if [ ! -d /var/lib/mysql/phpmyadmin ]; then
 fi
 
 # blackfire configuration
-sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_ID/$BLACKFIRE_CLIENT_ID/g" /root/.blackfire.ini
-sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_TOKEN/$BLACKFIRE_CLIENT_TOKEN/g" /root/.blackfire.ini
+sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_ID/$BLACKFIRE_CLIENT_ID/g" /home/mysql/.blackfire.ini
+sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_TOKEN/$BLACKFIRE_CLIENT_TOKEN/g" /home/mysql/.blackfire.ini
 sed -i "s/DEVDOCKER_BLACKFIRE_SERVER_ID/$BLACKFIRE_SERVER_ID/g" /etc/blackfire/agent
 sed -i "s/DEVDOCKER_BLACKFIRE_SERVER_TOKEN/$BLACKFIRE_SERVER_TOKEN/g" /etc/blackfire/agent
 sed -i "s/^;blackfire.server_id =.*/blackfire.server_id = $BLACKFIRE_SERVER_ID/g" /etc/php5/mods-available/blackfire.ini

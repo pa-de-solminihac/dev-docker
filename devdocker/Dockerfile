@@ -20,7 +20,8 @@ RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /e
 
 # See https://github.com/boot2docker/boot2docker/pull/534
 ENV USER_ID=1000
-RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid $USER_ID && \
+#RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid $USER_ID && \
+RUN adduser --gecos "MySQL" mysql --uid $USER_ID && \
     usermod -G staff mysql
 
 
@@ -73,15 +74,15 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # better shell config
-WORKDIR /root/
+WORKDIR /home/mysql/
 RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
-    echo "source /root/.bashrc_local" >> /root/.bashrc && \
-    ln -s /root/configuration/bash/.bashrc_local && \
-    ln -s /root/configuration/bash/.bashrc_common && \
-    echo "source /root/.vimrc_common" >> /root/.vimrc && \
-    ln -s /root/configuration/vim/.vimrc_common && \
+    echo "source /home/mysql/.bashrc_local" >> /home/mysql/.bashrc && \
+    ln -s /home/mysql/configuration/bash/.bashrc_local && \
+    ln -s /home/mysql/configuration/bash/.bashrc_common && \
+    echo "source /home/mysql/.vimrc_common" >> /home/mysql/.vimrc && \
+    ln -s /home/mysql/configuration/vim/.vimrc_common && \
     mkdir -p bin && \
-    ln -s /root/configuration/bin/diffconflicts bin/
+    ln -s /home/mysql/configuration/bin/diffconflicts bin/
 
 # mozjpeg and jpeg-archive
 WORKDIR /usr/local/src/
@@ -103,8 +104,7 @@ COPY wp-wned.sh /usr/local/bin/
 WORKDIR /usr/local/bin
 RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && \
     chmod +x wp-cli.phar && \
-    mv wp-cli.phar wp && \
-    echo "alias wp='wp --allow-root '" >> /root/.bashrc
+    mv wp-cli.phar wp
 
 # install php beautifiers
 WORKDIR /usr/local/bin
@@ -128,11 +128,11 @@ RUN mkdir -p /var/log/dockersite && \
     chmod 777 /var/log/dockersite
 
 # configure git
-COPY gitconfig /root/.gitconfig
+COPY gitconfig /home/mysql/.gitconfig
 
 # configure blackfire
 COPY blackfire-agent /etc/blackfire/agent
-COPY blackfire-client /root/.blackfire.ini
+COPY blackfire-client /home/mysql/.blackfire.ini
 
 # apache
 COPY 000-default.conf /etc/apache2/sites-enabled/
@@ -196,7 +196,7 @@ RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config && \
     sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 # copy your *readonly* mounted ssh keys and config everytime you login
 COPY copy-ssh-config.sh /
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
+RUN mkdir -p /home/mysql/.ssh && chmod 700 /home/mysql/.ssh
 
 # hosts
 WORKDIR /etc
@@ -206,12 +206,14 @@ RUN cp -p hosts hosts.ori
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 
 # fix docker exec -t
-RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /root/.bashrc && \
-    echo '    export TERM=xterm' >> /root/.bashrc && \
-    echo 'fi' >> /root/.bashrc
+RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /home/mysql/.bashrc && \
+    echo '    export TERM=xterm' >> /home/mysql/.bashrc && \
+    echo 'fi' >> /home/mysql/.bashrc
 
 # cd /var/www/html at startup
-RUN echo 'cd /var/www/html' >> /root/.bashrc
+RUN echo 'cd /var/www/html' >> /home/mysql/.bashrc
+
+RUN echo mysql:mysql | chpasswd
 
 # expose ports
 EXPOSE 8022
