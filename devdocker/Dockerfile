@@ -1,6 +1,7 @@
 FROM debian:jessie
 MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 
+
 #####################
 # ENABLE REPOSITORIES
 #####################
@@ -12,6 +13,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
 
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
+
 
 ##################
 # INSTALL PACKAGES
@@ -47,6 +49,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install mailutils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install drush
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential autoconf pkg-config nasm libtool
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install rsyslog
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
 
 # install libreoffice from backports
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
@@ -68,12 +71,15 @@ RUN adduser --disabled-login --gecos "devdocker" devdocker --uid $USER_ID --gid 
 RUN echo "devdocker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devdocker && \
     chmod 440 /etc/sudoers.d/devdocker
 
+
 ##########################
 # INSTALL WITHOUT PACKAGES
 ##########################
 
 # install sitesync
-RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync
+RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
+    chown -R devdocker: /sitesync/tmp && \
+    chown -R devdocker: /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # better shell config
@@ -117,6 +123,11 @@ RUN pear install PHP_Beautifier-0.1.15
 RUN git clone https://github.com/pa-de-solminihac/php-auto-indent.git /usr/local/src/php-auto-indent && \
     chmod a+x /usr/local/src/php-auto-indent && \
     ln -s /usr/local/src/php-auto-indent/php-auto-indent /usr/local/bin
+
+# composer
+WORKDIR /usr/local/bin
+RUN curl -s "https://getcomposer.org/installer" | php && mv composer.phar /usr/local/bin/composer
+
 
 ###########
 # CONFIGURE
