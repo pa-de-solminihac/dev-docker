@@ -76,22 +76,9 @@ RUN echo "devdocker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devdocker && \
 # INSTALL WITHOUT PACKAGES
 ##########################
 
-# install sitesync
-RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
-    chmod -R 777 /sitesync/tmp && \
-    chmod -R 777 /sitesync/log
-COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
-
-# better shell config
-WORKDIR /home/devdocker/
-RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
-    echo "source /home/devdocker/.bashrc_local" >> /home/devdocker/.bashrc && \
-    ln -s /home/devdocker/configuration/bash/.bashrc_local && \
-    ln -s /home/devdocker/configuration/bash/.bashrc_common && \
-    echo "source /home/devdocker/.vimrc_common" >> /home/devdocker/.vimrc && \
-    ln -s /home/devdocker/configuration/vim/.vimrc_common && \
-    mkdir -p bin && \
-    ln -s /home/devdocker/configuration/bin/diffconflicts bin/
+# composer
+WORKDIR /usr/local/bin
+RUN curl -s "https://getcomposer.org/installer" | php && mv composer.phar /usr/local/bin/composer
 
 # mozjpeg and jpeg-archive
 WORKDIR /usr/local/src/
@@ -124,9 +111,32 @@ RUN git clone https://github.com/pa-de-solminihac/php-auto-indent.git /usr/local
     chmod a+x /usr/local/src/php-auto-indent && \
     ln -s /usr/local/src/php-auto-indent/php-auto-indent /usr/local/bin
 
-# composer
-WORKDIR /usr/local/bin
-RUN curl -s "https://getcomposer.org/installer" | php && mv composer.phar /usr/local/bin/composer
+# install sitesync
+RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
+    chmod -R 777 /sitesync/tmp && \
+    chmod -R 777 /sitesync/log
+COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
+
+# better shell config
+WORKDIR /root/
+RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
+    echo "source /root/.bashrc_local" >> /root/.bashrc && \
+    ln -s /root/configuration/bash/.bashrc_local && \
+    ln -s /root/configuration/bash/.bashrc_common && \
+    echo "source /root/.vimrc_common" >> /root/.vimrc && \
+    ln -s /root/configuration/vim/.vimrc_common && \
+    mkdir -p bin && \
+    ln -s /root/configuration/bin/diffconflicts bin/
+WORKDIR /home/devdocker/
+RUN cp -pr /root/configuration /home/devdocker/ && \
+    chown -R devdocker: configuration && \
+    echo "source /home/devdocker/.bashrc_local" >> /home/devdocker/.bashrc && \
+    ln -s /home/devdocker/configuration/bash/.bashrc_local && \
+    ln -s /home/devdocker/configuration/bash/.bashrc_common && \
+    echo "source /home/devdocker/.vimrc_common" >> /home/devdocker/.vimrc && \
+    ln -s /home/devdocker/configuration/vim/.vimrc_common && \
+    mkdir -p bin && \
+    ln -s /home/devdocker/configuration/bin/diffconflicts bin/
 
 
 ###########

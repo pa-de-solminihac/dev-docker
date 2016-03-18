@@ -58,7 +58,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     # save container hosts file before we complete it with every login
     docker exec "$DEVDOCKER_ID" sh -c "cp /etc/hosts /etc/hosts.ori"
     # wait enough time for usermod to finish cleanly in run.sh
-    sleep 5
+    sleep 3
 else
     echo -ne "\033$TERM_COLOR_YELLOW"
     echo "# Attaching to already running container: "
