@@ -213,10 +213,6 @@ COPY copy-ssh-config.sh /
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 RUN mkdir -p /home/devdocker/.ssh && chmod 700 /home/devdocker/.ssh
 
-# hosts
-WORKDIR /etc
-RUN cp -p hosts hosts.ori
-
 # cleanup
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 

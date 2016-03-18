@@ -29,7 +29,7 @@ else
 fi
 
 # cleanup exited devdocker containers
-docker ps -a -q --filter "ancestor=quai2.quai13.com:5000/devdocker" | xargs -n 1 -I {} docker rm {}
+docker ps -a -q --filter "ancestor=$DEVDOCKER_REPOSITORY/devdocker" | xargs -n 1 -I {} docker rm {}
 
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     echo
