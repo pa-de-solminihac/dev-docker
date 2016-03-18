@@ -13,9 +13,8 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 fi
 
 # fix mysql uid so that it matches host user uid
-usermod -u $USER_ID devdocker && \
-    chown -R $USER_ID /var/log/mysql && \
-    chown -R $USER_ID /var/log/mysql.log
+usermod -u $USER_ID -g $GROUP_ID devdocker && \
+    chown -R $USER_ID:$GROUP_ID /var/log/mysql
 
 # force root password and open to outside
 echo "" > /mysql-force-password.sql && \

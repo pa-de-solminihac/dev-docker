@@ -38,6 +38,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -p 443:443 \
         -p 3306:3306 \
         -e "USER_ID=$(id -u)" \
+        -e "GROUP_ID=$(id -g)" \
         -e "MYSQL_FORCED_ROOT_PASSWORD=$MYSQL_FORCED_ROOT_PASSWORD" \
         -e "BLACKFIRE_SERVER_ID=$BLACKFIRE_SERVER_ID" \
         -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
@@ -54,6 +55,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     echo "# Attaching to freshly started container: "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo $DEVDOCKER_ID
+    sleep 5 # wait enough time for usermod to finish cleanly in run.sh
 else
     echo -ne "\033$TERM_COLOR_YELLOW"
     echo "# Attaching to already running container: "
