@@ -13,13 +13,13 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 fi
 
 # fix mysql uid so that it matches host user uid
-usermod -u $USER_ID mysql && \
+usermod -u $USER_ID devdocker && \
     chown -R $USER_ID /var/log/mysql && \
     chown -R $USER_ID /var/log/mysql.log
 
 # force root password and open to outside
 echo "" > /mysql-force-password.sql && \
-    chown mysql:mysql /mysql-force-password.sql && \
+    chown devdocker:devdocker /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
     echo "USE mysql; " >> /mysql-force-password.sql && \
     echo "CREATE TEMPORARY TABLE devdocker_tmp ENGINE=MyISAM SELECT * FROM user WHERE User='root' LIMIT 1; " >> /mysql-force-password.sql && \
@@ -31,11 +31,14 @@ echo "" > /mysql-force-password.sql && \
 echo "" > /root/.my.cnf && \
     chmod 400 /root/.my.cnf && \
     echo "[client]" > /root/.my.cnf && \
+    echo "user=root" >> /root/.my.cnf && \
     echo "host=127.0.0.1" >> /root/.my.cnf && \
     echo "password=$MYSQL_FORCED_ROOT_PASSWORD" >> /root/.my.cnf && \
-    cp -p /root/.my.cnf /home/mysql/.my.cnf && \
-    chown mysql: /home/mysql/.my.cnf && \
-    exec mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
+    cp -p /root/.my.cnf /home/devdocker/.my.cnf && \
+    chown devdocker: /home/devdocker/.my.cnf && \
+    mkdir /var/run/mysqld && \
+    chown devdocker: /var/run/mysqld && \
+    exec sudo -u devdocker mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
 mysqld_process_pid=""
 while ! [[ "$mysqld_process_pid" =~ ^[0-9]+$ ]]; do
@@ -53,7 +56,7 @@ while ! [[ "$mysqld_process_pid" == "" ]]; do
     sleep 0.2
 done
 # and start mysql up again
-exec mysqld_safe &
+exec sudo -u devdocker mysqld_safe &
 
 # wait for mysqld_safe startup and install phpmyadmin database if necessary
 if [ ! -d /var/lib/mysql/phpmyadmin ]; then
@@ -68,8 +71,8 @@ if [ ! -d /var/lib/mysql/phpmyadmin ]; then
 fi
 
 # blackfire configuration
-sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_ID/$BLACKFIRE_CLIENT_ID/g" /home/mysql/.blackfire.ini
-sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_TOKEN/$BLACKFIRE_CLIENT_TOKEN/g" /home/mysql/.blackfire.ini
+sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_ID/$BLACKFIRE_CLIENT_ID/g" /home/devdocker/.blackfire.ini
+sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_TOKEN/$BLACKFIRE_CLIENT_TOKEN/g" /home/devdocker/.blackfire.ini
 sed -i "s/DEVDOCKER_BLACKFIRE_SERVER_ID/$BLACKFIRE_SERVER_ID/g" /etc/blackfire/agent
 sed -i "s/DEVDOCKER_BLACKFIRE_SERVER_TOKEN/$BLACKFIRE_SERVER_TOKEN/g" /etc/blackfire/agent
 sed -i "s/^;blackfire.server_id =.*/blackfire.server_id = $BLACKFIRE_SERVER_ID/g" /etc/php5/mods-available/blackfire.ini

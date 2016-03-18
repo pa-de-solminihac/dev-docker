@@ -13,18 +13,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
-
-#################################
-# WORKAROUND for write permission
-#################################
-
-# See https://github.com/boot2docker/boot2docker/pull/534
-ENV USER_ID=1000
-#RUN adduser --no-create-home --disabled-login --gecos "" mysql --uid $USER_ID && \
-RUN adduser --gecos "MySQL" mysql --uid $USER_ID && \
-    usermod -G staff mysql
-
-
 ##################
 # INSTALL PACKAGES
 ##################
@@ -65,6 +53,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreoffice-writer
 
 
+#################################
+# WORKAROUND for write permission
+#################################
+
+# See https://github.com/boot2docker/boot2docker/pull/534
+ENV USER_ID=1000
+ENV GROUP_ID=100
+#RUN adduser --no-create-home --disabled-login --gecos "" devdocker --uid $USER_ID && \
+#    usermod -G staff mysql
+RUN addgroup devdocker
+RUN adduser --disabled-login --gecos "devdocker" devdocker --uid $USER_ID --gid $GROUP_ID && \
+    usermod -G users,mysql devdocker
+RUN echo "devdocker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devdocker && \
+    chmod 440 /etc/sudoers.d/devdocker
+
 ##########################
 # INSTALL WITHOUT PACKAGES
 ##########################
@@ -74,15 +77,15 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # better shell config
-WORKDIR /home/mysql/
+WORKDIR /home/devdocker/
 RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
-    echo "source /home/mysql/.bashrc_local" >> /home/mysql/.bashrc && \
-    ln -s /home/mysql/configuration/bash/.bashrc_local && \
-    ln -s /home/mysql/configuration/bash/.bashrc_common && \
-    echo "source /home/mysql/.vimrc_common" >> /home/mysql/.vimrc && \
-    ln -s /home/mysql/configuration/vim/.vimrc_common && \
+    echo "source /home/devdocker/.bashrc_local" >> /home/devdocker/.bashrc && \
+    ln -s /home/devdocker/configuration/bash/.bashrc_local && \
+    ln -s /home/devdocker/configuration/bash/.bashrc_common && \
+    echo "source /home/devdocker/.vimrc_common" >> /home/devdocker/.vimrc && \
+    ln -s /home/devdocker/configuration/vim/.vimrc_common && \
     mkdir -p bin && \
-    ln -s /home/mysql/configuration/bin/diffconflicts bin/
+    ln -s /home/devdocker/configuration/bin/diffconflicts bin/
 
 # mozjpeg and jpeg-archive
 WORKDIR /usr/local/src/
@@ -128,11 +131,11 @@ RUN mkdir -p /var/log/dockersite && \
     chmod 777 /var/log/dockersite
 
 # configure git
-COPY gitconfig /home/mysql/.gitconfig
+COPY gitconfig /home/devdocker/.gitconfig
 
 # configure blackfire
 COPY blackfire-agent /etc/blackfire/agent
-COPY blackfire-client /home/mysql/.blackfire.ini
+COPY blackfire-client /home/devdocker/.blackfire.ini
 
 # apache
 COPY 000-default.conf /etc/apache2/sites-enabled/
@@ -153,9 +156,9 @@ RUN a2enmod rewrite && \
     echo 'IncludeOptional dockersite/*.conf' >> /etc/apache2/apache2.conf
 
 # apache: workaround for write permission
-RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=mysql/g" /etc/apache2/envvars && \
-    sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=mysql/g" /etc/apache2/envvars && \
-    chgrp mysql /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
+RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g" /etc/apache2/envvars && \
+    sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=devdocker/g" /etc/apache2/envvars && \
+    chgrp devdocker /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
 # php
 RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini && \
@@ -196,7 +199,8 @@ RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config && \
     sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 # copy your *readonly* mounted ssh keys and config everytime you login
 COPY copy-ssh-config.sh /
-RUN mkdir -p /home/mysql/.ssh && chmod 700 /home/mysql/.ssh
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
+RUN mkdir -p /home/devdocker/.ssh && chmod 700 /home/devdocker/.ssh
 
 # hosts
 WORKDIR /etc
@@ -206,14 +210,14 @@ RUN cp -p hosts hosts.ori
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
 
 # fix docker exec -t
-RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /home/mysql/.bashrc && \
-    echo '    export TERM=xterm' >> /home/mysql/.bashrc && \
-    echo 'fi' >> /home/mysql/.bashrc
+RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /home/devdocker/.bashrc && \
+    echo '    export TERM=xterm' >> /home/devdocker/.bashrc && \
+    echo 'fi' >> /home/devdocker/.bashrc
 
 # cd /var/www/html at startup
-RUN echo 'cd /var/www/html' >> /home/mysql/.bashrc
+RUN echo 'cd /var/www/html' >> /home/devdocker/.bashrc
 
-RUN echo mysql:mysql | chpasswd
+RUN echo devdocker:devdocker | chpasswd
 
 # expose ports
 EXPOSE 8022

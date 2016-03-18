@@ -30,7 +30,7 @@ fi
 
 # commands based on config values
 SSH_PUBKEY="$SSH_PRIVKEY.pub"
-SSH_CMD="ssh -i $SSH_PRIVKEY -q -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlMaster=yes mysql@127.0.0.1"
+SSH_CMD="ssh -i $SSH_PRIVKEY -q -p 8022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ControlMaster=yes devdocker@127.0.0.1"
 
 # check parameters
 if [ "$DOCKERSITE_ROOT" == "" ]; then
