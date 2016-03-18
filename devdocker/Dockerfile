@@ -62,12 +62,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreo
 
 # See https://github.com/boot2docker/boot2docker/pull/534
 ENV USER_ID=1000
-ENV GROUP_ID=100
+ENV GROUP_ID=1000
 #RUN adduser --no-create-home --disabled-login --gecos "" devdocker --uid $USER_ID && \
 #    usermod -G staff mysql
 RUN addgroup devdocker
-RUN adduser --disabled-login --gecos "devdocker" devdocker --uid $USER_ID --gid $GROUP_ID && \
-    usermod -G users,mysql devdocker
+RUN adduser --disabled-login --gecos "devdocker" devdocker --uid $USER_ID --gid $GROUP_ID
+#RUN usermod -G users,mysql devdocker
 RUN echo "devdocker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devdocker && \
     chmod 440 /etc/sudoers.d/devdocker
 
@@ -78,8 +78,8 @@ RUN echo "devdocker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devdocker && \
 
 # install sitesync
 RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
-    chown -R devdocker: /sitesync/tmp && \
-    chown -R devdocker: /sitesync/log
+    chmod -R 777 /sitesync/tmp && \
+    chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # better shell config
