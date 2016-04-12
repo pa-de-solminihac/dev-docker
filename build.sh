@@ -14,7 +14,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
 fi
 
 BUILD_OK=0
-BUILD_CMD="docker build $@ -f devdocker/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker_usermode"
+BUILD_CMD="docker build $@ -f devdocker_usermode/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker_usermode"
 $BUILD_CMD && BUILD_OK=1
 if [ "$BUILD_OK" == "1" ]; then
     if [ -x "$DOCKERMACHINE_PATH" ]; then
