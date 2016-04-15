@@ -119,6 +119,8 @@ COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # better shell config
 WORKDIR /root/
+
+ARG CACHEBUST=1
 RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
     echo "source /root/.bashrc_local" >> /root/.bashrc && \
     ln -s /root/configuration/bash/.bashrc_local && \

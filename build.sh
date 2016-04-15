@@ -14,7 +14,9 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
 fi
 
 BUILD_OK=0
-BUILD_CMD="docker build $@ -f devdocker_usermode/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker_usermode"
+# bust cache if git repository updated
+export CACHEBUST="`git ls-remote https://github.com/pa-de-solminihac/configuration.git | grep refs/heads/master | cut -f 1`"
+BUILD_CMD="docker build $@ --build-arg CACHEBUST=$CACHEBUST -f devdocker_usermode/Dockerfile -t $DEVDOCKER_IMAGE:latest devdocker_usermode "
 $BUILD_CMD && BUILD_OK=1
 if [ "$BUILD_OK" == "1" ]; then
     if [ -x "$DOCKERMACHINE_PATH" ]; then
