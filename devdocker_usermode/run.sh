@@ -7,11 +7,10 @@
 /etc/init.d/exim4 start
 
 # fix mysql uid so that it matches host user uid
+groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
 usermod -u $USER_ID -g $GROUP_ID devdocker && \
     chown -R $USER_ID:$GROUP_ID /var/log/mysql && \
     chown -R $USER_ID:$GROUP_ID /var/lib/mysql
-
-#sleep 5
 
 # start mysql avec initialisation de la BD si necessaire
 if [ ! -d /var/lib/mysql/mysql ]; then
