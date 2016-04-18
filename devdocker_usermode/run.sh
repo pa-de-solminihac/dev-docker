@@ -6,15 +6,18 @@
 # start smtp server
 /etc/init.d/exim4 start
 
+# fix mysql uid so that it matches host user uid
+usermod -u $USER_ID -g $GROUP_ID devdocker && \
+    chown -R $USER_ID:$GROUP_ID /var/log/mysql && \
+    chown -R $USER_ID:$GROUP_ID /var/lib/mysql
+
+#sleep 5
+
 # start mysql avec initialisation de la BD si necessaire
 if [ ! -d /var/lib/mysql/mysql ]; then
     echo "Initializing mysql database"
-    mysql_install_db
+    mysql_install_db --user=devdocker
 fi
-
-# fix mysql uid so that it matches host user uid
-usermod -u $USER_ID -g $GROUP_ID devdocker && \
-    chown -R $USER_ID:$GROUP_ID /var/log/mysql
 
 # force root password and open to outside
 echo "" > /mysql-force-password.sql && \
