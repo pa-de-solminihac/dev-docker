@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# start rsyslog
+/etc/init.d/rsyslog start
+
 # start ssh
 /etc/init.d/ssh start
 
@@ -15,10 +18,11 @@ usermod -u $USER_ID -g $GROUP_ID devdocker && \
 # start mysql avec initialisation de la BD si necessaire
 if [ ! -d /var/lib/mysql/mysql ]; then
     echo "Initializing mysql database"
-    mysql_install_db --user=devdocker
+    sudo -u devdocker mysql_install_db --user=devdocker
 fi
 
 # force root password and open to outside
+chown devdocker: /var/log/dockersite
 echo "" > /mysql-force-password.sql && \
     chown devdocker:devdocker /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
@@ -37,7 +41,7 @@ echo "" > /root/.my.cnf && \
     echo "password=$MYSQL_FORCED_ROOT_PASSWORD" >> /root/.my.cnf && \
     cp -p /root/.my.cnf /home/devdocker/.my.cnf && \
     chown devdocker: /home/devdocker/.my.cnf && \
-    mkdir /var/run/mysqld && \
+    mkdir -p /var/run/mysqld && \
     chown devdocker: /var/run/mysqld && \
     exec sudo -u devdocker mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
