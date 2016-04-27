@@ -201,9 +201,9 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php && \
     sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_FORCED_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php && \
     echo '<?php' > /etc/phpmyadmin/conf.d/devdocker.php && \
-    echo '$cfg["MaxNavigationItems"] = 500;' >> /etc/phpmyadmin/conf.d/devdocker.php
-    echo '$sessionDuration = 60*60*24*7; // 60*60*24*7 = one week' >> /etc/phpmyadmin/conf.d/devdocker.php
-    echo 'ini_set("session.gc_maxlifetime", $sessionDuration);' >> /etc/phpmyadmin/conf.d/devdocker.php
+    echo '$cfg["MaxNavigationItems"] = 500;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
+    echo '$sessionDuration = 60*60*24*7; // 60*60*24*7 = one week' >> /etc/phpmyadmin/conf.d/devdocker.php && \
+    echo 'ini_set("session.gc_maxlifetime", $sessionDuration);' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["LoginCookieValidity"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
 # mysql (mariadb)
