@@ -241,6 +241,9 @@ RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /home/devdocker/.bashrc && \
 # cd /var/www/html at startup
 RUN echo 'cd /var/www/html' >> /home/devdocker/.bashrc
 
+# start ssh-agent at startup
+RUN echo 'if [ "$(pgrep ssh-agent)" == "" ]; then SSHAGENTEVAL="$(ssh-agent -s)"; echo "$SSHAGENTEVAL" | grep -v echo >> /home/devdocker/.bashrc; eval "$SSHAGENTEVAL"; fi' >> /home/devdocker/.bashrc
+
 RUN echo devdocker:devdocker | chpasswd
 
 # expose ports
