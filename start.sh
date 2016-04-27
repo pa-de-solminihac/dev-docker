@@ -80,9 +80,13 @@ docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh || true
 # allow user's own public key
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
-#PUBKEY_END="$(cat $SSH_PUBKEY | awk '{print $3}')"
 docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /root/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /root/.ssh/authorized_keys"
-docker exec "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /home/devdocker/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /home/devdocker/.ssh/authorized_keys"
+docker exec --user devdocker "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /home/devdocker/.ssh/authorized_keys || echo \"$PUBKEY_START $PUBKEY_MID devdocker_owner\" >> /home/devdocker/.ssh/authorized_keys"
+# fix for weird write permission bug on /hom/devdocker/.ssh directory
+docker exec --user devdocker "$DEVDOCKER_ID" sh -c "mv ~/.ssh ~/.ssh2 && mv ~/.ssh2 ~/.ssh"
+
+# TODO: identifier les commits faits depuis l'intérieur de la vm
+#PUBKEY_END="$(cat $SSH_PUBKEY | awk '{print $3}')"
 #docker exec "$DEVDOCKER_ID" sh -c "echo \"$PUBKEY_END\" >> /home/devdocker/.gitconfig"
 # forwarding ports only if VM is in use and ports are not already forwarded
 if [ -x "$DOCKERMACHINE_PATH" ]; then
@@ -103,4 +107,4 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
         fi
     fi
 fi
-$SSH_CMD || true
+$SSH_CMD "$@" || true
