@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+QUIET="$#"
+
 BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
@@ -51,23 +53,29 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
         "$DEVDOCKER_IMAGE")"
-    echo -ne "\033$TERM_COLOR_GREEN"
-    echo "# Attaching to freshly started container: "
-    echo -ne "\033$TERM_COLOR_NORMAL"
-    echo $DEVDOCKER_ID
+    if [[ "$QUIET" == "0" ]]; then
+        echo -ne "\033$TERM_COLOR_GREEN"
+        echo "# Attaching to freshly started container: "
+        echo -ne "\033$TERM_COLOR_NORMAL"
+        echo $DEVDOCKER_ID
+    fi
     # save container hosts file before we complete it with every login
     docker exec "$DEVDOCKER_ID" sh -c "cp /etc/hosts /etc/hosts.ori"
     # wait enough time for usermod to finish cleanly in run.sh
-    echo
-    echo -ne "\033$TERM_COLOR_YELLOW"
-    echo "# Fixing UID=$(id -u) and GID=$(id -g)"
-    echo -ne "\033$TERM_COLOR_NORMAL"
+    if [[ "$QUIET" == "0" ]]; then
+        echo
+        echo -ne "\033$TERM_COLOR_YELLOW"
+        echo "# Fixing UID=$(id -u) and GID=$(id -g)"
+        echo -ne "\033$TERM_COLOR_NORMAL"
+    fi
     sleep 5
 else
-    echo -ne "\033$TERM_COLOR_YELLOW"
-    echo "# Attaching to already running container: "
-    echo -ne "\033$TERM_COLOR_NORMAL"
-    echo $DEVDOCKER_ID
+    if [[ "$QUIET" == "0" ]]; then
+        echo -ne "\033$TERM_COLOR_YELLOW"
+        echo "# Attaching to already running container: "
+        echo -ne "\033$TERM_COLOR_NORMAL"
+        echo $DEVDOCKER_ID
+    fi
 fi
 
 # copy /etc/hosts at every startup
@@ -75,7 +83,9 @@ ETC_HOSTS="$(cat /etc/hosts)"
 docker exec "$DEVDOCKER_ID" sh -c "cat /etc/hosts.ori > /etc/hosts && echo \"$ETC_HOSTS\" >> /etc/hosts"
 
 # use SSH to attach to container and forward reserved ports
-echo
+if [[ "$QUIET" == "0" ]]; then
+    echo
+fi
 docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh || true
 # allow user's own public key
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
@@ -93,17 +103,21 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     if [ -x "$(which sudo 2> /dev/null)" ]; then
         PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
         if [ "$PORT_FW_PID" == "" ]; then
-            echo -ne "\033$TERM_COLOR_GREEN"
-            echo "# Forwarding ports using SSH"
-            echo -ne "\033$TERM_COLOR_NORMAL"
+            if [[ "$QUIET" == "0" ]]; then
+                echo -ne "\033$TERM_COLOR_GREEN"
+                echo "# Forwarding ports using SSH"
+                echo -ne "\033$TERM_COLOR_NORMAL"
+            fi
             sudo echo -n || exit # ask for root password again if sudo timed out
             # start new port forwarding and connect through ssh
             #sudo $SSH_PORT_FW_CMD &
             SILENCE="$(sudo $SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
         else
-            echo -ne "\033$TERM_COLOR_YELLOW"
-            echo "# Ports are already forwarded using SSH"
-            echo -ne "\033$TERM_COLOR_NORMAL"
+            if [[ "$QUIET" == "0" ]]; then
+                echo -ne "\033$TERM_COLOR_YELLOW"
+                echo "# Ports are already forwarded using SSH"
+                echo -ne "\033$TERM_COLOR_NORMAL"
+            fi
         fi
     fi
 fi
