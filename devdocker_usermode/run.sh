@@ -3,6 +3,9 @@
 # start rsyslog
 /etc/init.d/rsyslog start
 
+# start docker-engine
+/etc/init.d/docker start
+
 # start ssh
 /etc/init.d/ssh start
 

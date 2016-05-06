@@ -34,7 +34,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
         docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$'
     fi
-    DEVDOCKER_ID="$(docker run -d -i \
+    DEVDOCKER_ID="$(docker run --privileged -d -i \
         -p 8022:8022 \
         -p 80:80 \
         -p 443:443 \
