@@ -26,7 +26,7 @@ echo -ne "\033$TERM_COLOR_NORMAL"
 echo $DEVDOCKER_VM
 if [ "$($DOCKERMACHINE ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; then
     $DOCKERMACHINE start $DEVDOCKER_VM > /dev/null
-    sleep 2;
+    sleep 10;
 else
     echo
     echo -ne "\033$TERM_COLOR_RED"
