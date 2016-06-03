@@ -40,6 +40,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap php5-curl php5-gd
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imagick
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-oauth
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-pear
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu ncurses-bin
