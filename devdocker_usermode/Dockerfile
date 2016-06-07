@@ -60,6 +60,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential autoconf p
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install rsyslog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ssl-cert
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install unzip unrar-free p7zip-full
 
 # install libreoffice from backports
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
