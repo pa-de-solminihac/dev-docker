@@ -32,7 +32,7 @@ DEVDOCKER_ID="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | head -n 1 | 
 if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
-        docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$'
+        docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$' || (echo -ne "\033$TERM_COLOR_YELLOW" && echo && echo "# Warning: autoupdate failed" && echo && echo -ne "\033$TERM_COLOR_NORMAL")
     fi
     DEVDOCKER_ID="$(docker run --privileged -d -i \
         -p 8022:8022 \
