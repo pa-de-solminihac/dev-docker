@@ -1,7 +1,7 @@
 # config default values
 DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY="quai2.quai13.com:5000"
-DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker_usermode"
+DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
 DEVDOCKER_AUTOUPDATE="1"
 DOCKERSITE_ROOT="$HOME/dev-docker/dockersite"
 SSH_DIR="$HOME/.ssh"
