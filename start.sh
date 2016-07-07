@@ -41,6 +41,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -p 3306:3306 \
         -e "USER_ID=$(id -u)" \
         -e "GROUP_ID=$(id -g)" \
+        -e "USER_FULLNAME=\"$USER_FULLNAME\"" \
         -e "MYSQL_FORCED_ROOT_PASSWORD=$MYSQL_FORCED_ROOT_PASSWORD" \
         -e "BLACKFIRE_SERVER_ID=$BLACKFIRE_SERVER_ID" \
         -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
@@ -65,10 +66,20 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     if [[ "$QUIET" == "0" ]]; then
         echo
         echo -ne "\033$TERM_COLOR_YELLOW"
-        echo "# Fixing UID=$(id -u) and GID=$(id -g)"
-        echo -ne "\033$TERM_COLOR_NORMAL"
+        echo "# Mapping permissions:"
+        echo -n "    devdocker";
+        sleep 1;
+        echo -n " = "
+        sleep 1;
+        echo "$(id -n -u)"
+        sleep 1;
+        echo -n "    users"
+        sleep 1;
+        echo -n " = "
+        sleep 1;
+        echo -n "$(id -n -g)"
+        echo -e "\033$TERM_COLOR_NORMAL"
     fi
-    sleep 5
 else
     if [[ "$QUIET" == "0" ]]; then
         echo -ne "\033$TERM_COLOR_YELLOW"

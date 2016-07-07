@@ -33,3 +33,11 @@ TERM_COLOR_GRAY="[01;30m"
 TERM_COLOR_BOLD="[1m"
 TERM_COLOR_UNDERSCORE="[4m"
 TERM_COLOR_REVERSE="[7m"
+# detect user full name (real user full name if available, defaults to username)
+FINGER="$(which finger 2>/dev/null)"
+if [[ ( "$FINGER" != "" ) ]]; then
+    USER_FULLNAME="$($FINGER $(id -un) | head -1 | cut -d: -f3- | xargs)"
+fi
+if [[ ( "$USER_FULLNAME" == "" ) ]]; then
+    USER_FULLNAME="$(id -un)"
+fi

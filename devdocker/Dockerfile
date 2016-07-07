@@ -6,6 +6,9 @@ MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 # ENABLE REPOSITORIES
 #####################
 
+# choose a faster mirror
+COPY sources.list /etc/apt/sources.list
+
 # enable docker repository
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-transport-https ca-certificates
@@ -20,6 +23,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
+# enable dotdeb repository
+ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
+RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/dotdeb.key && \
+    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
 
 ##################
 # INSTALL PACKAGES
@@ -31,15 +38,24 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install docker-engine
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools dnsutils strace
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools dnsutils whois strace
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install sudo
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2 libapache2-mod-php5 php5-apcu
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install memcached php5-memcache php5-memcached
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl php-gettext
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd php5-pgsql
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json php5-xsl
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap php5-curl php5-gd
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install memcached
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apache2
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libapache2-mod-php5
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-apcu
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-memcache
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-memcached
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-pgsql
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-json
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-xsl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imap
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-curl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-gd
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imagick
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-gettext
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-oauth
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-pear
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion
@@ -66,6 +82,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install unzip unrar-free p7zip-ful
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreoffice-writer
 
+# install letsencrypt from backports
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports python-certbot-apache
 
 #################################
 # WORKAROUND for write permission
@@ -254,8 +272,13 @@ RUN echo 'if [ "$TERM" == "dumb" ]; then ' >> /home/devdocker/.bashrc && \
 # cd /var/www/html at startup
 RUN echo 'cd /var/www/html' >> /home/devdocker/.bashrc
 
+# longer log messages
+RUN echo '$MaxMessageSize 20k' > /etc/rsyslog.d/devdocker.conf
+
 # start ssh-agent at startup
 RUN echo 'if [ "$(pgrep ssh-agent)" == "" ]; then SSHAGENTEVAL="$(ssh-agent -s)"; echo "$SSHAGENTEVAL" | grep -v echo >> /home/devdocker/.bashrc; eval "$SSHAGENTEVAL"; fi' >> /home/devdocker/.bashrc
+
+RUN echo '' > /etc/motd
 
 RUN echo devdocker:devdocker | chpasswd
 

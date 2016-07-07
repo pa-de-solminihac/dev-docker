@@ -19,11 +19,11 @@ fi
 DEVDOCKER_IDS="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | awk '{print $1}')"
 if [ "$DEVDOCKER_IDS" == "" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
-    echo "# No running devdocker containers"
+    echo "# All devdocker containers are already stopped"
     echo -ne "\033$TERM_COLOR_NORMAL"
 else
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo "# Stopping running devdocker containers"
+    echo "# Stopping devdocker containers:"
     echo -ne "\033$TERM_COLOR_NORMAL"
     docker stop "$DEVDOCKER_IDS"
 fi
