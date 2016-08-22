@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# start rsyslog
+# start services
 /etc/init.d/rsyslog start
-
-# start docker-engine
+/etc/init.d/cron start
 /etc/init.d/docker start
-
-# start ssh
 /etc/init.d/ssh start
-
-# start smtp server
 /etc/init.d/exim4 start
 
 # fix devdocker uid so that it matches host user uid

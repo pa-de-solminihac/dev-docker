@@ -52,6 +52,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
         -v "$DOCKERSITE_ROOT/apache2:/etc/apache2/dockersite" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
+        -v "$DOCKERSITE_ROOT/crontabs:/var/spool/cron/crontabs" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
         "$DEVDOCKER_IMAGE")"
     if [[ "$QUIET" == "0" ]]; then
