@@ -7,13 +7,13 @@ MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 #####################
 
 # choose a faster mirror
-COPY sources.list /etc/apt/sources.list
+#COPY sources.list /etc/apt/sources.list
 
 # enable docker repository
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-transport-https ca-certificates
-RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
+#RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+#    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
@@ -24,9 +24,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 # enable dotdeb repository
-ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
-RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/dotdeb.key && \
-    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
+#ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
+#RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/dotdeb.key && \
+#    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
 
 ##################
 # INSTALL PACKAGES
@@ -34,7 +34,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/dotdeb.key && \
 
 # install required packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install docker-engine
+#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install docker-engine
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
@@ -85,6 +85,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreo
 # install letsencrypt from backports
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports python-certbot-apache
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install trash-cli
+
 #################################
 # WORKAROUND for write permission
 #################################
@@ -92,11 +94,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports python
 # See https://github.com/boot2docker/boot2docker/pull/534
 ENV USER_ID=9999
 ENV GROUP_ID=9999
-#RUN adduser --no-create-home --disabled-login --gecos "" devdocker --uid $USER_ID && \
-#    usermod -G staff mysql
 RUN addgroup devdocker --gid $GROUP_ID
 RUN adduser --disabled-login --gecos "devdocker" devdocker --uid $USER_ID --gid $GROUP_ID
-#RUN usermod -G users,mysql devdocker
 RUN echo "devdocker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/devdocker && \
     chmod 440 /etc/sudoers.d/devdocker
 
@@ -259,7 +258,7 @@ RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 RUN mkdir -p /home/devdocker/.ssh && chmod 700 /home/devdocker/.ssh
 
 # allow docker to run without sudo
-RUN gpasswd -a devdocker docker
+#RUN gpasswd -a devdocker docker
 
 # cleanup
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean
