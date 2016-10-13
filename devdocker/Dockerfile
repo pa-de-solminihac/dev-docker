@@ -121,6 +121,9 @@ RUN git clone https://github.com/danielgtaylor/jpeg-archive.git && \
     make && \
     make install
 
+# other image optimisation tools
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install jpegoptim gifsicle optipng pngquant
+
 # install wp-wned.sh
 COPY wp-wned.sh /usr/local/bin/
 
