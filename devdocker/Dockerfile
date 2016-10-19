@@ -148,6 +148,12 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
     chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
+# install cdiff
+WORKDIR /usr/local/src/
+RUN git clone https://github.com/ymattw/cdiff.git && \
+    cd cdiff && \
+    ./setup.py install
+
 # better shell config
 WORKDIR /root/
 
