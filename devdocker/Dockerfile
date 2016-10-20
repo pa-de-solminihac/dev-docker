@@ -124,6 +124,8 @@ RUN git clone https://github.com/danielgtaylor/jpeg-archive.git && \
 # other image optimisation tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install jpegoptim gifsicle optipng pngquant
 
+ARG CACHEBUST=1
+
 # install wp-wned.sh
 COPY wp-wned.sh /usr/local/bin/
 
@@ -142,22 +144,21 @@ RUN git clone https://github.com/pa-de-solminihac/php-auto-indent.git /usr/local
     chmod a+x /usr/local/src/php-auto-indent && \
     ln -s /usr/local/src/php-auto-indent/php-auto-indent /usr/local/bin
 
-# install sitesync
-RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
-    chmod -R 777 /sitesync/tmp && \
-    chmod -R 777 /sitesync/log
-COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
-
 # install cdiff
 WORKDIR /usr/local/src/
 RUN git clone https://github.com/ymattw/cdiff.git && \
     cd cdiff && \
     ./setup.py install
 
+# install sitesync
+RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
+    chmod -R 777 /sitesync/tmp && \
+    chmod -R 777 /sitesync/log
+COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
+
 # better shell config
 WORKDIR /root/
 
-ARG CACHEBUST=1
 RUN git clone https://github.com/pa-de-solminihac/configuration.git && \
     echo "source /root/.bashrc_local" >> /root/.bashrc && \
     ln -s /root/configuration/bash/.bashrc_local && \
@@ -173,6 +174,7 @@ RUN cp -pr /root/configuration /home/devdocker/ && \
     ln -s /home/devdocker/configuration/bash/.bashrc_local && \
     ln -s /home/devdocker/configuration/bash/.bashrc_common && \
     echo "source /home/devdocker/.vimrc_common" >> /home/devdocker/.vimrc && \
+    echo "for f in \$(find /home/devdocker/bashrc.d -maxdepth 1 -type f -name '*.sh'); do source \$f; done" >> /home/devdocker/.bashrc && \
     ln -s /home/devdocker/configuration/vim/.vimrc_common && \
     mkdir -p bin && \
     ln -s /home/devdocker/configuration/bin/diffconflicts bin/

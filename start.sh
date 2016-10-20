@@ -34,6 +34,15 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
         docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$' || (echo -ne "\033$TERM_COLOR_YELLOW" && echo && echo "# Warning: autoupdate failed" && echo && echo -ne "\033$TERM_COLOR_NORMAL")
     fi
+    # force required directories to exist
+    mkdir -p "$DOCKERSITE_ROOT/www"
+    mkdir -p "$DOCKERSITE_ROOT/database"
+    mkdir -p "$DOCKERSITE_ROOT/apache2"
+    mkdir -p "$DOCKERSITE_ROOT/log"
+    mkdir -p "$DOCKERSITE_ROOT/crontabs"
+    mkdir -p "$DOCKERSITE_ROOT/bashrc.d"
+    mkdir -p "$DOCKERSITE_ROOT/conf-sitesync"
+    # run container
     DEVDOCKER_ID="$(docker run --privileged -d -i \
         -p 8022:8022 \
         -p 80:80 \
@@ -53,6 +62,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/apache2:/etc/apache2/dockersite" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/crontabs:/var/spool/cron/crontabs" \
+        -v "$DOCKERSITE_ROOT/bashrc.d:/home/devdocker/bashrc.d" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
         "$DEVDOCKER_IMAGE")"
     if [[ "$QUIET" == "0" ]]; then
