@@ -1,20 +1,26 @@
-# dev-docker
+# dev-docker : un environnement de développement
 
-Une image Docker pour se faire une machine de dev
+Une image Docker pour se faire une machine de développement Linux sous Windows, MacOS et Linux
 
 # Il y a quoi dans la boîte ?
 
-Apache
-MySQL (mariadb)
-PHP
-phpMyAdmin
+Une plateforme LAMP : Linux (basé sur Debian Jessie) / Apache / MySQL (ou plutôt MariaDB) / PHP
 
-Divers outils en ligne de commande avec une [configuration de base](https://github.com/pa-de-solminihac/configuration/) à emporter partout avec [sbash](https://github.com/pa-de-solminihac/configuration/#emporter-cette-configuration-partout)
-
+Des outils pré-configurés : 
+- le classique [phpMyAdmin](https://www.phpmyadmin.net/)
+- [blackfire.io](https://blackfire.io/)
+- [git](https://git-scm.com/)
+- [composer](https://getcomposer.org/)
+- [imagemagick](http://www.imagemagick.org/script/index.php) et de quoi recompresser efficacement les divers formats d'images ([jpeg-recompress](https://github.com/danielgtaylor/jpeg-archive), etc...)
+- un [libreoffice](https://fr.libreoffice.org/) headless
+- l'outil [certbot](https://certbot.eff.org/) du projet [Letsencrypt](https://letsencrypt.org/)
 - [sitesync](https://github.com/pa-de-solminihac/sitesync)
 - [wp-cli](http://wp-cli.org/)
 - [drush](http://www.drush.org/en/master/)
-- wp-wned
+- `wp-wned.sh` pour scanner les vulnérabilités de sites
+- un [vim](http://www.vim.org) avec un config minimale mais portable au travers de connexions SSH
+- divers outils en ligne de commande avec une [configuration de base](https://github.com/pa-de-solminihac/configuration/) à emporter partout avec [sbash](https://github.com/pa-de-solminihac/configuration/#emporter-cette-configuration-partout)
+- etc... (mais ouvrez un ticket si vous voulez qu'on en rajoute)
 
 ## Dossiers montés
 
@@ -23,7 +29,7 @@ Divers outils en ligne de commande avec une [configuration de base](https://gith
 - `log` : fichiers logs des différents services (Apache access_log et error_log, PHP error_log, MySQL slow queries)
 - `apache2` : pour rajouter de la config Apache, par exemple des `<VirtualHost>` supplémentaires
 - `conf-sitesync` : fichiers de configuration à utiliser sous la forme `sitesync --conf=/sitesync/etc/...`
-
+- `bashrc.d` : fichiers `.sh` à lancer à chaque fois que vous vous connectez (pour retrouver vos alias...)
 
 # Installation
 
@@ -137,18 +143,3 @@ Puis il faut retoucher la configuration de VirtualBox :
 ### Remarques supplémentaires
 
 Sous windows, on ne peut monter que des sous-dossiers de `C:\Users\...`, sous la forme `/c/Users/...`
-
-
-# Cheatsheet
-
-```bash
-# générer l'image
-docker build -f devdocker/Dockerfile -t devdocker devdocker
-
-# sauver l'image dans un fichier .tar
-docker save -o devdocker.tar devdocker
-
-# importer l'image (sur une autre machine par exemple) à partir du fichier .tar
-docker load -i devdocker.tar
-
-```
