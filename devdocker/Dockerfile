@@ -174,7 +174,6 @@ RUN cp -pr /root/configuration /home/devdocker/ && \
     ln -s /home/devdocker/configuration/bash/.bashrc_local && \
     ln -s /home/devdocker/configuration/bash/.bashrc_common && \
     echo "source /home/devdocker/.vimrc_common" >> /home/devdocker/.vimrc && \
-    echo "for f in \$(find /home/devdocker/bashrc.d -maxdepth 1 -type f -name '*.sh'); do source \$f; done" >> /home/devdocker/.bashrc && \
     ln -s /home/devdocker/configuration/vim/.vimrc_common && \
     mkdir -p bin && \
     ln -s /home/devdocker/configuration/bin/diffconflicts bin/
@@ -287,6 +286,9 @@ RUN echo '$MaxMessageSize 20k' > /etc/rsyslog.d/devdocker.conf
 
 # start ssh-agent at startup
 RUN echo 'if [ "$(pgrep ssh-agent)" == "" ]; then SSHAGENTEVAL="$(ssh-agent -s)"; echo "$SSHAGENTEVAL" | grep -v echo >> /home/devdocker/.bashrc; eval "$SSHAGENTEVAL"; fi' >> /home/devdocker/.bashrc
+
+# source custom bashrc file at startup
+RUN echo "for f in \$(find /home/devdocker/bashrc.d -maxdepth 1 -type f -name '*.sh'); do source \$f; done" >> /home/devdocker/.bashrc
 
 RUN echo '' > /etc/motd
 
