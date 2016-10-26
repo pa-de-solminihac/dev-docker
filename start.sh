@@ -5,29 +5,6 @@ QUIET="$#"
 BASE_PATH="$(dirname "$0")"
 source $BASE_PATH/inc/init
 
-# run "git pull" if updates are available, so that scripts are always on par with docker images
-if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
-    GIT_CURRENT_BRANCH="$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
-    if [ "$(git fetch --all | grep -v 'Fetching origin'; git log --oneline ..origin/$GIT_CURRENT_BRANCH | wc -l | xargs)" != "0" ] && [ "$DEVDOCKER_DONT_GITPULL" != "1" ]; then
-        if [ "$(git status --short . | grep -v '^??' | wc -l)" != "0" ]; then
-            echo -ne "\033$TERM_COLOR_YELLOW";
-            echo
-            echo "# Warning: updates available, but git status is not clean. Skipping git autoupdate."
-            echo
-            echo -ne "\033$TERM_COLOR_NORMAL"
-            git status --short .
-            echo -ne "\033$TERM_COLOR_YELLOW";
-            echo
-            echo "# Skipping git autoupdate."
-            echo -ne "\033$TERM_COLOR_NORMAL"
-        else
-            git pull
-            DEVDOCKER_DONT_GITPULL="1" ./start.sh
-            exit
-        fi
-    fi
-fi
-
 # run docker-machine VM if necessary
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     # ask for root password as early as possible
@@ -53,8 +30,28 @@ docker rmi $(docker images --filter dangling=true -q 2>/dev/null) 2>/dev/null > 
 # attach to running container if possible, or spawn a new one
 DEVDOCKER_ID="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
+    # run "git pull" if updates are available, so that scripts are always on par with docker images
     # get latest image from local repository
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
+        GIT_CURRENT_BRANCH="$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
+        if [ "$(git fetch --all | grep -v 'Fetching origin'; git log --oneline ..origin/$GIT_CURRENT_BRANCH | wc -l | xargs)" != "0" ] && [ "$DEVDOCKER_DONT_GITPULL" != "1" ]; then
+            if [ "$(git status --short . | grep -v '^??' | wc -l)" != "0" ]; then
+                echo -ne "\033$TERM_COLOR_YELLOW";
+                echo
+                echo "# Warning: updates available, but git status is not clean. Skipping git autoupdate."
+                echo
+                echo -ne "\033$TERM_COLOR_NORMAL"
+                git status --short .
+                echo -ne "\033$TERM_COLOR_YELLOW";
+                echo
+                echo "# Skipping git autoupdate."
+                echo -ne "\033$TERM_COLOR_NORMAL"
+            else
+                git pull
+                DEVDOCKER_DONT_GITPULL="1" ./start.sh
+                exit
+            fi
+        fi
         docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$' || (echo -ne "\033$TERM_COLOR_YELLOW" && echo && echo "# Warning: autoupdate failed" && echo && echo -ne "\033$TERM_COLOR_NORMAL")
     fi
     # force required directories to exist
