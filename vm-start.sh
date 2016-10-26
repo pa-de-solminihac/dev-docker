@@ -12,7 +12,7 @@ if [ ! -x "$DOCKERMACHINE_PATH" ]; then
     exit
 fi
 
-if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" == "Running" ]; then
+if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" == "Running" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
     echo "# Docker VM is already running: "
     echo -ne "\033$TERM_COLOR_NORMAL"
@@ -24,8 +24,8 @@ echo -ne "\033$TERM_COLOR_GREEN"
 echo "# Starting Docker VM: "
 echo -ne "\033$TERM_COLOR_NORMAL"
 echo $DEVDOCKER_VM
-if [ "$($DOCKERMACHINE ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; then
-    $DOCKERMACHINE start $DEVDOCKER_VM > /dev/null
+if [ "$("$DOCKERMACHINE" ls -q | grep "^$DEVDOCKER_VM$")" == "$DEVDOCKER_VM" ]; then
+    "$DOCKERMACHINE" start $DEVDOCKER_VM > /dev/null
     sleep 10;
 else
     echo
@@ -39,15 +39,16 @@ fi
 
 # set environment variables
 source $BASE_PATH/inc/vm-eval
+echo "$DOCKERMACHINEIP"
 eval "$DOCKER_ENV_VARS"
 echo
 echo -ne "\033$TERM_COLOR_YELLOW"
 echo "# Run this command to configure your shell:"
 echo -ne "\033$TERM_COLOR_NORMAL"
-echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
+echo "eval \"\$(\""$DOCKERMACHINE"\" $DOCKER_ENV_VARS_CMD_OPTS)\""
 
 # allow local repository if necessary
-$DOCKERMACHINE ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry $DEVDOCKER_REPOSITORY/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
+"$DOCKERMACHINE" ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry $DEVDOCKER_REPOSITORY/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
 
 # mount $HOME/dev through nfs
 # needs this in /etc/exports: /Users/pa/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0
@@ -57,8 +58,8 @@ if [ -x "$(which sudo 2> /dev/null)" ]; then
     echo "# Mounting NFS share: "
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "$HOME/dev"
-    $DOCKERMACHINE ssh $DEVDOCKER_VM "sudo mount | grep -q '\.ssh.*nfs' || sudo mkdir -p $HOME/.ssh && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/.ssh $HOME/.ssh || echo 'NFS mount failed: $HOME/.ssh'"
-    $DOCKERMACHINE ssh $DEVDOCKER_VM "sudo mount | grep -q '/dev.*nfs' || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed: $HOME/dev'"
+    "$DOCKERMACHINE" ssh $DEVDOCKER_VM "sudo mount | grep -q '\.ssh.*nfs' || sudo mkdir -p $HOME/.ssh && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/.ssh $HOME/.ssh || echo 'NFS mount failed: $HOME/.ssh'"
+    "$DOCKERMACHINE" ssh $DEVDOCKER_VM "sudo mount | grep -q '/dev.*nfs' || sudo mkdir -p $HOME/dev && sudo mount -t nfs -o noatime,soft,nolock,vers=3,udp,proto=udp,rsize=8192,wsize=8192,namlen=255,timeo=10,retrans=3,nfsvers=3 192.168.99.1:$HOME/dev $HOME/dev || echo 'NFS mount failed: $HOME/dev'"
 fi
 
 echo
@@ -66,7 +67,7 @@ echo -ne "\033$TERM_COLOR_GREEN"
 echo "# Docker VM running: "
 echo -ne "\033$TERM_COLOR_NORMAL"
 echo $DEVDOCKER_VM
-DOCKERMACHINEIP="$($DOCKERMACHINE ip $DEVDOCKER_VM)"
+DOCKERMACHINEIP="$("$DOCKERMACHINE" ip $DEVDOCKER_VM)"
 echo "$DOCKERMACHINEIP"
 
 # recreate port forwarding rules

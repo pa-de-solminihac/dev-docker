@@ -5,7 +5,7 @@ source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
+    if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         . ./vm-start.sh
     fi
     # set environment variables
@@ -24,7 +24,7 @@ if [ "$BUILD_OK" == "1" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Run this command to configure your shell:"
         echo -ne "\033$TERM_COLOR_NORMAL"
-        echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
+        echo "eval \"\$(\""$DOCKERMACHINE"\" $DOCKER_ENV_VARS_CMD_OPTS)\""
         echo
     fi
     echo -ne "\033$TERM_COLOR_GREEN"

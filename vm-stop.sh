@@ -5,7 +5,7 @@ source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
+    if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Docker VM is not running: "
         echo -ne "\033$TERM_COLOR_NORMAL"
@@ -19,5 +19,5 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     # delete port forwarding rules
     VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "tcp-port-8022" > /dev/null 2>&1 || true
     VBoxManage controlvm "$DEVDOCKER_VM" natpf1 delete "udp-port-8022" > /dev/null 2>&1 || true
-    $DOCKERMACHINE stop $DEVDOCKER_VM > /dev/null 2>&1 || true
+    "$DOCKERMACHINE" stop $DEVDOCKER_VM > /dev/null 2>&1 || true
 fi

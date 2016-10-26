@@ -5,7 +5,7 @@ source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
+    if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Docker VM is not running: "
         echo -ne "\033$TERM_COLOR_NORMAL"
@@ -25,6 +25,6 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
     echo "# Run this command to configure your shell:"
     echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "eval \"\$($DOCKER_ENV_VARS_CMD)\""
+    echo "eval \"\$(\""$DOCKERMACHINE"\" $DOCKER_ENV_VARS_CMD_OPTS)\""
 
 fi

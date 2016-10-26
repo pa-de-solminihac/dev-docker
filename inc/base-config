@@ -10,7 +10,7 @@ MYSQL_FORCED_ROOT_PASSWORD="$(openssl rand -base64 32 | cut -c1-16)"
 DOCKERMACHINE_PATH="$(which docker-machine 2>/dev/null)"
 #DOCKERMACHINE_OPTS="--native-ssh"
 DOCKERMACHINE_OPTS=""
-DOCKERMACHINE="$DOCKERMACHINE_PATH $DOCKERMACHINE_OPTS"
+DOCKERMACHINE="$DOCKERMACHINE_PATH"
 DOCKERMACHINEIP="127.0.0.1"
 # base colors
 TERM_COLOR_NORMAL="[0m"
@@ -35,8 +35,10 @@ TERM_COLOR_UNDERSCORE="[4m"
 TERM_COLOR_REVERSE="[7m"
 # detect user full name (real user full name if available, defaults to username)
 FINGER="$(which finger 2>/dev/null || true)"
-if [ "$FINGER" != "" ]; then
-    USER_FULLNAME="$($FINGER $(id -un) | head -1 | cut -d: -f3- | xargs)"
+if [ "$OS" != "Windows_NT" ]; then
+    if [ "$FINGER" != "" ]; then
+        USER_FULLNAME="$($FINGER $(id -un) | head -1 | cut -d: -f3- | xargs)"
+    fi
 fi
 if [ "$USER_FULLNAME" == "" ]; then
     USER_FULLNAME="$(id -un)"

@@ -5,7 +5,7 @@ source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
+    if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Already stopped"
         echo -ne "\033$TERM_COLOR_NORMAL"
@@ -29,7 +29,7 @@ else
 fi
 
 # cleanup exited devdocker containers
-docker ps -a -q --filter "ancestor=$DEVDOCKER_REPOSITORY/devdocker" | xargs -n 1 -I {} docker rm {}
+docker ps -a -q --filter "ancestor=$DEVDOCKER_REPOSITORY/devdocker" | xargs -n 1 -I {} docker rm {} > /dev/null
 
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     echo

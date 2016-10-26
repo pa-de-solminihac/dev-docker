@@ -12,7 +12,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
         sudo echo -n || exit # ask for root password only once
     fi
     # checking if docker VM is running ($DEVDOCKER_VM)
-    if [ "$($DOCKERMACHINE status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
+    if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         . ./vm-start.sh
         echo
     fi
@@ -123,24 +123,25 @@ docker exec --user devdocker "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /ho
 #docker exec "$DEVDOCKER_ID" sh -c "echo \"$PUBKEY_END\" >> /home/devdocker/.gitconfig"
 # forwarding ports only if VM is in use and ports are not already forwarded
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    if [ -x "$(which sudo 2> /dev/null)" ]; then
-        PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
-        if [ "$PORT_FW_PID" == "" ]; then
-            if [[ "$QUIET" == "0" ]]; then
-                echo -ne "\033$TERM_COLOR_GREEN"
-                echo "# Forwarding ports using SSH"
-                echo -ne "\033$TERM_COLOR_NORMAL"
-            fi
+    PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
+    if [ "$PORT_FW_PID" == "" ]; then
+        if [[ "$QUIET" == "0" ]]; then
+            echo -ne "\033$TERM_COLOR_GREEN"
+            echo "# Forwarding ports using SSH"
+            echo -ne "\033$TERM_COLOR_NORMAL"
+        fi
+        if [ -x "$(which sudo 2> /dev/null)" ]; then
             sudo echo -n || exit # ask for root password again if sudo timed out
-            # start new port forwarding and connect through ssh
-            #sudo $SSH_PORT_FW_CMD &
             SILENCE="$(sudo $SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
         else
-            if [[ "$QUIET" == "0" ]]; then
-                echo -ne "\033$TERM_COLOR_YELLOW"
-                echo "# Ports are already forwarded using SSH"
-                echo -ne "\033$TERM_COLOR_NORMAL"
-            fi
+            SILENCE="$($SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
+        fi
+
+    else
+        if [[ "$QUIET" == "0" ]]; then
+            echo -ne "\033$TERM_COLOR_YELLOW"
+            echo "# Ports are already forwarded using SSH"
+            echo -ne "\033$TERM_COLOR_NORMAL"
         fi
     fi
 fi
