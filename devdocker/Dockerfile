@@ -36,6 +36,7 @@ RUN a2enmod rewrite && \
     a2enmod headers && \
     a2enmod expires && \
     a2enmod ssl && \
+    a2enmod vhost_alias && \
     mkdir -p /etc/apache2/dockersite-vhosts && \
     echo "IncludeOptional dockersite-vhosts/*.conf" >> /etc/apache2/apache2.conf && \
     echo "Servername localhost" >> /etc/apache2/apache2.conf && \
