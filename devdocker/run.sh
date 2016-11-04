@@ -6,6 +6,7 @@
 /etc/init.d/docker start
 /etc/init.d/ssh start
 /etc/init.d/exim4 start
+/etc/init.d/memcached start
 
 # fix devdocker uid so that it matches host user uid
 groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
