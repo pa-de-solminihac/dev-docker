@@ -20,6 +20,11 @@ ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
 RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
     echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list
 
+# enable elasticsearch logstash kibana additional repository
+ADD https://artifacts.elastic.co/GPG-KEY-elasticsearch /tmp/elasticsearch.key
+RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/elasticsearch.key && \
+    echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list
+
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
@@ -77,15 +82,18 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install rsyslog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install imagemagick
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ssl-cert
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install unzip unrar-free p7zip-full
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install trash-cli
 
 # install libreoffice from backports
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-7-jre
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-8-jre && \
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreoffice-writer
 
 # install letsencrypt from backports
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports python-certbot-apache
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install trash-cli
+# install elasticsearch logstash kibana
+RUN DEBIAN_FRONTEND=noninteractive apt-get install elasticsearch logstash kibana
 
 #################################
 # WORKAROUND for write permission
@@ -151,10 +159,19 @@ RUN git clone https://github.com/ymattw/cdiff.git && \
     ./setup.py install
 
 # install sitesync
+WORKDIR /usr/local/src/
 RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
     chmod -R 777 /sitesync/tmp && \
     chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
+
+# configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana)
+RUN sed -i 's/#network.host: 192.168.0.1/network.host: 0.0.0.0/g' /etc/elasticsearch/elasticsearch.yml
+RUN sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml
+RUN mkdir -p /usr/local/src/metricbeat
+WORKDIR /usr/local/src/metricbeat
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.0.0-amd64.deb
+RUN dpkg -i metricbeat-5.0.0-amd64.deb
 
 # better shell config
 WORKDIR /root/

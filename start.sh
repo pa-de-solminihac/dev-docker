@@ -68,6 +68,9 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -p 80:80 \
         -p 443:443 \
         -p 3306:3306 \
+        -p 9200:9200 \
+        -p 9300:9300 \
+        -p 5601:5601 \
         -e "USER_ID=$(id -u)" \
         -e "GROUP_ID=$(id -g)" \
         -e "USER_FULLNAME=\"$USER_FULLNAME\"" \
