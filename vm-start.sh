@@ -32,7 +32,12 @@ else
     echo -ne "\033$TERM_COLOR_RED"
     echo "# Docker VM does not exist, maybe you should create it first, then run the restart script:"
     echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "$DOCKERMACHINE create -d virtualbox --virtualbox-memory 2048 --virtualbox-no-share \"$DEVDOCKER_VM\" && ./vm-restart.sh"
+    echo "\"$DOCKERMACHINE\" create -d virtualbox --virtualbox-memory 2048 --virtualbox-no-share \"$DEVDOCKER_VM\" && ./vm-restart.sh"
+    echo
+    echo -ne "\033$TERM_COLOR_RED"
+    echo "# Then allow the use of your private registry \"$DEVDOCKER_REPOSITORY\":"
+    echo -ne "\033$TERM_COLOR_NORMAL"
+    echo "\"$DOCKERMACHINE\" ssh \"$DEVDOCKER_VM\" \"sudo sed -i 's/^--label provider=virtualbox$/--label provider=virtualbox --insecure-registry $DEVDOCKER_REPOSITORY/g' /var/lib/boot2docker/profile\""
     echo
     exit
 fi
