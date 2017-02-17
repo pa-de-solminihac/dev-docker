@@ -7,10 +7,6 @@
 /etc/init.d/ssh start
 /etc/init.d/exim4 start
 /etc/init.d/memcached start
-# those use too much memory
-#/etc/init.d/elasticsearch start
-#/etc/init.d/kibana start
-#/etc/init.d/metricbeat start
 
 # fix devdocker uid so that it matches host user uid
 groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
