@@ -18,6 +18,7 @@ chfn devdocker -f "$USER_FULLNAME"
 # start mysql, initializing DB if necessary
 if [ ! -d /var/lib/mysql/mysql ]; then
     echo "Initializing mysql database"
+    sudo rm -f /var/lib/mysql/.gitignore
     sudo -u devdocker mysql_install_db --user=devdocker
 fi
 
