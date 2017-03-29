@@ -1,4 +1,4 @@
-# dev-docker : un environnement de développement
+# dev-docker : un environnement de développement web
 
 Une image Docker pour se faire une machine de développement Linux sous Windows, MacOS et Linux
 
