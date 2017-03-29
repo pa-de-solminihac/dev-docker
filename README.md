@@ -34,11 +34,10 @@ Des outils pré-configurés :
 # Installation
 
 > **Pré-requis**
-> 
-> Il faut [installer Docker](#requirements)
-> 
-> Ne pas oublier de **permettre l'exécution de docker sans sudo**
+> Il faut [installer Docker](#pré-requis)
+> Ne pas oublier de [permettre l'exécution de docker sans sudo](#permettre-lexécution-de-docker-sans-sudo)
 
+L'installation se fait alors par un simple _git clone_ :
 ```bash
 git clone https://github.com/pa-de-solminihac/dev-docker
 cd dev-docker
