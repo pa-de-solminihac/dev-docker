@@ -57,26 +57,8 @@ Puis réglez les variables selon votre installation.
 cp -pr dockersite ~/dev
 ```
 
-**Remarque** : sous Windows, il faut impérativement que le dossier `dockersite` soit dans `C:\Users\...`
+**Remarque** : sous Windows, il faut impérativement que le dossier `dockersite` soit dans `C:\Users\...`, et on doit spécifier son chemin sous la forme `/c/Users/...`
 
-
-### Amélioration des performances
-
-Pour OS X, les performances du partage de dossiers de VirtualBox étant médiocres, on va utiliser à la place un partage NFS.
-
-Editer le fichier /etc/exports (avec sudo, penser à remplacer `UTILISATEUR` par votre nom d'utilisateur)
-
-```bash
-$ sudo vim /etc/export
-/Users/UTILISATEUR/.ssh -alldirs -mapall=UTILISATEUR -network 192.168.99.0 -mask 255.255.255.0
-/Users/UTILISATEUR/dev -alldirs -mapall=UTILISATEUR -network 192.168.99.0 -mask 255.255.255.0
-```
-
-Puis relancer le service `nfsd`
-
-```bash
-sudo nfsd checkexports && sudo nfsd -v -v -v restart && echo "NFS restarted" || echo "NFS error"
-```
 
 # Utilisation
 
@@ -117,6 +99,24 @@ On peut faire l'installation avec Homebrew
 brew cask install dockertoolbox
 ```
 
+### Amélioration des performances sous OSX
+
+Pour OS X, les performances du partage de dossiers de VirtualBox étant médiocres, on va utiliser à la place un partage NFS.
+
+Editer le fichier /etc/exports (avec sudo, penser à remplacer `UTILISATEUR` par votre nom d'utilisateur)
+
+```bash
+$ sudo vim /etc/export
+/Users/UTILISATEUR/.ssh -alldirs -mapall=UTILISATEUR -network 192.168.99.0 -mask 255.255.255.0
+/Users/UTILISATEUR/dev -alldirs -mapall=UTILISATEUR -network 192.168.99.0 -mask 255.255.255.0
+```
+
+Puis relancer le service `nfsd`
+
+```bash
+sudo nfsd checkexports && sudo nfsd -v -v -v restart && echo "NFS restarted" || echo "NFS error"
+```
+
 
 ## Windows
 
@@ -147,8 +147,3 @@ Puis il faut retoucher la configuration de VirtualBox :
     Click OK
 
     Double click on the Boot2Docker Start icon to reinitialize everything.
-
-
-### Remarques supplémentaires
-
-Sous windows, on ne peut monter que des sous-dossiers de `C:\Users\...`, sous la forme `/c/Users/...`
