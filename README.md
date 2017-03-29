@@ -2,7 +2,7 @@
 
 Une image Docker pour se faire une machine de développement Linux sous Windows, MacOS et Linux
 
-# Il y a quoi dans la boîte ?
+## Il y a quoi dans la boîte ?
 
 Une plateforme LAMP : Linux (basé sur Debian Jessie) / Apache / MySQL (ou plutôt MariaDB) / PHP
 
@@ -33,7 +33,11 @@ Des outils pré-configurés :
 
 # Installation
 
-Il faut [installer Docker](#requirements)
+> **Pré-requis**
+> 
+> Il faut [installer Docker](#requirements)
+> 
+> Ne pas oublier de **permettre l'exécution de docker sans sudo**
 
 ```bash
 git clone https://github.com/pa-de-solminihac/dev-docker
@@ -100,6 +104,12 @@ Il vous faut une installation fonctionnelle de Docker
 
 C'est le cas le plus simple. Voir https://docs.docker.com/docker/installation/debian/
 
+### Permettre l'exécution de docker sans sudo
+```
+sudo groupadd docker
+sudo gpasswd -a ${USER} docker
+# vous devrez vous déconnecter de votre session pour que cette modif soit prise en compte
+```
 
 ## Mac OS X
 
