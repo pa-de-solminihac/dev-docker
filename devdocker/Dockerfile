@@ -9,21 +9,26 @@ MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 # choose a faster mirror
 #COPY sources.list /etc/apt/sources.list
 
-# enable docker repository
+# enable docker repository for docker-in-docker
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-transport-https ca-certificates
-#RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-#    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
 RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/blackfire.key && \
     echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list
 
+# enable elasticsearch logstash kibana additional repository
+ADD https://artifacts.elastic.co/GPG-KEY-elasticsearch /tmp/elasticsearch.key
+RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/elasticsearch.key && \
+    echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list
+
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
-# enable dotdeb repository
+# enable dotdeb repository for php7
 #ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
 #RUN DEBIAN_FRONTEND=noninteractive apt-key add /tmp/dotdeb.key && \
 #    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
@@ -34,7 +39,7 @@ RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /e
 
 # install required packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
-#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install docker-engine
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install docker-engine
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install dialog
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install locales-all
@@ -46,6 +51,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libapache2-mod-php5
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-apcu
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-memcache
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-memcached
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install redis-server php5-redis
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-intl
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-mysqlnd
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-pgsql
@@ -57,6 +63,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-gd
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-imagick
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-gettext
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-oauth
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-pspell
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-ssh2
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-ldap
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php5-sqlite
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install php-pear
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install bash bash-completion
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ncdu ncurses-bin
@@ -80,12 +90,16 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install unzip unrar-free p7zip-ful
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install trash-cli
 
 # install libreoffice from backports
-#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install openjdk-8-jre && \
-#    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-#RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreoffice-writer
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports libreoffice-writer
 
 # install letsencrypt from backports
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install -t jessie-backports python-certbot-apache
+
+# install elasticsearch logstash kibana
+RUN DEBIAN_FRONTEND=noninteractive ES_SKIP_SET_KERNEL_PARAMETERS=true apt-get install elasticsearch logstash kibana
+
 
 #################################
 # WORKAROUND for write permission
@@ -157,6 +171,17 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
     chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
+# configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana)
+RUN sed -i 's/#network.host: 192.168.0.1/network.host: 0.0.0.0/g' /etc/elasticsearch/elasticsearch.yml
+RUN sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml
+RUN mkdir -p /usr/local/src/metricbeat
+WORKDIR /usr/local/src/metricbeat
+RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.0.0-amd64.deb
+RUN dpkg -i metricbeat-5.0.0-amd64.deb
+
+# configure redis-server to allow remote access
+RUN sed -i -e 's/^bind /#bind /' '/etc/redis/redis.conf'
+
 # better shell config
 WORKDIR /root/
 
@@ -201,7 +226,7 @@ COPY blackfire-client /home/devdocker/.blackfire.ini
 
 # apache
 COPY 000-default.conf /etc/apache2/sites-enabled/
-RUN make-ssl-cert generate-default-snakeoil
+RUN DEBIAN_FRONTEND=noninteractive make-ssl-cert generate-default-snakeoil
 RUN a2enmod rewrite && \
     a2enmod headers && \
     a2enmod expires && \
@@ -247,6 +272,7 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
 
 # mysql (mariadb)
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
+    sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
     sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf && \
@@ -269,8 +295,26 @@ COPY copy-ssh-config.sh /
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 RUN mkdir -p /home/devdocker/.ssh && chmod 700 /home/devdocker/.ssh
 
+
+# install lftp
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install lftp
+# install youtube-dl
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install youtube-dl
+# install exiftool
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install libimage-exiftool-perl
+
+# install varnish
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install varnish
+#RUN /bin/rm /etc/default/varnish*
+RUN /bin/cp -a /lib/systemd/system/varnish.service /etc/systemd/system
+COPY varnish/varnish.service /etc/systemd/system/varnish.service
+COPY varnish/reload-vcl.sh /etc/varnish/reload-vcl.sh
+COPY varnish/prestashop.vcl /etc/varnish/default.vcl
+RUN chmod 700 /etc/varnish/reload-vcl.sh
+
+
 # allow docker to run without sudo
-#RUN gpasswd -a devdocker docker
+RUN gpasswd -a devdocker docker
 
 # cleanup
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y clean

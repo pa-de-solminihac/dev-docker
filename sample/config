@@ -1,3 +1,9 @@
+# conditionnal startup for memory hungry services
+START_DOCKER_IN_DOCKER=0
+START_MEMCACHED=1
+START_VARNISH=0
+START_REDIS=0
+START_ELK=0
 # chemins
 DEVDOCKER_AUTOUPDATE="1"
 DEVDOCKER_VM="default"

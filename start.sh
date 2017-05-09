@@ -7,20 +7,18 @@ source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    # ask for root password as early as possible
+    # ask for root password as early as possible, and only once, to improve UX
     if [ -x "$(which sudo 2> /dev/null)" ]; then
-        sudo echo -n || exit # ask for root password only once
+        sudo echo -n || exit
     fi
     # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         . ./vm-start.sh
         echo
     fi
-
     # setting environment variables
     source $BASE_PATH/inc/vm-eval
     eval "$DOCKER_ENV_VARS"
-    #env | grep DOCKER
 fi
 
 # cleanup exited devdocker containers
@@ -55,21 +53,24 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$' || (echo -ne "\033$TERM_COLOR_YELLOW" && echo && echo "# Warning: autoupdate failed" && echo && echo -ne "\033$TERM_COLOR_NORMAL")
     fi
     # force required directories to exist
-    mkdir -p "$DOCKERSITE_ROOT/www"
-    mkdir -p "$DOCKERSITE_ROOT/database"
-    mkdir -p "$DOCKERSITE_ROOT/apache2"
-    mkdir -p "$DOCKERSITE_ROOT/log"
-    mkdir -p "$DOCKERSITE_ROOT/crontabs"
-    mkdir -p "$DOCKERSITE_ROOT/bashrc.d"
-    mkdir -p "$DOCKERSITE_ROOT/conf-sitesync"
+    mkdir -p "$DOCKERSITE_ROOT"/www
+    mkdir -p "$DOCKERSITE_ROOT"/database
+    chmod 755 "$DOCKERSITE_ROOT"/database/*
+    mkdir -p "$DOCKERSITE_ROOT"/apache2
+    mkdir -p "$DOCKERSITE_ROOT"/log
+    mkdir -p "$DOCKERSITE_ROOT"/crontabs
+    mkdir -p "$DOCKERSITE_ROOT"/bashrc.d
+    mkdir -p "$DOCKERSITE_ROOT"/conf-sitesync
     # run container
-    DEVDOCKER_ID="$(docker run --privileged -d -i \
+    DEVDOCKER_ID="$(docker run -h $DEVDOCKER_HOSTNAME --rm --privileged -d -i \
         -p 8022:8022 \
         -p 80:80 \
         -p 443:443 \
         -p 3306:3306 \
         -p 9200:9200 \
         -p 9300:9300 \
+        -p 6081:6081 \
+        -p 6082:6082 \
         -p 5601:5601 \
         -e "USER_ID=$(id -u)" \
         -e "GROUP_ID=$(id -g)" \
@@ -79,6 +80,11 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
         -e "BLACKFIRE_CLIENT_ID=$BLACKFIRE_CLIENT_ID" \
         -e "BLACKFIRE_CLIENT_TOKEN=$BLACKFIRE_CLIENT_TOKEN" \
+        -e "START_DOCKER_IN_DOCKER=$START_DOCKER_IN_DOCKER" \
+        -e "START_MEMCACHED=$START_MEMCACHED" \
+        -e "START_VARNISH=$START_VARNISH" \
+        -e "START_REDIS=$START_REDIS" \
+        -e "START_ELK=$START_ELK" \
         -v "$SSH_DIR:/home/devdocker/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
@@ -146,7 +152,8 @@ docker exec --user devdocker "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /ho
 #docker exec "$DEVDOCKER_ID" sh -c "echo \"$PUBKEY_END\" >> /home/devdocker/.gitconfig"
 # forwarding ports only if VM is in use and ports are not already forwarded
 if [ -x "$DOCKERMACHINE_PATH" ]; then
-    PORT_FW_PID="$(ps auwx | (grep "$SSH_PORT_FW_CMD" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
+    # no quotes around echo $SSH_PORT_FW_CMD to suppress additionnal spaces, or grep wont grep
+    PORT_FW_PID="$(ps auwx | (grep "$(echo $SSH_PORT_FW_CMD)" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
     if [ "$PORT_FW_PID" == "" ]; then
         if [[ "$QUIET" == "0" ]]; then
             echo -ne "\033$TERM_COLOR_GREEN"
@@ -155,6 +162,8 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
         fi
         if [ -x "$(which sudo 2> /dev/null)" ]; then
             sudo echo -n || exit # ask for root password again if sudo timed out
+            # OSX specific: bind 127.0.0.2 to loopback, cf. https://superuser.com/a/458877/496146
+            SILENCE="$(sudo ifconfig lo0 alias 127.0.0.2 up)" &
             SILENCE="$(sudo $SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
         else
             SILENCE="$($SSH_PORT_FW_CMD 2>&1 > /dev/null)" &

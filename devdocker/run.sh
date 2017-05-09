@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# start services
+# basic services startup
 /etc/init.d/rsyslog start
 /etc/init.d/cron start
-/etc/init.d/docker start
 /etc/init.d/ssh start
 /etc/init.d/exim4 start
-/etc/init.d/memcached start
 
 # fix devdocker uid so that it matches host user uid
 groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
@@ -22,6 +20,10 @@ if [ ! -d /var/lib/mysql/mysql ]; then
     sudo -u devdocker mysql_install_db --user=devdocker
 fi
 
+# force debian-sys-maint
+sed -i 'debian-sys-maint' 'root' /etc/mysql/debian.cnf
+sed -i 'debian-sys-maint' 'root' /etc/mysql/debian.cnf
+sed -i '^password = .*' "password = $MYSQL_FORCED_ROOT_PASSWORD" /etc/mysql/debian.cnf
 # force root password and open to outside
 echo "" > /mysql-force-password.sql && \
     chown devdocker:devdocker /mysql-force-password.sql && \
@@ -84,6 +86,25 @@ sed -i "s/^;blackfire.server_id =.*/blackfire.server_id = $BLACKFIRE_SERVER_ID/g
 sed -i "s/^;blackfire.server_token =.*/blackfire.server_token = $BLACKFIRE_SERVER_TOKEN/g" /etc/php5/mods-available/blackfire.ini
 sed -i "s/^;blackfire.log_file = .*/blackfire.log_file = \/tmp\/blackfire.log/g" /etc/php5/mods-available/blackfire.ini
 /etc/init.d/blackfire-agent start
+
+# conditionnal services startup
+if [[ "$START_DOCKER_IN_DOCKER" == "1" ]]; then
+    /etc/init.d/docker start
+fi
+if [[ "$START_MEMCACHED" == "1" ]]; then
+    /etc/init.d/memcached start
+fi
+if [[ "$START_VARNISH" == "1" ]]; then
+    /etc/init.d/varnish start
+fi
+if [[ "$START_REDIS" == "1" ]]; then
+    /etc/init.d/redis-server start
+fi
+if [[ "$START_ELK" == "1" ]]; then
+    /etc/init.d/elasticsearch start
+    /etc/init.d/kibana start
+    /etc/init.d/metricbeat start
+fi
 
 # start apache
 source /etc/apache2/envvars

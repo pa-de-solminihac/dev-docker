@@ -1,8 +1,15 @@
+# conditionnal startup for memory hungry services
+START_DOCKER_IN_DOCKER=0
+START_MEMCACHED=1
+START_VARNISH=0
+START_REDIS=0
+START_ELK=0
 # config default values
 DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY="quai2.quai13.com:5000"
 DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
 DEVDOCKER_AUTOUPDATE="1"
+DEVDOCKER_HOSTNAME="devdocker.$(hostname)"
 DOCKERSITE_ROOT="$HOME/dev-docker/dockersite"
 SSH_DIR="$HOME/.ssh"
 SSH_PRIVKEY="$SSH_DIR/id_rsa"
