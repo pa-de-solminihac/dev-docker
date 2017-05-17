@@ -13,18 +13,20 @@ usermod -u $USER_ID -g $GROUP_ID devdocker && \
     chown -R $USER_ID:$GROUP_ID /var/lib/mysql
 chfn devdocker -f "$USER_FULLNAME"
 
+# force debian-sys-maint
+sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
+sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
+sed -i "s/^password = .*/password = $MYSQL_FORCED_ROOT_PASSWORD/g" /etc/mysql/debian.cnf
+
 # start mysql, initializing DB if necessary
 if [ ! -d /var/lib/mysql/mysql ]; then
-    echo "Initializing mysql database"
+    logger "Initializing mysql database"
     sudo rm -f /var/lib/mysql/.gitignore
     sudo -u devdocker mysql_install_db --user=devdocker
 fi
 
-# force debian-sys-maint
-sed -i 'debian-sys-maint' 'root' /etc/mysql/debian.cnf
-sed -i 'debian-sys-maint' 'root' /etc/mysql/debian.cnf
-sed -i '^password = .*' "password = $MYSQL_FORCED_ROOT_PASSWORD" /etc/mysql/debian.cnf
 # force root password and open to outside
+MYSQL_RUNNING = 0;
 echo "" > /mysql-force-password.sql && \
     chown devdocker:devdocker /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
@@ -45,33 +47,32 @@ echo "" > /root/.my.cnf && \
     chown devdocker: /home/devdocker/.my.cnf && \
     mkdir -p /var/run/mysqld && \
     chown devdocker: /var/run/mysqld && \
-    exec sudo -u devdocker mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
+    sudo -u devdocker mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
-mysqld_process_pid=""
-while ! [[ "$mysqld_process_pid" =~ ^[0-9]+$ ]]; do
+while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
     # limit to 60 retries (12s)
-    ((c++)) && ((c==60)) && echo "Warning: giving up mysql first startup" && break
-    mysqld_process_pid=$(echo "$(ps -C mysqld -o pid=)" | xargs)
+    ((c++)) && ((c==60)) && logger "Warning: giving up mysql first startup" && break
+    sudo /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
     sleep 0.2
 done
 # then kill mysql and wait until it dies
-kill $mysqld_process_pid
-while ! [[ "$mysqld_process_pid" == "" ]]; do
+/etc/init.d/mysql stop
+while ! [[ "$MYSQL_RUNNING" == "0" ]]; do
     # limit to 60 retries (12s)
-    ((c++)) && ((c==60)) && echo "Warning: giving up mysql password reset" && break
-    mysqld_process_pid=$(echo "$(ps -C mysqld -o pid=)" | xargs)
+    ((c++)) && ((c==60)) && logger "Warning: giving up mysql password reset" && break
+    sudo /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
     sleep 0.2
 done
 # and start mysql up again
-exec sudo -u devdocker mysqld_safe &
+/etc/init.d/mysql start
 
 # wait for mysqld_safe startup and install phpmyadmin database if necessary
 if [ ! -d /var/lib/mysql/phpmyadmin ]; then
-    echo "Initializing phpmyadmin database"
-    while ! [[ "$mysqld_process_pid" =~ ^[0-9]+$ ]]; do
+    logger "Initializing phpmyadmin database"
+    while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
         # limit to 60 retries (12s)
-        ((c++)) && ((c==60)) && echo "Warning: giving up phpmyadmin database initialization" && break
-        mysqld_process_pid=$(echo "$(ps -C mysqld -o pid=)" | xargs)
+        ((c++)) && ((c==60)) && logger "Warning: giving up phpmyadmin database initialization" && break
+        sudo /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
         sleep 0.2
     done
     zcat /usr/share/doc/phpmyadmin/examples/create_tables.sql.gz | mysql

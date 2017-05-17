@@ -278,7 +278,7 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     echo '$sessionDuration = 60*60*24*7; // 60*60*24*7 = one week' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo 'ini_set("session.gc_maxlifetime", $sessionDuration);' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["LoginCookieValidity"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
-    echo '$cfg["LoginCookieStore"] = 1;' >> /etc/phpmyadmin/conf.d/devdocker.php
+    echo '$cfg["LoginCookieStore"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
 # mysql (mariadb)
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
