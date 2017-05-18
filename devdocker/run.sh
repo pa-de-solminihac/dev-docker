@@ -50,18 +50,18 @@ echo "" > /root/.my.cnf && \
     sudo -u devdocker mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
 while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
-    # limit to 60 retries (12s)
-    ((c++)) && ((c==60)) && logger "Warning: giving up mysql first startup" && break
+    # limit to 600 retries (300s)
+    ((c++)) && ((c==600)) && logger "Warning: giving up mysql first startup" && break
     sudo /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
-    sleep 0.2
+    sleep 0.5
 done
 # then kill mysql and wait until it dies
 /etc/init.d/mysql stop
 while ! [[ "$MYSQL_RUNNING" == "0" ]]; do
-    # limit to 60 retries (12s)
-    ((c++)) && ((c==60)) && logger "Warning: giving up mysql password reset" && break
+    # limit to 600 retries (300s)
+    ((c++)) && ((c==600)) && logger "Warning: giving up mysql password reset" && break
     sudo /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
-    sleep 0.2
+    sleep 0.5
 done
 # and start mysql up again
 /etc/init.d/mysql start
@@ -70,10 +70,10 @@ done
 if [ ! -d /var/lib/mysql/phpmyadmin ]; then
     logger "Initializing phpmyadmin database"
     while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
-        # limit to 60 retries (12s)
-        ((c++)) && ((c==60)) && logger "Warning: giving up phpmyadmin database initialization" && break
+        # limit to 600 retries (300s)
+        ((c++)) && ((c==600)) && logger "Warning: giving up phpmyadmin database initialization" && break
         sudo /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
-        sleep 0.2
+        sleep 0.5
     done
     zcat /usr/share/doc/phpmyadmin/examples/create_tables.sql.gz | mysql
 fi
