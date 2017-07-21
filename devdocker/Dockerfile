@@ -69,7 +69,10 @@ RUN apt-get -y install docker-engine \
     php5-ldap \
     php5-sqlite \
     php-pear \
+    phpunit php5-xdebug \
+    poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
     bash bash-completion \
+    pv \
     ncdu ncurses-bin \
     vim nano \
     grep ack-grep silversearcher-ag \
@@ -104,8 +107,8 @@ RUN apt-get -y install -t jessie-backports libreoffice-writer
 RUN apt-get -y install -t jessie-backports python-certbot-apache
 
 # install elasticsearch logstash kibana
-ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
-RUN apt-get -y install elasticsearch logstash kibana
+#ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
+#RUN apt-get -y install elasticsearch logstash kibana
 
 #################################
 # WORKAROUND for write permission
@@ -177,16 +180,16 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
 # configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana) and elasticsearch plugin ingest-attachment to index files using Apache Tika
-RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
-    sed -i 's/-Xmx2g/-Xmx512m/g' /etc/elasticsearch/jvm.options && \
-    sed -i 's/#network.host: 192.168.0.1/network.host: 0.0.0.0/g' /etc/elasticsearch/elasticsearch.yml && \
-    sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml && \
-    mkdir -p /usr/local/src/metricbeat && \
-    cd /usr/local/src/metricbeat && \
-    curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.0.0-amd64.deb && \
-    dpkg -i metricbeat-5.0.0-amd64.deb && \
-    cd /usr/share/elasticsearch && \
-    bin/elasticsearch-plugin install -b ingest-attachment
+#RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
+#    sed -i 's/-Xmx2g/-Xmx512m/g' /etc/elasticsearch/jvm.options && \
+#    sed -i 's/#network.host: 192.168.0.1/network.host: 0.0.0.0/g' /etc/elasticsearch/elasticsearch.yml && \
+#    sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml && \
+#    mkdir -p /usr/local/src/metricbeat && \
+#    cd /usr/local/src/metricbeat && \
+#    curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.0.0-amd64.deb && \
+#    dpkg -i metricbeat-5.0.0-amd64.deb && \
+#    cd /usr/share/elasticsearch && \
+#    bin/elasticsearch-plugin install -b ingest-attachment
 
 # configure redis-server to allow remote access
 RUN sed -i -e 's/^bind /#bind /' '/etc/redis/redis.conf'
@@ -258,7 +261,7 @@ RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g
     sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=devdocker/g" /etc/apache2/envvars && \
     chgrp devdocker /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
-# php
+# php: xdebug is used for phpunit code coverage, but slows down PHP so we disable it in for apache2 SAPI
 RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini && \
     sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php5/apache2/php.ini && \
     sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php5/apache2/php.ini && \
@@ -266,7 +269,8 @@ RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php
     sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini && \
     sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini && \
     sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini
+    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini && \
+    php5dismod -s apache2 xdebug
 
 # phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \

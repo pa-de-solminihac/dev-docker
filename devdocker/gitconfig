@@ -2,3 +2,7 @@
     default = simple
 [branch "master"]
     mergeoptions = --no-ff
+[branch "devel"]
+    mergeoptions = --no-ff
+[pull]
+    ff = only

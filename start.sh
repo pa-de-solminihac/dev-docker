@@ -55,7 +55,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     # force required directories to exist
     mkdir -p "$DOCKERSITE_ROOT"/www
     mkdir -p "$DOCKERSITE_ROOT"/database
-    chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true
+    chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true # fix database permissions at startup
     mkdir -p "$DOCKERSITE_ROOT"/apache2
     mkdir -p "$DOCKERSITE_ROOT"/log
     mkdir -p "$DOCKERSITE_ROOT"/crontabs
@@ -121,6 +121,8 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         echo -e "\033$TERM_COLOR_NORMAL"
     fi
 else
+    # fix database permissions at startup
+    chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true # fix database permissions at startup
     if [[ "$QUIET" == "0" ]]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Attaching to already running container: "
