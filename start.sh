@@ -54,7 +54,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     fi
     # force required directories to exist
     mkdir -p "$DOCKERSITE_ROOT"/www
-    mkdir -p "$DOCKERSITE_ROOT"/database
+    mkdir -p "$DOCKERSITE_ROOT"/database/binlog
     chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true # fix database permissions at startup
     mkdir -p "$DOCKERSITE_ROOT"/apache2
     mkdir -p "$DOCKERSITE_ROOT"/log

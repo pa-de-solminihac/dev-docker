@@ -5,10 +5,12 @@ source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
 if [ -x "$DOCKERMACHINE_PATH" ]; then
+    # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
         . ./vm-start.sh
+        echo
     fi
-    # set environment variables
+    # setting environment variables
     source $BASE_PATH/inc/vm-eval
     eval "$DOCKER_ENV_VARS"
 fi

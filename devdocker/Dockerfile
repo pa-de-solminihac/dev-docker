@@ -284,11 +284,13 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     echo '$cfg["LoginCookieValidity"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["LoginCookieStore"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
-# mysql (mariadb)
+# mysql (mariadb): enable cache for performance, set charset to utf8, enable binlogs for point in time recovery
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
     sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
+    sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/my.cnf && \
+
     sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf && \
     sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf && \
     sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf && \
