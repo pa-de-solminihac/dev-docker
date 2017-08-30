@@ -5,6 +5,9 @@ MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
 # ENABLE REPOSITORIES
 #####################
 
+# enable more packages
+# RUN sed -i 's/mail/main contrib non-free/g' /etc/apt/sources.list
+
 # choose a faster mirror
 #COPY sources.list /etc/apt/sources.list
 
@@ -95,8 +98,12 @@ RUN apt-get -y install docker-engine \
     lftp \
     youtube-dl \
     libimage-exiftool-perl \
-    varnish
+    varnish \
+    npm
 
+# decent nodejs version and gulp
+RUN npm install -g n gulp
+RUN n stable
 
 # install libreoffice from backports
 RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
