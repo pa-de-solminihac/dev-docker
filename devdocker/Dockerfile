@@ -15,7 +15,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # enable docker repository for docker-in-docker
 RUN apt-get update
-RUN apt-get -y install apt-transport-https ca-certificates && \
+RUN apt-get -y install apt-transport-https lsb-release ca-certificates && \
     apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
     echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
 
@@ -32,10 +32,10 @@ RUN apt-key add /tmp/elasticsearch.key && \
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
-# enable dotdeb repository for php7
-#ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
-#RUN apt-key add /tmp/dotdeb.key && \
-#    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
+# enable sury's repository for php7
+ADD https://packages.sury.org/php/apt.gpg /tmp/php7sury.gpg
+RUN apt-key add /tmp/php7sury.gpg && \
+    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php7sury.list
 
 #########################
 # INSTALL DISTRO PACKAGES
@@ -51,28 +51,30 @@ RUN apt-get -y install docker-engine \
     sudo \
     memcached \
     apache2 \
-    libapache2-mod-php5 \
-    php5-apcu \
-    php5-memcache \
-    php5-memcached \
-    redis-server php5-redis \
-    php5-intl \
-    php5-mysqlnd \
-    php5-pgsql \
-    php5-json \
-    php5-xsl \
-    php5-imap \
-    php5-curl \
-    php5-gd \
-    php5-imagick \
-    php-gettext \
-    php5-oauth \
-    php5-pspell \
-    php5-ssh2 \
-    php5-ldap \
-    php5-sqlite \
+    libapache2-mod-php7.1 \
+    php7.1-mbstring \
+    php7.1-apcu \
+    php7.1-apcu-bc \
+    php7.1-memcache \
+    php7.1-memcached \
+    redis-server php7.1-redis \
+    php7.1-intl \
+    php7.1-mysql \
+    php7.1-pgsql \
+    php7.1-json \
+    php7.1-xsl \
+    php7.1-imap \
+    php7.1-curl \
+    php7.1-gd \
+    php7.1-imagick \
+    php7.1-gettext \
+    php7.1-oauth \
+    php7.1-pspell \
+    php7.1-ssh2 \
+    php7.1-ldap \
+    php7.1-sqlite \
     php-pear \
-    phpunit php5-xdebug \
+    phpunit php7.1-xdebug \
     poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
     bash bash-completion \
     pv \
@@ -246,6 +248,8 @@ RUN a2enmod rewrite && \
     a2enmod include && \
     a2enmod ssl && \
     a2enmod vhost_alias && \
+    a2dismod php5 && \
+    a2enmod php7.1 && \
     echo 'Servername localhost' >> /etc/apache2/apache2.conf && \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
     sed -i 's/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g' /etc/apache2/envvars && \
@@ -258,10 +262,16 @@ RUN a2enmod rewrite && \
     echo 'IncludeOptional dockersite/*.conf' >> /etc/apache2/apache2.conf
 
 # mod_security
-#RUN apt-get -y install libapache2-mod-security2 \
-#    a2enmod security2 && \
-#    cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf && \
-#    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' /etc/modsecurity/modsecurity.conf
+RUN apt-get -y install libapache2-mod-security2 && \
+    cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf && \
+    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' /etc/modsecurity/modsecurity.conf
+# hardening mod_security with OWASP Core Rule Set (CRS)
+RUN git clone https://github.com/SpiderLabs/owasp-modsecurity-crs.git /etc/modsecurity/owasp-modsecurity-crs && \
+    mv /etc/modsecurity/owasp-modsecurity-crs/crs-setup.conf.example /etc/modsecurity/owasp-modsecurity-crs/crs-setup.conf && \
+    echo "Include /etc/modsecurity/owasp-modsecurity-crs/crs-setup.conf" >> /etc/modsecurity/modsecurity.conf && \
+    echo "Include /etc/modsecurity/owasp-modsecurity-crs/rules/*.conf" >> /etc/modsecurity/modsecurity.conf
+# pour l'instant on n'active pas tel quel car certaines rules semblent poser problème et empêchent apache de démarrer
+RUN a2dismod security2
 
 # apache: workaround for write permission
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g" /etc/apache2/envvars && \
@@ -269,15 +279,16 @@ RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g
     chgrp devdocker /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
 # php: xdebug is used for phpunit code coverage, but slows down PHP so we disable it in for apache2 SAPI
-RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini && \
-    php5dismod -s apache2 xdebug
+RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php/7.1/apache2/php.ini && \
+    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php/7.1/apache2/php.ini && \
+    php5dismod -s apache2 xdebug && \
+    phpdismod -s apache2 xdebug
 
 # phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
