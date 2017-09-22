@@ -175,6 +175,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
         if [[ "$QUIET" == "0" ]]; then
             echo -ne "\033$TERM_COLOR_YELLOW"
             echo "# Ports are already forwarded using SSH"
+            #echo "# Ports are already forwarded using SSH: $SSH_PORT_FW_CMD"
             echo -ne "\033$TERM_COLOR_NORMAL"
         fi
     fi

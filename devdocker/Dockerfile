@@ -37,9 +37,9 @@ RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /e
 #RUN apt-key add /tmp/dotdeb.key && \
 #    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
 
-##################
-# INSTALL PACKAGES
-##################
+#########################
+# INSTALL DISTRO PACKAGES
+#########################
 
 # install required packages
 RUN apt-get update
@@ -101,10 +101,6 @@ RUN apt-get -y install docker-engine \
     varnish \
     npm
 
-# decent nodejs version and gulp
-RUN npm install -g n gulp
-RUN n stable
-
 # install libreoffice from backports
 RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
@@ -116,6 +112,10 @@ RUN apt-get -y install -t jessie-backports python-certbot-apache
 # install elasticsearch logstash kibana
 #ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
 #RUN apt-get -y install elasticsearch logstash kibana
+
+# image optimisation tools
+RUN apt-get -y install jpegoptim gifsicle optipng pngquant
+
 
 #################################
 # WORKAROUND for write permission
@@ -136,22 +136,6 @@ RUN addgroup devdocker --gid $GROUP_ID && \
 # composer
 WORKDIR /usr/local/bin
 RUN curl -s "https://getcomposer.org/installer" | php && mv composer.phar /usr/local/bin/composer
-
-# mozjpeg and jpeg-archive
-WORKDIR /usr/local/src/
-RUN git clone https://github.com/mozilla/mozjpeg.git && \
-    cd mozjpeg && \
-    autoreconf -fiv && \
-    ./configure --with-jpeg8 && \
-    make && \
-    make install
-RUN git clone https://github.com/danielgtaylor/jpeg-archive.git && \
-    cd jpeg-archive && \
-    make && \
-    make install
-
-# other image optimisation tools
-RUN apt-get -y install jpegoptim gifsicle optipng pngquant
 
 ARG CACHEBUST=1
 
@@ -185,6 +169,16 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
     chmod -R 777 /sitesync/tmp && \
     chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
+
+
+##########################
+# INSTALL NPM AND PACKAGES
+##########################
+
+# decent nodejs version and gulp
+RUN npm install -g n gulp
+RUN n stable
+
 
 # configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana) and elasticsearch plugin ingest-attachment to index files using Apache Tika
 #RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
@@ -263,6 +257,12 @@ RUN a2enmod rewrite && \
     echo 'LogFormat "%V:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" dockersite' >> /etc/apache2/apache2.conf && \
     echo 'IncludeOptional dockersite/*.conf' >> /etc/apache2/apache2.conf
 
+# mod_security
+#RUN apt-get -y install libapache2-mod-security2 \
+#    a2enmod security2 && \
+#    cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf && \
+#    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' /etc/modsecurity/modsecurity.conf
+
 # apache: workaround for write permission
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g" /etc/apache2/envvars && \
     sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=devdocker/g" /etc/apache2/envvars && \
@@ -297,7 +297,6 @@ RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
     sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/my.cnf && \
-
     sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf && \
     sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf && \
     sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf && \
