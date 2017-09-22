@@ -7,7 +7,12 @@ START_ELK=0
 # config default values
 DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY="quai2.quai13.com:5000"
+gitsym="$(git symbolic-ref HEAD 2>/dev/null)"
+branch="${gitsym##refs/heads/}"
 DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
+if [ "$branch" != "master" ]; then
+    DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker$branch"
+fi
 DEVDOCKER_AUTOUPDATE="1"
 DEVDOCKER_HOSTNAME="devdocker.$(hostname)"
 DOCKERSITE_ROOT="$HOME/dev-docker/dockersite"
