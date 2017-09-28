@@ -96,7 +96,7 @@ sudo gpasswd -a ${USER} docker
 
 On peut faire l'installation avec Homebrew
 ```
-brew cask install dockertoolbox
+brew cask install docker-toolbox
 ```
 
 ### Amélioration des performances sous OSX
