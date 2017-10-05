@@ -12,6 +12,7 @@
         <key>ProgramArguments</key>
         <array>
             <string>/path/to/dev-docker/start.sh</string>
+            <string>--no-bg</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
