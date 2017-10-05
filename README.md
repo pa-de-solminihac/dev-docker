@@ -117,6 +117,9 @@ Puis relancer le service `nfsd`
 sudo nfsd checkexports && sudo nfsd -v -v -v restart && echo "NFS restarted" || echo "NFS error"
 ```
 
+### Lancement au démarrage de la session
+
+Voir [Démarrage automatique sous Mac OS X](https://github.com/pa-de-solminihac/dev-docker/wiki/D%C3%A9marrage-automatique-sous-Mac-OS-X) dans la [FAQ](https://github.com/pa-de-solminihac/dev-docker/wiki/)
 
 ## Windows
 
