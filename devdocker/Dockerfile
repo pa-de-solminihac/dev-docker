@@ -139,9 +139,6 @@ RUN curl -s "https://getcomposer.org/installer" | php && mv composer.phar /usr/l
 
 ARG CACHEBUST=1
 
-# install wp-wned.sh
-COPY wp-wned.sh /usr/local/bin/
-
 # install wp-cli
 WORKDIR /usr/local/bin
 RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && \

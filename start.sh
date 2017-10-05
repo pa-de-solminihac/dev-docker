@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# do not go to background if --no-bg
+NOBG=0
+if [ "$1" == "--no-bg" ]; then
+    NOBG=1
+    shift
+fi
+
 QUIET="$#"
 
 BASE_PATH="$(dirname "$0")"
@@ -182,3 +189,10 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     fi
 fi
 $SSH_CMD "$@" || true
+if [ "$NOBG" == "1" ]; then
+    echo
+    echo "Press <ctrl>+c to exit"
+    while :; do
+        sleep 10;
+    done
+fi

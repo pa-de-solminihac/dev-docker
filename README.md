@@ -17,7 +17,6 @@ Des outils pré-configurés :
 - [sitesync](https://github.com/pa-de-solminihac/sitesync)
 - [wp-cli](http://wp-cli.org/)
 - [drush](http://www.drush.org/en/master/)
-- `wp-wned.sh` pour scanner les vulnérabilités de sites
 - un [vim](http://www.vim.org) avec un config minimale mais portable au travers de connexions SSH
 - divers outils en ligne de commande avec une [configuration de base](https://github.com/pa-de-solminihac/configuration/) à emporter partout avec [sbash](https://github.com/pa-de-solminihac/configuration/#emporter-cette-configuration-partout)
 - etc... (mais ouvrez un ticket si vous voulez qu'on en rajoute)
