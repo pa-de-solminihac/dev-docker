@@ -3,6 +3,7 @@
 QUIET="$#"
 
 BASE_PATH="$(dirname "$0")"
+cd $BASE_PATH;
 source $BASE_PATH/inc/init
 
 # run docker-machine VM if necessary
@@ -13,7 +14,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     fi
     # checking if docker VM is running ($DEVDOCKER_VM)
     if [ "$("$DOCKERMACHINE" status $DEVDOCKER_VM 2>&1)" != "Running" ]; then
-        . ./vm-start.sh
+        . $BASE_PATH/vm-start.sh
         echo
     fi
     # setting environment variables
@@ -46,7 +47,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
                 echo -ne "\033$TERM_COLOR_NORMAL"
             else
                 git pull
-                DEVDOCKER_DONT_GITPULL="1" ./start.sh
+                DEVDOCKER_DONT_GITPULL="1" $BASE_PATH/start.sh
                 exit
             fi
         fi
