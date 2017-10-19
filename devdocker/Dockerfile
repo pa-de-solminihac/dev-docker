@@ -288,7 +288,6 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
 
 # mysql (mariadb): enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
-    sed -i "s/^\[mysqld\]/\[mysqld\]\ninnodb_force_recovery = 1/g" /etc/mysql/my.cnf && \
     sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
