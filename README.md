@@ -1,6 +1,6 @@
 # dev-docker : un environnement de développement web
 
-Une image Docker pour se faire une machine de développement Linux sous Windows, MacOS et Linux
+Une image Docker pour se faire une machine de développement Linux, qu'on soit sous Windows, MacOS ou Linux
 
 ## Il y a quoi dans la boîte ?
 
