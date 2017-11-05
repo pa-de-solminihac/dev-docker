@@ -34,11 +34,6 @@ else
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "\"$DOCKERMACHINE\" create -d virtualbox --virtualbox-disk-size 20000 --virtualbox-memory 2048 --virtualbox-no-share \"$DEVDOCKER_VM\" && ./vm-restart.sh"
     echo
-    echo -ne "\033$TERM_COLOR_RED"
-    echo "# Then allow the use of your private registry \"$DEVDOCKER_REPOSITORY\":"
-    echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "\"$DOCKERMACHINE\" ssh \"$DEVDOCKER_VM\" \"sudo sed -i 's/^--label provider=virtualbox$/--label provider=virtualbox --insecure-registry $DEVDOCKER_REPOSITORY/g' /var/lib/boot2docker/profile\""
-    echo
     exit
 fi
 
@@ -53,7 +48,9 @@ echo -ne "\033$TERM_COLOR_NORMAL"
 echo "eval \"\$(\""$DOCKERMACHINE"\" $DOCKER_ENV_VARS_CMD_OPTS)\""
 
 # allow local repository if necessary
-"$DOCKERMACHINE" ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry $DEVDOCKER_REPOSITORY/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
+if [ "$DEVDOCKER_REPOSITORY" != "" ]; then
+    "$DOCKERMACHINE" ssh $DEVDOCKER_VM "grep -sq \"$DEVDOCKER_REPOSITORY\" /var/lib/boot2docker/profile || sudo sed -i \"s/^EXTRA_ARGS='/EXTRA_ARGS='\n--insecure-registry $DEVDOCKER_REPOSITORY/g\" /var/lib/boot2docker/profile && sudo /etc/init.d/docker restart" > /dev/null
+fi
 
 # mount $HOME/dev through nfs
 # needs this in /etc/exports: /Users/pa/dev -alldirs -mapall=pa -network 192.168.99.0 -mask 255.255.255.0

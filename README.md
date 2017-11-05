@@ -1,6 +1,6 @@
 # dev-docker : un environnement de développement web
 
-Une image Docker pour se faire une machine de développement Linux sous Windows, MacOS et Linux
+Une image Docker pour se faire une machine de développement Linux, qu'on soit sous Windows, MacOS ou Linux
 
 ## Il y a quoi dans la boîte ?
 
@@ -17,7 +17,6 @@ Des outils pré-configurés :
 - [sitesync](https://github.com/pa-de-solminihac/sitesync)
 - [wp-cli](http://wp-cli.org/)
 - [drush](http://www.drush.org/en/master/)
-- `wp-wned.sh` pour scanner les vulnérabilités de sites
 - un [vim](http://www.vim.org) avec un config minimale mais portable au travers de connexions SSH
 - divers outils en ligne de commande avec une [configuration de base](https://github.com/pa-de-solminihac/configuration/) à emporter partout avec [sbash](https://github.com/pa-de-solminihac/configuration/#emporter-cette-configuration-partout)
 - etc... (mais ouvrez un ticket si vous voulez qu'on en rajoute)
@@ -117,6 +116,9 @@ Puis relancer le service `nfsd`
 sudo nfsd checkexports && sudo nfsd -v -v -v restart && echo "NFS restarted" || echo "NFS error"
 ```
 
+### Lancement au démarrage de la session
+
+Voir [Démarrage automatique sous Mac OS X](https://github.com/pa-de-solminihac/dev-docker/wiki/D%C3%A9marrage-automatique-sous-Mac-OS-X) dans la [FAQ](https://github.com/pa-de-solminihac/dev-docker/wiki/)
 
 ## Windows
 

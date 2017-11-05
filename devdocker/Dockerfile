@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
+MAINTAINER Pierre-Alexis de Solminihac <pa@solminihac.fr>
 
 #####################
 # ENABLE REPOSITORIES
@@ -81,7 +81,7 @@ RUN apt-get -y install docker-engine \
     ncdu ncurses-bin \
     vim nano \
     grep ack-grep silversearcher-ag \
-    git \
+    git tig \
     mariadb-client \
     openssh-server openssh-client rsync \
     lynx curl wget netcat whatweb \
@@ -103,6 +103,12 @@ RUN apt-get -y install docker-engine \
     varnish \
     npm
 
+# decent nodejs version and gulp
+RUN npm install -g n gulp
+RUN n stable
+
+# TODO: more tools (http://agile.dzone.com/news/continuous-integration-php
+
 # install libreoffice from backports
 RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
@@ -110,6 +116,8 @@ RUN apt-get -y install -t jessie-backports libreoffice-writer
 
 # install letsencrypt from backports
 RUN apt-get -y install -t jessie-backports python-certbot-apache
+
+RUN easy_install mycli
 
 # install elasticsearch logstash kibana
 #ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
@@ -141,9 +149,6 @@ RUN curl -s "https://getcomposer.org/installer" | php && mv composer.phar /usr/l
 
 ARG CACHEBUST=1
 
-# install wp-wned.sh
-COPY wp-wned.sh /usr/local/bin/
-
 # install wp-cli
 WORKDIR /usr/local/bin
 RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && \
@@ -172,15 +177,11 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
     chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 
-
-##########################
-# INSTALL NPM AND PACKAGES
-##########################
-
-# decent nodejs version and gulp
-RUN npm install -g n gulp
-RUN n stable
-
+# # install php code analysis tools
+# WORKDIR /usr/local/bin/
+# RUN git wget http://static.pdepend.org/php/latest/pdepend.phar && \
+#     chmod ugo+x /usr/local/bin/pdepend.phar && \
+#     mv /usr/local/bin/pdepend.phar /usr/local/bin/pdepend
 
 # configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana) and elasticsearch plugin ingest-attachment to index files using Apache Tika
 #RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
@@ -302,7 +303,7 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     echo '$cfg["LoginCookieValidity"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["LoginCookieStore"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
-# mysql (mariadb): enable cache for performance, set charset to utf8, enable binlogs for point in time recovery
+# mysql (mariadb): enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
     sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
