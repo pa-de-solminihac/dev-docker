@@ -6,12 +6,12 @@ START_REDIS=0
 START_ELK=0
 # config default values
 DEVDOCKER_VM="default"
-DEVDOCKER_REPOSITORY="quai2.quai13.com:5000"
+DEVDOCKER_REPOSITORY=""
 gitsym="$(git symbolic-ref HEAD 2>/dev/null)"
 branch="${gitsym##refs/heads/}"
-DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker"
+DEVDOCKER_IMAGE="pierrealexis/dev-docker"
 if [ "$branch" != "master" ]; then
-    DEVDOCKER_IMAGE="$DEVDOCKER_REPOSITORY/devdocker$branch"
+    DEVDOCKER_IMAGE="pierrealexis/dev-docker$branch"
 fi
 DEVDOCKER_AUTOUPDATE="1"
 DEVDOCKER_HOSTNAME="devdocker.$(hostname)"

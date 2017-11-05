@@ -29,7 +29,7 @@ else
 fi
 
 # cleanup exited devdocker containers
-docker ps -a -q --filter "ancestor=$DEVDOCKER_REPOSITORY/devdocker" | xargs -n 1 -I {} docker rm {} > /dev/null
+docker ps -a -q --filter "ancestor=$DEVDOCKER_IMAGE" | xargs -n 1 -I {} docker rm {} > /dev/null
 
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     # remove non stopped forwarding ports ssh processes if any

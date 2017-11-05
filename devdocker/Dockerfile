@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER Pierre-Alexis de Solminihac <pa@quai13.com>
+MAINTAINER Pierre-Alexis de Solminihac <pa@solminihac.fr>
 
 #####################
 # ENABLE REPOSITORIES
@@ -174,6 +174,12 @@ RUN git clone https://github.com/pa-de-solminihac/sitesync.git /sitesync && \
     chmod -R 777 /sitesync/tmp && \
     chmod -R 777 /sitesync/log
 COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
+
+# # install php code analysis tools
+# WORKDIR /usr/local/bin/
+# RUN git wget http://static.pdepend.org/php/latest/pdepend.phar && \
+#     chmod ugo+x /usr/local/bin/pdepend.phar && \
+#     mv /usr/local/bin/pdepend.phar /usr/local/bin/pdepend
 
 # configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana) and elasticsearch plugin ingest-attachment to index files using Apache Tika
 #RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
