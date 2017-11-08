@@ -353,9 +353,6 @@ RUN echo 'cd /var/www/html' >> /home/devdocker/.bashrc
 # longer log messages
 RUN echo '$MaxMessageSize 20k' > /etc/rsyslog.d/devdocker.conf
 
-# start ssh-agent at startup
-RUN echo 'if [ "$(pgrep ssh-agent)" == "" ]; then SSHAGENTEVAL="$(ssh-agent -s)"; echo "$SSHAGENTEVAL" | grep -v echo >> /home/devdocker/.bashrc; eval "$SSHAGENTEVAL"; fi' >> /home/devdocker/.bashrc
-
 # source custom bashrc file at startup
 RUN echo "for f in \$(find /home/devdocker/bashrc.d -maxdepth 1 -type f -name '*.sh'); do source \$f; done" >> /home/devdocker/.bashrc
 
