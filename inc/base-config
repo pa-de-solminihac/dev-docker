@@ -9,10 +9,11 @@ DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY=""
 gitsym="$(git symbolic-ref HEAD 2>/dev/null)"
 branch="${gitsym##refs/heads/}"
-DEVDOCKER_IMAGE="pierrealexis/dev-docker"
+DEVDOCKER_TAG="latest"
 if [ "$branch" != "master" ]; then
-    DEVDOCKER_IMAGE="pierrealexis/dev-docker$branch"
+    DEVDOCKER_TAG="$branch"
 fi
+DEVDOCKER_IMAGE="pierrealexis/dev-docker"
 DEVDOCKER_AUTOUPDATE="1"
 DEVDOCKER_HOSTNAME="devdocker.$(hostname)"
 DOCKERSITE_ROOT="$HOME/dev-docker/dockersite"

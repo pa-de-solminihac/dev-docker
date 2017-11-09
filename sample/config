@@ -9,9 +9,6 @@ DEVDOCKER_AUTOUPDATE="1"
 DEVDOCKER_VM="default"
 DEVDOCKER_REPOSITORY="" # "host.domain.com:5000" if you want to use an custom, "insecure" docker registry
 DEVDOCKER_IMAGE="pierrealexis/dev-docker" # just "devdocker" if you want to use an custom, "insecure" docker registry
-if [ "$branch" != "master" ]; then
-    DEVDOCKER_IMAGE="$DEVDOCKER_IMAGE$branch"
-fi
 DOCKERSITE_ROOT="/c/Users/...../path/to/dockersite"
 SSH_DIR="$HOME/.ssh" # note that if you need to sudo, $HOME will be /root/
 SSH_PRIVKEY="$SSH_DIR/id_rsa"
