@@ -30,11 +30,11 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
 fi
 
 # cleanup exited devdocker containers
-docker rm -v $(docker ps --filter status=exited --filter image=$DEVDOCKER_IMAGE -q 2>/dev/null) 2>/dev/null > /dev/null || true
+docker rm -v $(docker ps --filter status=exited --filter image=$DEVDOCKER_IMAGE:$DEVDOCKER_TAG -q 2>/dev/null) 2>/dev/null > /dev/null || true
 docker rmi $(docker images --filter dangling=true -q 2>/dev/null) 2>/dev/null > /dev/null || true
 
 # attach to running container if possible, or spawn a new one
-DEVDOCKER_ID="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | head -n 1 | awk '{print $1}')"
+DEVDOCKER_ID="$(docker ps | (grep "\<$DEVDOCKER_IMAGE:$DEVDOCKER_TAG\>" || true) | head -n 1 | awk '{print $1}')"
 if [ "$DEVDOCKER_ID" == "" ]; then
     # run "git pull" if updates are available, so that scripts are always on par with docker images
     # get latest image from local repository
@@ -58,7 +58,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
                 exit
             fi
         fi
-        docker pull "$DEVDOCKER_IMAGE" | grep -v ': Already exists$' || (echo -ne "\033$TERM_COLOR_YELLOW" && echo && echo "# Warning: autoupdate failed" && echo && echo -ne "\033$TERM_COLOR_NORMAL")
+        docker pull "$DEVDOCKER_IMAGE:$DEVDOCKER_TAG" | grep -v ': Already exists$' || (echo -ne "\033$TERM_COLOR_YELLOW" && echo && echo "# Warning: autoupdate failed" && echo && echo -ne "\033$TERM_COLOR_NORMAL")
     fi
     # force required directories to exist
     mkdir -p "$DOCKERSITE_ROOT"/www
@@ -101,7 +101,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/crontabs:/var/spool/cron/crontabs" \
         -v "$DOCKERSITE_ROOT/bashrc.d:/home/devdocker/bashrc.d" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
-        "$DEVDOCKER_IMAGE")"
+        "$DEVDOCKER_IMAGE:$DEVDOCKER_TAG")"
     if [[ "$QUIET" == "0" ]]; then
         echo -ne "\033$TERM_COLOR_GREEN"
         echo "# Attaching to freshly started container: "
