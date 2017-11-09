@@ -278,7 +278,7 @@ RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php
     sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini && \
     sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini && \
     sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini && \
-    php5dismod -s apache2 xdebug
+    php5dismod -s ALL xdebug
 
 # phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
