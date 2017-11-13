@@ -22,7 +22,10 @@ sed -i "s/^password = .*/password = $MYSQL_FORCED_ROOT_PASSWORD/g" /etc/mysql/de
 if [ ! -d /var/lib/mysql/mysql ]; then
     logger "Initializing mysql database"
     sudo rm -f /var/lib/mysql/.gitignore
-    sudo -u devdocker mysql_install_db --user=devdocker
+    sudo mysql_install_db --defaults-file=~/.my.cnf
+    sudo mkdir -p /var/lib/mysql/binlog
+    sudo touch /var/lib/mysql/binlog/mysql-bin.index
+    sudo chown -R devdocker: /var/lib/mysql
 fi
 
 # force root password and open to outside
