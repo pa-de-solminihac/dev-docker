@@ -62,13 +62,24 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     fi
     # force required directories to exist
     mkdir -p "$DOCKERSITE_ROOT"/www
-    mkdir -p "$DOCKERSITE_ROOT"/database/binlog
     chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true # fix database permissions at startup
     mkdir -p "$DOCKERSITE_ROOT"/apache2
     mkdir -p "$DOCKERSITE_ROOT"/log
     mkdir -p "$DOCKERSITE_ROOT"/crontabs
     mkdir -p "$DOCKERSITE_ROOT"/bashrc.d
     mkdir -p "$DOCKERSITE_ROOT"/conf-sitesync
+    # ensure ports are not already used
+    nc -z 127.0.0.1 80   2>/dev/null && echo "Port already in use: 80" && PORT_IN_USE=1
+    nc -z 127.0.0.1 443  2>/dev/null && echo "Port already in use: 443" && PORT_IN_USE=1
+    nc -z 127.0.0.1 3306 2>/dev/null && echo "Port already in use: 3306" && PORT_IN_USE=1
+    nc -z 127.0.0.1 9200 2>/dev/null && echo "Port already in use: 9200" && PORT_IN_USE=1
+    nc -z 127.0.0.1 9300 2>/dev/null && echo "Port already in use: 9300" && PORT_IN_USE=1
+    nc -z 127.0.0.1 6081 2>/dev/null && echo "Port already in use: 6081" && PORT_IN_USE=1
+    nc -z 127.0.0.1 6082 2>/dev/null && echo "Port already in use: 6082" && PORT_IN_USE=1
+    nc -z 127.0.0.1 5601 2>/dev/null && echo "Port already in use: 5601" && PORT_IN_USE=1
+    if [ "$PORT_IN_USE" == "1" ]; then
+        exit 1;
+    fi;
     # run container
     DEVDOCKER_ID="$(docker run -h $DEVDOCKER_HOSTNAME --rm --privileged -d -i \
         -p 8022:8022 \
