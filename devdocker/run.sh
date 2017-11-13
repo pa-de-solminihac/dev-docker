@@ -26,7 +26,7 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 fi
 
 # force root password and open to outside
-MYSQL_RUNNING = 0;
+MYSQL_RUNNING=0;
 echo "" > /mysql-force-password.sql && \
     chown devdocker:devdocker /mysql-force-password.sql && \
     chmod 400 /mysql-force-password.sql && \
