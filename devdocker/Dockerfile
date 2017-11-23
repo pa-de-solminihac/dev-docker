@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 MAINTAINER Pierre-Alexis de Solminihac <pa@solminihac.fr>
 
 #####################
@@ -6,7 +6,7 @@ MAINTAINER Pierre-Alexis de Solminihac <pa@solminihac.fr>
 #####################
 
 # enable more packages
-# RUN sed -i 's/mail/main contrib non-free/g' /etc/apt/sources.list
+RUN sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
 
 # choose a faster mirror
 #COPY sources.list /etc/apt/sources.list
@@ -15,9 +15,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # enable docker repository for docker-in-docker
 RUN apt-get update
-RUN apt-get -y install apt-transport-https lsb-release ca-certificates && \
-    apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
+RUN apt-get -y install gnupg2 apt-transport-https curl software-properties-common ca-certificates && \
+    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add && \
+    apt-key fingerprint 0EBFCD88 && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
@@ -29,21 +30,23 @@ ADD https://artifacts.elastic.co/GPG-KEY-elasticsearch /tmp/elasticsearch.key
 RUN apt-key add /tmp/elasticsearch.key && \
     echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list
 
-# enable debian jessie backports
-RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
+# enable debian stretch backports
+RUN echo "deb http://httpredir.debian.org/debian stretch-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 # enable sury's repository for php7
 ADD https://packages.sury.org/php/apt.gpg /tmp/php7sury.gpg
 RUN apt-key add /tmp/php7sury.gpg && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php7sury.list
 
+# enable nodejs repository
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
 #########################
 # INSTALL DISTRO PACKAGES
 #########################
 
 # install required packages
 RUN apt-get update
-RUN apt-get -y install docker-engine \
+RUN apt-get -y install docker-ce docker-compose \
     apt-utils \
     dialog \
     locales-all \
@@ -51,30 +54,30 @@ RUN apt-get -y install docker-engine \
     sudo \
     memcached \
     apache2 \
-    libapache2-mod-php7.1 \
-    php7.1-mbstring \
-    php7.1-apcu \
-    php7.1-apcu-bc \
-    php7.1-memcache \
-    php7.1-memcached \
-    redis-server php7.1-redis \
-    php7.1-intl \
-    php7.1-mysql \
-    php7.1-pgsql \
-    php7.1-json \
-    php7.1-xsl \
-    php7.1-imap \
-    php7.1-curl \
-    php7.1-gd \
-    php7.1-imagick \
-    php7.1-gettext \
-    php7.1-oauth \
-    php7.1-pspell \
-    php7.1-ssh2 \
-    php7.1-ldap \
-    php7.1-sqlite \
+    libapache2-mod-php7.2 \
+    php7.2-mbstring \
+    php7.2-apcu \
+    php7.2-apcu-bc \
+    php7.2-memcache \
+    php7.2-memcached \
+    redis-server php7.2-redis \
+    php7.2-intl \
+    php7.2-mysql \
+    php7.2-pgsql \
+    php7.2-json \
+    php7.2-xsl \
+    php7.2-imap \
+    php7.2-curl \
+    php7.2-gd \
+    php7.2-imagick \
+    php7.2-gettext \
+    php7.2-oauth \
+    php7.2-pspell \
+    php7.2-ssh2 \
+    php7.2-ldap \
+    php7.2-sqlite \
     php-pear \
-    phpunit php7.1-xdebug \
+    phpunit \
     poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
     bash bash-completion \
     pv \
@@ -84,13 +87,12 @@ RUN apt-get -y install docker-engine \
     git tig \
     mariadb-client \
     openssh-server openssh-client rsync \
-    lynx curl wget netcat whatweb \
+    lynx wget netcat whatweb \
     phpmyadmin \
     man-db manpages \
     blackfire-agent blackfire-php \
     mariadb-server \
     mailutils \
-    drush \
     build-essential autoconf pkg-config nasm libtool \
     rsyslog \
     imagemagick \
@@ -101,21 +103,23 @@ RUN apt-get -y install docker-engine \
     youtube-dl \
     libimage-exiftool-perl \
     varnish \
-    npm
+    nodejs
 
-# decent nodejs version and gulp
+# install last nodejs stable version and gulp
 RUN npm install -g n gulp
 RUN n stable
+
+# install drush
 
 # TODO: more tools (http://agile.dzone.com/news/continuous-integration-php
 
 # install libreoffice from backports
-RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
+RUN apt-get -y install -t stretch-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-RUN apt-get -y install -t jessie-backports libreoffice-writer
+RUN apt-get -y install -t stretch-backports libreoffice-writer
 
 # install letsencrypt from backports
-RUN apt-get -y install -t jessie-backports python-certbot-apache
+RUN apt-get -y install -t stretch-backports python-certbot-apache
 
 RUN easy_install mycli
 
@@ -242,15 +246,14 @@ COPY blackfire-client /home/devdocker/.blackfire.ini
 
 # apache
 COPY 000-default.conf /etc/apache2/sites-enabled/
-RUN make-ssl-cert generate-default-snakeoil
+RUN make-ssl-cert generate-default-snakeoil --force-overwrite
 RUN a2enmod rewrite && \
     a2enmod headers && \
     a2enmod expires && \
     a2enmod include && \
     a2enmod ssl && \
     a2enmod vhost_alias && \
-    a2dismod php5 && \
-    a2enmod php7.1 && \
+    a2enmod php7.2 && \
     echo 'Servername localhost' >> /etc/apache2/apache2.conf && \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
     sed -i 's/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g' /etc/apache2/envvars && \
@@ -279,17 +282,15 @@ RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g
     sed -i "s/export APACHE_RUN_GROUP=www-data/export APACHE_RUN_GROUP=devdocker/g" /etc/apache2/envvars && \
     chgrp devdocker /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
-# php: xdebug is used for phpunit code coverage, but slows down PHP so we disable it in for apache2 SAPI
-RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php/7.1/apache2/php.ini && \
-    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php/7.1/apache2/php.ini && \
-    php5dismod -s ALL xdebug && \
-    phpdismod -v ALL -s ALL xdebug
+# php: basic php dev configuration
+RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php/7.2/apache2/php.ini && \
+    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php/7.2/apache2/php.ini
 
 # phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
@@ -309,11 +310,11 @@ RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
     sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/my.cnf && \
-    sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
+    sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mysql.cnf && \
+    sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mysql.cnf && \
+    sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mysql.cnf && \
+    sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mysql.cnf && \
+    sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mysql.cnf
 COPY perfs.cnf /etc/mysql/conf.d/
 
 # config mail server so websites can send emails
@@ -322,7 +323,7 @@ RUN sed -i "s/^dc_eximconfig_configtype='local'/dc_eximconfig_configtype='intern
     update-exim4.conf
 
 # ssh
-RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config && \
+RUN sed -i "s/^#Port 22/Port 8022/g" /etc/ssh/sshd_config && \
     sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 # copy your *readonly* mounted ssh keys and config everytime you login
 COPY copy-ssh-config.sh /
