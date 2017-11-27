@@ -19,14 +19,18 @@ sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
 sed -i "s/^password = .*/password = $MYSQL_FORCED_ROOT_PASSWORD/g" /etc/mysql/debian.cnf
 
 # start mysql, initializing DB if necessary
+mkdir -p /var/lib/mysql/binlog
+touch /var/lib/mysql/binlog/mysql-bin.index
 if [ ! -d /var/lib/mysql/mysql ]; then
     logger "Initializing mysql database"
+    chown -R devdocker: /var/lib/mysql
     rm -f /var/lib/mysql/.gitignore
     mysql_install_db --defaults-file=~/.my.cnf
-    mkdir -p /var/lib/mysql/binlog
-    touch /var/lib/mysql/binlog/mysql-bin.index
     chown -R devdocker: /var/lib/mysql
 fi
+mkdir -p /var/lib/mysql/binlog
+touch /var/lib/mysql/binlog/mysql-bin.index
+chown -R devdocker: /var/lib/mysql/binlog
 
 # force root password and open to outside
 MYSQL_RUNNING=0;
