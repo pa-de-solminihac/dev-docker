@@ -21,10 +21,11 @@ sed -i "s/^password = .*/password = $MYSQL_FORCED_ROOT_PASSWORD/g" /etc/mysql/de
 # start mysql, initializing DB if necessary
 if [ ! -d /var/lib/mysql/mysql ]; then
     logger "Initializing mysql database"
-    rm -f /var/lib/mysql/.gitignore
-    mysql_install_db --defaults-file=~/.my.cnf
     mkdir -p /var/lib/mysql/binlog
     touch /var/lib/mysql/binlog/mysql-bin.index
+    chown -R devdocker: /var/lib/mysql
+    rm -f /var/lib/mysql/.gitignore
+    mysql_install_db --defaults-file=~/.my.cnf
     chown -R devdocker: /var/lib/mysql
 fi
 
