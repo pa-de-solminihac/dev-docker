@@ -94,6 +94,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -e "USER_ID=$(id -u)" \
         -e "GROUP_ID=$(id -g)" \
         -e "USER_FULLNAME=\"$USER_FULLNAME\"" \
+        -e "CATCH_ALL_EMAIL=$CATCH_ALL_EMAIL" \
         -e "MYSQL_FORCED_ROOT_PASSWORD=$MYSQL_FORCED_ROOT_PASSWORD" \
         -e "BLACKFIRE_SERVER_ID=$BLACKFIRE_SERVER_ID" \
         -e "BLACKFIRE_SERVER_TOKEN=$BLACKFIRE_SERVER_TOKEN" \
