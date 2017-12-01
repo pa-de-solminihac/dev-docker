@@ -4,7 +4,12 @@
 /etc/init.d/rsyslog start
 /etc/init.d/cron start
 /etc/init.d/ssh start
-/etc/init.d/exim4 start
+
+# exim4: catch_all emails
+if [ "$CATCH_ALL_EMAIL" != "" ]; then
+    sed -i "s/begin routers/begin routers\n\ncatch_all_outgoing:\ndebug_print = \"R: catch_all for \$local_part@\$domain\"\ndriver = redirect\ndata = $CATCH_ALL_EMAIL\n\n/g" /etc/exim4/exim4.conf.template
+fi
+/etc/init.d/exim4 restart
 
 # fix devdocker uid so that it matches host user uid
 groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
