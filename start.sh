@@ -161,8 +161,8 @@ if [[ "$QUIET" == "0" ]]; then
 fi
 docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh || true
 # fix for weird write permission bug on /hom/devdocker/.ssh directory
-docker exec "$DEVDOCKER_ID" sh -c "mv ~/.ssh ~/.ssh2 && mv ~/.ssh2 ~/.ssh"
-docker exec --user devdocker "$DEVDOCKER_ID" sh -c "mv ~/.ssh ~/.ssh2 && mv ~/.ssh2 ~/.ssh"
+docker exec "$DEVDOCKER_ID" sh -c "mv ~/.ssh ~/.ssh2 && mv ~/.ssh2 ~/.ssh" || true
+docker exec --user devdocker "$DEVDOCKER_ID" sh -c "mv ~/.ssh ~/.ssh2 && mv ~/.ssh2 ~/.ssh" || true
 # allow user's own public key
 PUBKEY_START="$(cat $SSH_PUBKEY | awk '{print $1}')"
 PUBKEY_MID="$(cat $SSH_PUBKEY | awk '{print $2}')"
