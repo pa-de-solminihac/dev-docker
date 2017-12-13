@@ -11,6 +11,7 @@ chown -R $USER_ID:$GROUP_ID /var/lib/mysql
 /etc/init.d/rsyslog start
 /etc/init.d/cron start
 /etc/init.d/ssh start
+/etc/init.d/proftpd start
 
 # exim4: catch_all emails
 if [ "$CATCH_ALL_EMAIL" != "" ]; then

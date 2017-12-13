@@ -349,8 +349,19 @@ RUN echo '' > /etc/motd
 
 RUN echo devdocker:devdocker | chpasswd
 
+# ProFtpd
+RUN apt -y install proftpd \
+    && sed -i 's/# AuthOrder.*/AuthOrder mod_auth_file.c mod_auth_unix.c #Connexion via fichier utilisateur et utilisateurs linux\nAuthUserFile \/etc\/proftpd\/passwd\/ftpd.passwd/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/# PassivePorts.*/PassivePorts 7000 7003/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/User[[:space:]].*/User devdocker/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/Group[[:space:]].*/Group devdocker/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/UseIPv6.*/UseIPv6 off/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/# DefaultRoot.*/DefaultRoot ~/g' /etc/proftpd/proftpd.conf \
+    && touch /etc/proftpd/ftpd.passwd \
+    && chmod 600 /etc/proftpd/ftpd.passwd
+
 # expose ports
-EXPOSE 8022 80 443 3306 5601 6379 6081 6082 9200 9300 11211
+EXPOSE 8022 20 21 80 443 3306 5601 6379 6081 6082 9200 9300 11211 7000-7003
 
 # caution: CMD works ok with double quotes (") but not with single quotes (')
 COPY run.sh /run.sh
