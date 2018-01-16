@@ -69,28 +69,29 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     mkdir -p "$DOCKERSITE_ROOT"/bashrc.d
     mkdir -p "$DOCKERSITE_ROOT"/conf-sitesync
     # ensure ports are not already used
-    nc -z 127.0.0.1 80   2>/dev/null && echo "Port already in use: 80" && PORT_IN_USE=1
-    nc -z 127.0.0.1 443  2>/dev/null && echo "Port already in use: 443" && PORT_IN_USE=1
-    nc -z 127.0.0.1 3306 2>/dev/null && echo "Port already in use: 3306" && PORT_IN_USE=1
-    nc -z 127.0.0.1 9200 2>/dev/null && echo "Port already in use: 9200" && PORT_IN_USE=1
-    nc -z 127.0.0.1 9300 2>/dev/null && echo "Port already in use: 9300" && PORT_IN_USE=1
-    nc -z 127.0.0.1 6081 2>/dev/null && echo "Port already in use: 6081" && PORT_IN_USE=1
-    nc -z 127.0.0.1 6082 2>/dev/null && echo "Port already in use: 6082" && PORT_IN_USE=1
-    nc -z 127.0.0.1 5601 2>/dev/null && echo "Port already in use: 5601" && PORT_IN_USE=1
+    for PORT in $(echo $PORTS); do
+        nc -z 127.0.0.1 $PORT 2>/dev/null && echo "Port already in use: $PORT" && PORT_IN_USE=1;
+    done
     if [ "$PORT_IN_USE" == "1" ]; then
         exit 1;
     fi;
     # run container
     DEVDOCKER_ID="$(docker run -h $DEVDOCKER_HOSTNAME --rm --privileged -d -i \
         -p 8022:8022 \
-        -p 80:80 \
-        -p 443:443 \
-        -p 3306:3306 \
-        -p 9200:9200 \
-        -p 9300:9300 \
-        -p 6081:6081 \
-        -p 6082:6082 \
-        -p 5601:5601 \
+        -p $PORT_20:20 \
+        -p $PORT_21:21 \
+        -p $PORT_7000:7000 \
+        -p $PORT_7001:7001 \
+        -p $PORT_7002:7002 \
+        -p $PORT_7003:7003 \
+        -p $PORT_80:80 \
+        -p $PORT_443:443 \
+        -p $PORT_3306:3306 \
+        -p $PORT_9200:9200 \
+        -p $PORT_9300:9300 \
+        -p $PORT_6081:6081 \
+        -p $PORT_6082:6082 \
+        -p $PORT_5601:5601 \
         -e "USER_ID=$(id -u)" \
         -e "GROUP_ID=$(id -g)" \
         -e "USER_FULLNAME=\"$USER_FULLNAME\"" \
@@ -108,6 +109,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$SSH_DIR:/home/devdocker/.ssh-readonly:ro" \
         -v "$DOCKERSITE_ROOT/www:/var/www/html" \
         -v "$DOCKERSITE_ROOT/database:/var/lib/mysql" \
+        -v "$DOCKERSITE_ROOT/proftpd:/etc/proftpd/passwd" \
         -v "$DOCKERSITE_ROOT/apache2:/etc/apache2/dockersite" \
         -v "$DOCKERSITE_ROOT/log:/var/log/dockersite" \
         -v "$DOCKERSITE_ROOT/crontabs:/var/spool/cron/crontabs" \
@@ -173,6 +175,9 @@ docker exec --user devdocker "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /ho
 #PUBKEY_END="$(cat $SSH_PUBKEY | awk '{print $3}')"
 #docker exec "$DEVDOCKER_ID" sh -c "echo \"$PUBKEY_END\" >> /home/devdocker/.gitconfig"
 # forwarding ports only if VM is in use and ports are not already forwarded
+
+# echo "\$SSH_PORT_FW_CMD: $SSH_PORT_FW_CMD"
+
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     # no quotes around echo $SSH_PORT_FW_CMD to suppress additionnal spaces, or grep wont grep
     PORT_FW_PID="$(ps auwx | (grep "$(echo $SSH_PORT_FW_CMD)" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
