@@ -82,7 +82,7 @@ RUN apt-get -y install docker-engine \
     git tig \
     mariadb-client \
     openssh-server openssh-client rsync \
-    lynx curl wget netcat torify whatweb \
+    lynx curl wget netcat tor whatweb \
     phpmyadmin \
     man-db manpages \
     blackfire-agent blackfire-php \
