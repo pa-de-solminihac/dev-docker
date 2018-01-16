@@ -63,6 +63,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     # force required directories to exist
     mkdir -p "$DOCKERSITE_ROOT"/www
     chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true # fix database permissions at startup
+    mkdir -p "$DOCKERSITE_ROOT"/proftpd
     mkdir -p "$DOCKERSITE_ROOT"/apache2
     mkdir -p "$DOCKERSITE_ROOT"/log
     mkdir -p "$DOCKERSITE_ROOT"/crontabs
