@@ -65,7 +65,7 @@ RUN apt-get -y install docker-engine \
     php5-curl \
     php5-gd \
     php5-imagick \
-    php-gettext \
+    gettext php-gettext \
     php5-oauth \
     php5-pspell \
     php5-ssh2 \
@@ -82,7 +82,7 @@ RUN apt-get -y install docker-engine \
     git tig \
     mariadb-client \
     openssh-server openssh-client rsync \
-    lynx curl wget netcat whatweb \
+    lynx curl wget netcat torify whatweb \
     phpmyadmin \
     man-db manpages \
     blackfire-agent blackfire-php \
@@ -351,7 +351,7 @@ RUN echo devdocker:devdocker | chpasswd
 
 # ProFtpd
 RUN apt -y install proftpd \
-    && sed -i 's/# AuthOrder.*/AuthOrder mod_auth_file.c mod_auth_unix.c #Connexion via fichier utilisateur et utilisateurs linux\nAuthUserFile \/etc\/proftpd\/passwd\/ftpd.passwd/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/# AuthOrder.*/AuthOrder mod_auth_file.c mod_auth_unix.c\nAuthUserFile \/etc\/proftpd\/passwd\/ftpd.passwd/g' /etc/proftpd/proftpd.conf \
     && sed -i 's/# PassivePorts.*/PassivePorts 7000 7003/g' /etc/proftpd/proftpd.conf \
     && sed -i 's/User[[:space:]].*/User devdocker/g' /etc/proftpd/proftpd.conf \
     && sed -i 's/Group[[:space:]].*/Group devdocker/g' /etc/proftpd/proftpd.conf \
