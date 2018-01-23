@@ -113,11 +113,12 @@ RUN n stable
 # install libreoffice from backports
 RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-RUN apt-get -y install -t jessie-backports libreoffice-writer
+RUN apt-get -y install -t jessie-backports libreoffice-writer jodconverter
 
 # install letsencrypt from backports
 RUN apt-get -y install -t jessie-backports python-certbot-apache
 
+# install mycli
 RUN easy_install mycli
 
 # install elasticsearch logstash kibana
@@ -320,6 +321,7 @@ COPY perfs.cnf /etc/mysql/conf.d/
 # config mail server so websites can send emails
 # TODO: catch all outgoing mails
 RUN sed -i "s/^dc_eximconfig_configtype='local'/dc_eximconfig_configtype='internet'/g" /etc/exim4/update-exim4.conf.conf && \
+    sed -i "s/^dc_local_interfaces=.*/dc_local_interfaces='127.0.0.1'/g" /etc/exim4/update-exim4.conf.conf && \
     update-exim4.conf
 
 # ssh
