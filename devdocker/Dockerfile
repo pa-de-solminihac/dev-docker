@@ -110,7 +110,7 @@ RUN n stable
 # install libreoffice from backports
 RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-RUN apt-get -y install -t jessie-backports libreoffice-writer
+RUN apt-get -y install -t jessie-backports libreoffice-writer jodconverter
 
 # install letsencrypt from backports
 RUN apt-get -y install -t jessie-backports python-certbot-apache
