@@ -45,6 +45,8 @@ RUN apt-key add /tmp/php7sury.gpg && \
 RUN apt-get update
 RUN apt-get -y install docker-engine \
     apt-utils \
+    lsb-release \
+    screen \
     dialog \
     locales-all \
     net-tools dnsutils whois strace \
