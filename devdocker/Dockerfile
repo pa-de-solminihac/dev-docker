@@ -45,6 +45,8 @@ RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /e
 RUN apt-get update
 RUN apt-get -y install docker-engine \
     apt-utils \
+    lsb-release \
+    screen \
     dialog \
     locales-all \
     net-tools dnsutils whois strace \
