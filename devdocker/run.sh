@@ -124,5 +124,5 @@ if [[ "$START_ELK" == "1" ]]; then
 fi
 
 # start apache
-source /etc/apache2/envvars
-exec apache2 -D FOREGROUND
+/etc/init.d/apache2 start
+exec sh -c 'while sleep 3600; do echo; done'

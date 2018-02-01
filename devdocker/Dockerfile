@@ -85,13 +85,13 @@ RUN apt-get -y install docker-engine \
     vim nano \
     grep ack-grep silversearcher-ag \
     git tig \
-    mariadb-client \
+    mysql-client \
     openssh-server openssh-client rsync \
     lynx curl wget netcat tor whatweb \
     phpmyadmin \
     man-db manpages \
     blackfire-agent blackfire-php \
-    mariadb-server \
+    mysql-server \
     mailutils \
     drush \
     build-essential autoconf pkg-config nasm libtool \
@@ -255,7 +255,7 @@ RUN a2enmod rewrite && \
     a2enmod vhost_alias && \
     a2dismod php5 && \
     a2enmod php7.1 && \
-    echo 'Servername localhost' >> /etc/apache2/apache2.conf && \
+    echo 'ServerName localhost' >> /etc/apache2/apache2.conf && \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
     sed -i 's/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g' /etc/apache2/envvars && \
     sed -i 's/Listen 80/Listen 0.0.0.0:80/g' /etc/apache2/ports.conf && \
@@ -307,17 +307,14 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     echo '$cfg["LoginCookieValidity"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["LoginCookieStore"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
-# mysql (mariadb): enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
+# mysql: enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
     sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
     sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/my.cnf && \
-    sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mariadb.cnf && \
-    sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mariadb.cnf
+    sed -i "s/^\[mysqld\]/[mysqld]\ncharacter-set-server = utf8\ncharacter_set_server = utf8\ncollation-server = utf8_unicode_ci\ncollation_server = utf8_unicode_ci/g" /etc/mysql/my.cnf && \
+    sed -i "s/^\[client\]/[client]\ndefault-character-set = utf8/g" /etc/mysql/my.cnf
 COPY perfs.cnf /etc/mysql/conf.d/
 
 # config mail server so websites can send emails
