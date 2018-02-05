@@ -62,7 +62,7 @@ echo "" > /mysql-force-password.sql && \
     echo "FLUSH PRIVILEGES; " >> /mysql-force-password.sql
 mkdir -p /var/run/mysqld && \
     chown devdocker: /var/run/mysqld && \
-    mysqld_safe --tc-heuristic-recover=COMMIT --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
+    mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
 while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
     # limit to 600 retries (300s)
@@ -124,5 +124,5 @@ if [[ "$START_ELK" == "1" ]]; then
 fi
 
 # start apache
-source /etc/apache2/envvars
-exec apache2 -D FOREGROUND
+/etc/init.d/apache2 start
+exec sh -c 'while sleep 3600; do echo; done'
