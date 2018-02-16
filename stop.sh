@@ -26,6 +26,7 @@ else
     echo "# Stopping devdocker containers:"
     echo -ne "\033$TERM_COLOR_NORMAL"
     docker stop "$DEVDOCKER_IDS"
+    sleep 1
 fi
 
 # cleanup exited devdocker containers

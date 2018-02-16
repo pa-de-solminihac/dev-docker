@@ -48,7 +48,7 @@ TERM_COLOR_UNDERSCORE="[4m"
 TERM_COLOR_REVERSE="[7m"
 # detect user full name (real user full name if available, defaults to username)
 FINGER="$(which finger 2>/dev/null || true)"
-if [ "$OS" != "Windows_NT" ]; then
+if [ "${OS:-}" != "Windows_NT" ]; then
     if [ "$FINGER" != "" ]; then
         USER_FULLNAME="$($FINGER $(id -un) | head -1 | cut -d: -f3- | xargs)"
     fi

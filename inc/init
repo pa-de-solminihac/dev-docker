@@ -1,6 +1,6 @@
 # chargement du fichier de config
 
-set -e -o pipefail -o errtrace -o functrace
+set -o errexit -o errtrace -o functrace -o pipefail -o nounset -o noclobber
 trap 'err_handler $?' ERR
 
 err_handler() {
