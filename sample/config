@@ -1,6 +1,7 @@
 #####################
 # Basic configuration
 #####################
+CATCH_ALL_EMAIL="user@domain.com"
 MYSQL_FORCED_ROOT_PASSWORD="" # if left empty, a different random mysql root password will be forced at every startup
 
 ##################
@@ -17,16 +18,21 @@ START_ELK=0
 # devdocker options
 DEVDOCKER_AUTOUPDATE="1"
 DEVDOCKER_VM="default"
-DEVDOCKER_REPOSITORY="" # "host.domain.com:5000" if you want to use an custom, "insecure" docker registry
-DEVDOCKER_IMAGE="pierrealexis/dev-docker" # just "devdocker" if you want to use an custom, "insecure" docker registry
+DEVDOCKER_REPOSITORY="" # "host.domain.com:5000" if you want to use a custom, "insecure" docker registry
+DEVDOCKER_IMAGE="pierrealexis/dev-docker" # just "$DEVDOCKER_REPOSITORY/devdocker" if you want to use a custom, "insecure" docker registry
 DOCKERSITE_ROOT="$HOME/dev-docker/dockersite" # cygwin users should use "/c/Users/.../path/to/dockersite"
 
 # ssh
-SSH_DIR="$HOME/.ssh" # note that if you need to sudo, $HOME will be /root/
-SSH_PRIVKEY="$SSH_DIR/id_rsa"
+SSH_DIR="$HOME/.ssh" # note that if you need to sudo, $HOME will be /root/ instead of your $HOME
+USER_FULLNAME="John Doe"
 
 # blackfire credentials: cf. https://blackfire.io/getting-started
 BLACKFIRE_SERVER_ID=""
 BLACKFIRE_SERVER_TOKEN="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_CLIENT_ID="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_CLIENT_TOKEN="" # cf. https://blackfire.io/getting-started
+
+# ports
+PORT_80="80"
+PORT_443="443"
+PORT_3306="3306"

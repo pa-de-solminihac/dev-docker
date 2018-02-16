@@ -1,32 +1,52 @@
 #!/bin/bash
 
+# fix devdocker uid so that it matches host user uid
+groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
+usermod -u $USER_ID -g $GROUP_ID devdocker
+chfn devdocker -f "$USER_FULLNAME"
+chown -R $USER_ID:$GROUP_ID /var/log/mysql
+chown -R $USER_ID:$GROUP_ID /var/lib/mysql
+
 # basic services startup
 /etc/init.d/rsyslog start
 /etc/init.d/cron start
 /etc/init.d/ssh start
-/etc/init.d/exim4 start
+/etc/init.d/proftpd start
 
-# fix devdocker uid so that it matches host user uid
-groupmod -g $GROUP_ID devdocker # will fail if $GROUP_ID already exists, so that devdocker is the default group
-usermod -u $USER_ID -g $GROUP_ID devdocker && \
-    chown -R $USER_ID:$GROUP_ID /var/log/mysql && \
-    chown -R $USER_ID:$GROUP_ID /var/lib/mysql
-chfn devdocker -f "$USER_FULLNAME"
+# exim4: catch_all emails
+if [ "$CATCH_ALL_EMAIL" != "" ]; then
+    sed -i "s/begin routers/begin routers\n\ncatch_all_outgoing:\ndebug_print = \"R: catch_all for \$local_part@\$domain\"\ndriver = redirect\ndata = $CATCH_ALL_EMAIL\n\n/g" /etc/exim4/exim4.conf.template
+fi
+/etc/init.d/exim4 restart
 
-# force debian-sys-maint
+# save root password in .my.cnf
+echo "" > /root/.my.cnf && \
+    chmod 400 /root/.my.cnf && \
+    echo "[client]" > /root/.my.cnf && \
+    echo "user=root" >> /root/.my.cnf && \
+    echo "host=127.0.0.1" >> /root/.my.cnf && \
+    echo "password=$MYSQL_FORCED_ROOT_PASSWORD" >> /root/.my.cnf && \
+    cp -p /root/.my.cnf /home/devdocker/.my.cnf && \
+    chown devdocker: /home/devdocker/.my.cnf
+
+# force root instead of debian-sys-maint
 sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
 sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
 sed -i "s/^password = .*/password = $MYSQL_FORCED_ROOT_PASSWORD/g" /etc/mysql/debian.cnf
 
 # start mysql, initializing DB if necessary
+mkdir -p /var/lib/mysql/binlog
+touch /var/lib/mysql/binlog/mysql-bin.index
 if [ ! -d /var/lib/mysql/mysql ]; then
     logger "Initializing mysql database"
+    chown -R devdocker: /var/lib/mysql
     rm -f /var/lib/mysql/.gitignore
     mysql_install_db --defaults-file=~/.my.cnf
-    mkdir -p /var/lib/mysql/binlog
-    touch /var/lib/mysql/binlog/mysql-bin.index
     chown -R devdocker: /var/lib/mysql
 fi
+mkdir -p /var/lib/mysql/binlog
+touch /var/lib/mysql/binlog/mysql-bin.index
+chown -R devdocker: /var/lib/mysql/binlog
 
 # force root password and open to outside
 MYSQL_RUNNING=0;
@@ -40,15 +60,7 @@ echo "" > /mysql-force-password.sql && \
     echo "DROP TABLE devdocker_tmp; " >> /mysql-force-password.sql && \
     echo "UPDATE user SET Password=PASSWORD('$MYSQL_FORCED_ROOT_PASSWORD') WHERE User='root'; " >> /mysql-force-password.sql && \
     echo "FLUSH PRIVILEGES; " >> /mysql-force-password.sql
-echo "" > /root/.my.cnf && \
-    chmod 400 /root/.my.cnf && \
-    echo "[client]" > /root/.my.cnf && \
-    echo "user=root" >> /root/.my.cnf && \
-    echo "host=127.0.0.1" >> /root/.my.cnf && \
-    echo "password=$MYSQL_FORCED_ROOT_PASSWORD" >> /root/.my.cnf && \
-    cp -p /root/.my.cnf /home/devdocker/.my.cnf && \
-    chown devdocker: /home/devdocker/.my.cnf && \
-    mkdir -p /var/run/mysqld && \
+mkdir -p /var/run/mysqld && \
     chown devdocker: /var/run/mysqld && \
     mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
@@ -67,6 +79,7 @@ while ! [[ "$MYSQL_RUNNING" == "0" ]]; do
     sleep 0.5
 done
 # and start mysql up again
+chown -R devdocker: /var/lib/mysql
 /etc/init.d/mysql start
 
 # wait for mysqld_safe startup and install phpmyadmin database if necessary
@@ -111,6 +124,5 @@ if [[ "$START_ELK" == "1" ]]; then
 fi
 
 # start apache
-source /etc/apache2/envvars
-exec apache2 -D FOREGROUND
-
+/etc/init.d/apache2 start
+exec sh -c 'while sleep 3600; do echo; done'

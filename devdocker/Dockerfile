@@ -48,6 +48,8 @@ RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
 RUN apt-get update
 RUN apt-get -y install docker-ce docker-compose \
     apt-utils \
+    lsb-release \
+    screen \
     dialog \
     locales-all \
     net-tools dnsutils whois strace \
@@ -85,13 +87,13 @@ RUN apt-get -y install docker-ce docker-compose \
     vim nano \
     grep ack-grep silversearcher-ag \
     git tig \
-    mariadb-client \
+    mysql-client \
     openssh-server openssh-client rsync \
-    lynx wget netcat whatweb \
+    lynx curl wget netcat tor whatweb \
     phpmyadmin \
     man-db manpages \
     blackfire-agent blackfire-php \
-    mariadb-server \
+    mysql-server \
     mailutils \
     build-essential autoconf pkg-config nasm libtool \
     rsyslog \
@@ -116,11 +118,12 @@ RUN n stable
 # install libreoffice from backports
 RUN apt-get -y install -t stretch-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-RUN apt-get -y install -t stretch-backports libreoffice-writer
+RUN apt-get -y install -t stretch-backports libreoffice-writer jodconverter
 
 # install letsencrypt from backports
 RUN apt-get -y install -t stretch-backports python-certbot-apache
 
+# install mycli
 RUN easy_install mycli
 
 # install elasticsearch logstash kibana
@@ -254,7 +257,7 @@ RUN a2enmod rewrite && \
     a2enmod ssl && \
     a2enmod vhost_alias && \
     a2enmod php7.2 && \
-    echo 'Servername localhost' >> /etc/apache2/apache2.conf && \
+    echo 'ServerName localhost' >> /etc/apache2/apache2.conf && \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
     sed -i 's/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g' /etc/apache2/envvars && \
     sed -i 's/Listen 80/Listen 0.0.0.0:80/g' /etc/apache2/ports.conf && \
@@ -304,22 +307,20 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     echo '$cfg["LoginCookieValidity"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["LoginCookieStore"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
-# mysql (mariadb): enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
+# mysql: enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
 RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
     sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
     sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
     sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/my.cnf && \
-    sed -i "s/#character-set-server/character-set-server/g" /etc/mysql/conf.d/mysql.cnf && \
-    sed -i "s/#character_set_server/character_set_server/g" /etc/mysql/conf.d/mysql.cnf && \
-    sed -i "s/#collation-server/collation-server/g" /etc/mysql/conf.d/mysql.cnf && \
-    sed -i "s/#collation_server/collation_server/g" /etc/mysql/conf.d/mysql.cnf && \
-    sed -i "s/#default-character-set/default-character-set/g" /etc/mysql/conf.d/mysql.cnf
+    sed -i "s/^\[mysqld\]/[mysqld]\ncharacter-set-server = utf8\ncharacter_set_server = utf8\ncollation-server = utf8_unicode_ci\ncollation_server = utf8_unicode_ci/g" /etc/mysql/my.cnf && \
+    sed -i "s/^\[client\]/[client]\ndefault-character-set = utf8/g" /etc/mysql/my.cnf
 COPY perfs.cnf /etc/mysql/conf.d/
 
 # config mail server so websites can send emails
 # TODO: catch all outgoing mails
 RUN sed -i "s/^dc_eximconfig_configtype='local'/dc_eximconfig_configtype='internet'/g" /etc/exim4/update-exim4.conf.conf && \
+    sed -i "s/^dc_local_interfaces=.*/dc_local_interfaces='127.0.0.1'/g" /etc/exim4/update-exim4.conf.conf && \
     update-exim4.conf
 
 # ssh
@@ -361,8 +362,19 @@ RUN echo '' > /etc/motd
 
 RUN echo devdocker:devdocker | chpasswd
 
+# ProFtpd
+RUN apt -y install proftpd \
+    && sed -i 's/# AuthOrder.*/AuthOrder mod_auth_file.c mod_auth_unix.c\nAuthUserFile \/etc\/proftpd\/passwd\/ftpd.passwd/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/# PassivePorts.*/PassivePorts 7000 7003/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/User[[:space:]].*/User devdocker/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/Group[[:space:]].*/Group devdocker/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/UseIPv6.*/UseIPv6 off/g' /etc/proftpd/proftpd.conf \
+    && sed -i 's/# DefaultRoot.*/DefaultRoot ~/g' /etc/proftpd/proftpd.conf \
+    && touch /etc/proftpd/ftpd.passwd \
+    && chmod 600 /etc/proftpd/ftpd.passwd
+
 # expose ports
-EXPOSE 8022 80 443 3306 5601 6379 6081 6082 9200 9300 11211
+EXPOSE 8022 20 21 80 443 3306 5601 6379 6081 6082 9200 9300 11211 7000-7003
 
 # caution: CMD works ok with double quotes (") but not with single quotes (')
 COPY run.sh /run.sh

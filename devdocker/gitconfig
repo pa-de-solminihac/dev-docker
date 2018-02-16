@@ -1,5 +1,7 @@
 [push]
     default = simple
+[pull]
+    ff = only
 [branch "master"]
     mergeoptions = --no-ff
 [branch "devel"]
