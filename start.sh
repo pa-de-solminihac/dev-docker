@@ -73,7 +73,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     for PORT in $(echo $PORTS); do
         nc -z 127.0.0.1 $PORT 2>/dev/null && echo "Port already in use: $PORT" && PORT_IN_USE=1;
     done
-    if [ "$PORT_IN_USE" == "1" ]; then
+    if [ "${PORT_IN_USE:-}" == "1" ]; then
         exit 1;
     fi;
     # run container
