@@ -105,7 +105,11 @@ RUN apt-get -y install docker-ce docker-compose \
     youtube-dl \
     libimage-exiftool-perl \
     varnish \
-    nodejs
+    nodejs \
+    ttf-mscorefonts-installer \
+    tcpdump \
+    tcpflow \
+    spfquery
 
 # install last nodejs stable version and gulp
 RUN npm install -g n gulp
@@ -127,8 +131,8 @@ RUN apt-get -y install -t stretch-backports python-certbot-apache
 RUN easy_install mycli
 
 # install elasticsearch logstash kibana
-#ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
-#RUN apt-get -y install elasticsearch logstash kibana
+ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
+RUN apt-get -y install elasticsearch logstash kibana
 
 # image optimisation tools
 RUN apt-get -y install jpegoptim gifsicle optipng pngquant
@@ -191,16 +195,16 @@ COPY profile.d_sitesync.sh /etc/profile.d/sitesync.sh
 #     mv /usr/local/bin/pdepend.phar /usr/local/bin/pdepend
 
 # configure elasticsearch and kibana, then install metricbeat (for container monitoring in elasticsearch logstash kibana) and elasticsearch plugin ingest-attachment to index files using Apache Tika
-#RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
-#    sed -i 's/-Xmx2g/-Xmx512m/g' /etc/elasticsearch/jvm.options && \
-#    sed -i 's/#network.host: 192.168.0.1/network.host: 0.0.0.0/g' /etc/elasticsearch/elasticsearch.yml && \
-#    sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml && \
-#    mkdir -p /usr/local/src/metricbeat && \
-#    cd /usr/local/src/metricbeat && \
-#    curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.0.0-amd64.deb && \
-#    dpkg -i metricbeat-5.0.0-amd64.deb && \
-#    cd /usr/share/elasticsearch && \
-#    bin/elasticsearch-plugin install -b ingest-attachment
+RUN sed -i 's/-Xms2g/-Xms512m/g' /etc/elasticsearch/jvm.options && \
+    sed -i 's/-Xmx2g/-Xmx512m/g' /etc/elasticsearch/jvm.options && \
+    sed -i 's/#network.host: 192.168.0.1/network.host: 0.0.0.0/g' /etc/elasticsearch/elasticsearch.yml && \
+    sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml && \
+    mkdir -p /usr/local/src/metricbeat && \
+    cd /usr/local/src/metricbeat && \
+    curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-5.0.0-amd64.deb && \
+    dpkg -i metricbeat-5.0.0-amd64.deb && \
+    cd /usr/share/elasticsearch && \
+    bin/elasticsearch-plugin install -b ingest-attachment
 
 # configure redis-server to allow remote access
 RUN sed -i -e 's/^bind /#bind /' '/etc/redis/redis.conf'

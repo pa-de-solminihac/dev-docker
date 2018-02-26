@@ -40,7 +40,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     # get latest image from local repository
     if [ "$DEVDOCKER_AUTOUPDATE" == "1" ]; then
         GIT_CURRENT_BRANCH="$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)"
-        if [ "$(git fetch --all | grep -v 'Fetching origin'; git log --oneline ..origin/$GIT_CURRENT_BRANCH | wc -l | xargs)" != "0" ] && [ "$DEVDOCKER_DONT_GITPULL" != "1" ]; then
+        if [ "$(git fetch --all | grep -v 'Fetching origin'; git log --oneline ..origin/$GIT_CURRENT_BRANCH | wc -l | xargs)" != "0" ] && [ "${DEVDOCKER_DONT_GITPULL:-}" != "1" ]; then
             if [ "$(git status --short . | grep -v '^??' | wc -l)" != "0" ]; then
                 echo -ne "\033$TERM_COLOR_YELLOW";
                 echo
