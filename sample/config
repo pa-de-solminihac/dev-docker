@@ -31,8 +31,3 @@ BLACKFIRE_SERVER_ID=""
 BLACKFIRE_SERVER_TOKEN="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_CLIENT_ID="" # cf. https://blackfire.io/getting-started
 BLACKFIRE_CLIENT_TOKEN="" # cf. https://blackfire.io/getting-started
-
-# ports
-PORT_80="80"
-PORT_443="443"
-PORT_3306="3306"

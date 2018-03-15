@@ -368,6 +368,10 @@ RUN apt -y install proftpd \
     && touch /etc/proftpd/ftpd.passwd \
     && chmod 600 /etc/proftpd/ftpd.passwd
 
+# netdata monitoring
+ADD https://my-netdata.io/kickstart.sh /kickstart.sh
+RUN bash /kickstart.sh --dont-wait --dont-start-it
+
 # expose ports
 EXPOSE 8022 20 21 80 443 3306 5601 6379 6081 6082 9200 9300 11211 7000-7003
 

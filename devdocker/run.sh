@@ -123,6 +123,10 @@ if [[ "$START_ELK" == "1" ]]; then
     /etc/init.d/metricbeat start
 fi
 
+# allow MySQL autodetection and start netdata monitoring
+sed -i "s/# pass *: *''/pass : '$MYSQL_FORCED_ROOT_PASSWORD'/g" /etc/netdata/python.d/mysql.conf
+/usr/sbin/netdata -t 5
+
 # start apache
 /etc/init.d/apache2 start
 exec sh -c 'while sleep 3600; do echo; done'
