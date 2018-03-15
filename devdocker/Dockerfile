@@ -82,12 +82,13 @@ RUN apt-get -y install docker-engine \
     vim nano \
     grep ack-grep silversearcher-ag \
     git tig \
-    mysql-client \
     openssh-server openssh-client rsync \
     lynx curl wget netcat tor whatweb \
     phpmyadmin \
     man-db manpages \
     blackfire-agent blackfire-php \
+    mysql-client \
+    mysql-utilities \
     mysql-server \
     mailutils \
     drush \
