@@ -75,7 +75,7 @@ RUN apt-get -y install docker-engine \
     php7.1-ssh2 \
     php7.1-ldap \
     php7.1-sqlite \
-    php-zip \
+    php7.1-zip \
     php-pear \
     phpunit php7.1-xdebug \
     poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
