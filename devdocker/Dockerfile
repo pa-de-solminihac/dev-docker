@@ -32,6 +32,10 @@ RUN apt-key add /tmp/elasticsearch.key && \
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
+## enable debian testing repository, with priority lower than debian stable (< 500)
+RUN echo "deb http://http.debian.net/debian testing main" | tee /etc/apt/sources.list.d/testing.list
+RUN echo -e "\nPackage: *\nPin: release a=testing \nPin-Priority: 300\n" | tee /etc/apt/preferences.d/testing
+
 # enable dotdeb repository for php7
 #ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
 #RUN apt-key add /tmp/dotdeb.key && \
@@ -131,6 +135,9 @@ RUN apt-get -y install elasticsearch logstash kibana
 
 # image optimisation tools
 RUN apt-get -y install jpegoptim gifsicle optipng pngquant
+
+## install more recent apache2 version
+RUN apt-get -y install -t testing apache2
 
 
 #################################
@@ -250,6 +257,7 @@ COPY blackfire-client /home/devdocker/.blackfire.ini
 COPY 000-default.conf /etc/apache2/sites-enabled/
 RUN make-ssl-cert generate-default-snakeoil
 RUN a2enmod rewrite && \
+    a2enmod http2 && \
     a2enmod headers && \
     a2enmod proxy && \
     a2enmod proxy_http && \
