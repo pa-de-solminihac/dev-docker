@@ -88,8 +88,9 @@ RUN apt-get -y install docker-engine \
     man-db manpages manpages-fr manpages-fr-extra \
     blackfire-agent blackfire-php \
     mysql-client \
-    mysql-utilities \
     mysql-server \
+    mysql-utilities \
+    mytop \
     mailutils \
     drush \
     build-essential autoconf pkg-config nasm libtool \
