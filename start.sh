@@ -185,7 +185,10 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     if [ "$PORT_FW_PID" == "" ]; then
         if [[ "$QUIET" == "0" ]]; then
             echo -ne "\033$TERM_COLOR_GREEN"
-            echo "# Forwarding ports using SSH"
+            echo -n "# Forwarding ports using SSH"
+            # wait for ssh server to be ready
+            while ! nc -z $DOCKERMACHINEIP 8022 2> /dev/null; do sleep 0.1; echo -n .; done
+            echo -e "\n"
             echo -ne "\033$TERM_COLOR_NORMAL"
         fi
         if [ -x "$(which sudo 2> /dev/null)" ]; then

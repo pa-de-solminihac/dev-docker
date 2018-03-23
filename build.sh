@@ -39,7 +39,7 @@ else
     echo "# Build failed... there is something wrong with this build command:"
     echo "$BUILD_CMD"
     echo -ne "\033$TERM_COLOR_NORMAL"
-    if [ "$@" != "--no-cache" ]; then
+    if [ "$*" != "--no-cache" ]; then
         echo
         echo -ne "\033$TERM_COLOR_YELLOW"
         echo "# Errors my be caused by docker cache, try again with option: --no-cache"

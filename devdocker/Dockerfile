@@ -82,13 +82,15 @@ RUN apt-get -y install docker-engine \
     vim nano \
     grep ack-grep silversearcher-ag \
     git tig \
-    mysql-client \
     openssh-server openssh-client rsync \
     lynx curl wget netcat tor whatweb \
     phpmyadmin \
-    man-db manpages \
+    man-db manpages manpages-fr manpages-fr-extra \
     blackfire-agent blackfire-php \
+    mysql-client \
     mysql-server \
+    mysql-utilities \
+    mytop \
     mailutils \
     drush \
     build-essential autoconf pkg-config nasm libtool \
@@ -250,6 +252,8 @@ COPY 000-default.conf /etc/apache2/sites-enabled/
 RUN make-ssl-cert generate-default-snakeoil
 RUN a2enmod rewrite && \
     a2enmod headers && \
+    a2enmod proxy && \
+    a2enmod proxy_http && \
     a2enmod expires && \
     a2enmod include && \
     a2enmod ssl && \
