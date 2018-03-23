@@ -89,11 +89,12 @@ RUN apt-get -y install docker-engine \
     openssh-server openssh-client rsync \
     lynx curl wget netcat tor whatweb \
     phpmyadmin \
-    man-db manpages \
+    man-db manpages manpages-fr manpages-fr-extra \
     blackfire-agent blackfire-php \
     mysql-client \
-    mysql-utilities \
     mysql-server \
+    mysql-utilities \
+    mytop \
     mailutils \
     drush \
     build-essential autoconf pkg-config nasm libtool \
