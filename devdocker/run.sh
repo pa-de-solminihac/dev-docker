@@ -29,10 +29,12 @@ echo "" > /root/.my.cnf && \
     cp -p /root/.my.cnf /home/devdocker/.my.cnf && \
     chown devdocker: /home/devdocker/.my.cnf
 
-# force root instead of debian-sys-maint
+# enforce mysql root password
+#TODO: improve escaping
 sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
 sed -i 's/debian-sys-maint/root/g' /etc/mysql/debian.cnf
 sed -i "s/^password = .*/password = $MYSQL_FORCED_ROOT_PASSWORD/g" /etc/mysql/debian.cnf
+sed -i "s/MYSQL_FORCED_ROOT_PASSWORD/$MYSQL_FORCED_ROOT_PASSWORD/g" /etc/phpmyadmin/config-db.php
 
 # start mysql, initializing DB if necessary
 mkdir -p /var/lib/mysql/binlog
@@ -64,17 +66,17 @@ mkdir -p /var/run/mysqld && \
     chown devdocker: /var/run/mysqld && \
     mysqld_safe --skip-grant-tables --skip-networking --init-file=/mysql-force-password.sql &
 # wait for mysql to startup in "reset password mode"
-while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
+c_mysql_reset=0 && while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
     # limit to 600 retries (300s)
-    ((c++)) && ((c==600)) && logger "Warning: giving up mysql first startup" && break
+    ((c_mysql_reset++)) && ((c_mysql_reset==600)) && logger "Warning: giving up mysql first startup" && break
     /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
     sleep 0.5
 done
 # then kill mysql and wait until it dies
 /etc/init.d/mysql stop
-while ! [[ "$MYSQL_RUNNING" == "0" ]]; do
+c_mysql_stop=0 && while ! [[ "$MYSQL_RUNNING" == "0" ]]; do
     # limit to 600 retries (300s)
-    ((c++)) && ((c==600)) && logger "Warning: giving up mysql password reset" && break
+    ((c_mysql_stop++)) && ((c_mysql_stop==600)) && logger "Warning: giving up mysql password reset" && break
     /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
     sleep 0.5
 done
@@ -85,9 +87,9 @@ chown -R devdocker: /var/lib/mysql
 # wait for mysqld_safe startup and install phpmyadmin database if necessary
 if [ ! -d /var/lib/mysql/phpmyadmin ]; then
     logger "Initializing phpmyadmin database"
-    while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
+    c_pma_init=0 && while ! [[ "$MYSQL_RUNNING" == "1" ]]; do
         # limit to 600 retries (300s)
-        ((c++)) && ((c==600)) && logger "Warning: giving up phpmyadmin database initialization" && break
+        ((c_pma_init++)) && ((c_pma_init==600)) && logger "Warning: giving up phpmyadmin database initialization" && break
         /usr/bin/mysqladmin --defaults-file=/etc/mysql/debian.cnf ping > /dev/null 2>&1 ; MYSQL_RUNNING=$(( ! $? ));
         sleep 0.5
     done
@@ -99,15 +101,15 @@ sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_ID/$BLACKFIRE_CLIENT_ID/g" /home/devdocker/
 sed -i "s/DEVDOCKER_BLACKFIRE_CLIENT_TOKEN/$BLACKFIRE_CLIENT_TOKEN/g" /home/devdocker/.blackfire.ini
 sed -i "s/DEVDOCKER_BLACKFIRE_SERVER_ID/$BLACKFIRE_SERVER_ID/g" /etc/blackfire/agent
 sed -i "s/DEVDOCKER_BLACKFIRE_SERVER_TOKEN/$BLACKFIRE_SERVER_TOKEN/g" /etc/blackfire/agent
-sed -i "s/^;blackfire.server_id =.*/blackfire.server_id = $BLACKFIRE_SERVER_ID/g" /etc/php5/mods-available/blackfire.ini
-sed -i "s/^;blackfire.server_token =.*/blackfire.server_token = $BLACKFIRE_SERVER_TOKEN/g" /etc/php5/mods-available/blackfire.ini
-sed -i "s/^;blackfire.log_file = .*/blackfire.log_file = \/tmp\/blackfire.log/g" /etc/php5/mods-available/blackfire.ini
+sed -i "s/^;blackfire.server_id =.*/blackfire.server_id = $BLACKFIRE_SERVER_ID/g" /etc/php/7.0/mods-available/blackfire.ini
+sed -i "s/^;blackfire.server_token =.*/blackfire.server_token = $BLACKFIRE_SERVER_TOKEN/g" /etc/php/7.0/mods-available/blackfire.ini
+sed -i "s/^;blackfire.log_file = .*/blackfire.log_file = \/tmp\/blackfire.log/g" /etc/php/7.0/mods-available/blackfire.ini
 /etc/init.d/blackfire-agent start
 
 # conditionnal services startup
-if [[ "$START_DOCKER_IN_DOCKER" == "1" ]]; then
-    /etc/init.d/docker start
-fi
+# if [[ "$START_DOCKER_IN_DOCKER" == "1" ]]; then
+#     /etc/init.d/docker start
+# fi
 if [[ "$START_MEMCACHED" == "1" ]]; then
     /etc/init.d/memcached start
 fi

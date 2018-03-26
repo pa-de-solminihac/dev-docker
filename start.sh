@@ -187,7 +187,10 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
             echo -ne "\033$TERM_COLOR_GREEN"
             echo -n "# Forwarding ports using SSH"
             # wait for ssh server to be ready
-            while ! nc -z $DOCKERMACHINEIP 8022 2> /dev/null; do sleep 0.1; echo -n .; done
+            c_ssh_port_fw=0 && while ! nc -z $DOCKERMACHINEIP 8022 2> /dev/null; do
+                sleep 0.5 && echo -n .;
+                ((c_ssh_port_fw++)) && ((c_ssh_port_fw==60)) && echo -ne "\033$TERM_COLOR_YELLOW" && echo -e "\nWarning: giving up port forwarding detection" && break
+            done
             echo -e "\n"
             echo -ne "\033$TERM_COLOR_NORMAL"
         fi

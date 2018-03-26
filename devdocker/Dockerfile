@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 MAINTAINER Pierre-Alexis de Solminihac <pa@solminihac.fr>
 
 #####################
@@ -15,9 +15,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # enable docker repository for docker-in-docker
 RUN apt-get update
-RUN apt-get -y install apt-transport-https ca-certificates && \
-    apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
+RUN apt-get -y install apt-transport-https ca-certificates gnupg curl
+#TODO: install docker in docker
+#RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+#    echo "deb https://apt.dockerproject.org/repo debian-stretch main" > /etc/apt/sources.list.d/docker.list
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
@@ -29,21 +30,27 @@ ADD https://artifacts.elastic.co/GPG-KEY-elasticsearch /tmp/elasticsearch.key
 RUN apt-key add /tmp/elasticsearch.key && \
     echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-5.x.list
 
-# enable debian jessie backports
-RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
+# enable debian stretch backports
+RUN echo "deb http://httpredir.debian.org/debian stretch-backports main" | tee /etc/apt/sources.list.d/backports.list
 
 # enable dotdeb repository for php7
 #ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
 #RUN apt-key add /tmp/dotdeb.key && \
-#    echo "deb http://packages.dotdeb.org jessie all" | tee /etc/apt/sources.list.d/dotdeb.list
+#    echo "deb http://packages.dotdeb.org stretch all" | tee /etc/apt/sources.list.d/dotdeb.list
+
+# enable nodejs repository
+WORKDIR /usr/local/src/
+RUN curl -sL https://deb.nodesource.com/setup_6.x -o setup_6.x && \
+    chmod +x setup_6.x && \
+    ./setup_6.x # includes apt-get update
 
 #########################
 # INSTALL DISTRO PACKAGES
 #########################
 
-# install required packages
-RUN apt-get update
-RUN apt-get -y install docker-engine \
+#TODO: install docker in docker
+#RUN apt-get -y install docker-engine
+RUN apt-get -y install \
     apt-utils \
     lsb-release \
     screen \
@@ -51,30 +58,34 @@ RUN apt-get -y install docker-engine \
     locales-all \
     net-tools dnsutils whois strace \
     sudo \
-    memcached \
+    memcached
+
+RUN apt-get -y install \
     apache2 \
-    libapache2-mod-php5 \
-    php5-apcu \
-    php5-memcache \
-    php5-memcached \
-    redis-server php5-redis \
-    php5-intl \
-    php5-mysqlnd \
-    php5-pgsql \
-    php5-json \
-    php5-xsl \
-    php5-imap \
-    php5-curl \
-    php5-gd \
-    php5-imagick \
+    libapache2-mod-php \
+    php-apcu \
+    php-mcrypt \
+    php-memcached \
+    redis-server php-redis \
+    php-intl \
+    php-mysqlnd \
+    php-pgsql \
+    php-json \
+    php-xsl \
+    php-imap \
+    php-curl \
+    php-gd \
+    php-imagick \
     gettext php-gettext \
-    php5-oauth \
-    php5-pspell \
-    php5-ssh2 \
-    php5-ldap \
-    php5-sqlite \
+    php-oauth \
+    php-pspell \
+    php-ssh2 \
+    php-ldap \
+    php-sqlite3 \
     php-pear \
-    phpunit php5-xdebug \
+    phpunit php-xdebug
+
+RUN apt-get -y install \
     poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
     bash bash-completion \
     pv \
@@ -83,16 +94,16 @@ RUN apt-get -y install docker-engine \
     grep ack-grep silversearcher-ag \
     git tig \
     openssh-server openssh-client rsync \
-    lynx curl wget netcat tor whatweb \
+    lynx wget netcat tor whatweb \
     phpmyadmin \
     man-db manpages manpages-fr manpages-fr-extra \
     blackfire-agent blackfire-php \
-    mysql-client \
-    mysql-server \
-    mysql-utilities \
-    mytop \
     mailutils \
-    drush \
+    mariadb-server \
+    mysql-utilities \
+    mariadb-client # includes mytop
+
+RUN apt-get -y install \
     build-essential autoconf pkg-config nasm libtool \
     rsyslog \
     imagemagick \
@@ -103,28 +114,28 @@ RUN apt-get -y install docker-engine \
     youtube-dl \
     libimage-exiftool-perl \
     varnish \
-    npm \
     ttf-mscorefonts-installer \
     tcpdump \
     tcpflow \
     spfquery
 
 # decent nodejs version and gulp
+RUN apt-get -y install nodejs build-essential libssl-dev
 RUN npm install -g n gulp
 RUN n stable
 
 # TODO: more tools (http://agile.dzone.com/news/continuous-integration-php
 
 # install libreoffice from backports
-RUN apt-get -y install -t jessie-backports openjdk-8-jre-headless ca-certificates-java && \
+RUN apt-get -y install -t stretch-backports openjdk-8-jre-headless ca-certificates-java && \
     update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-RUN apt-get -y install -t jessie-backports libreoffice-writer jodconverter
+RUN apt-get -y install -t stretch-backports libreoffice-writer jodconverter
 
 # install letsencrypt from backports
-RUN apt-get -y install -t jessie-backports python-certbot-apache
+RUN apt-get -y install -t stretch-backports python-certbot-apache
 
 # install mycli
-RUN easy_install mycli
+RUN easy_install3 mycli
 
 # install elasticsearch logstash kibana
 ENV ES_SKIP_SET_KERNEL_PARAMETERS=true
@@ -161,6 +172,11 @@ WORKDIR /usr/local/bin
 RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar wp
+
+# install drush
+WORKDIR /usr/local/src/
+RUN git clone https://github.com/drush-ops/drush.git /usr/local/src/drush && \
+    cd drush && ln -s /usr/local/src/drush/drush /usr/local/bin/drush && composer install
 
 # install php beautifiers
 WORKDIR /usr/local/bin
@@ -281,21 +297,21 @@ RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g
     chgrp devdocker /var/lib/phpmyadmin/* /etc/phpmyadmin/config-db.php /etc/phpmyadmin/htpasswd.setup
 
 # php: xdebug is used for phpunit code coverage, but slows down PHP so we disable it in for apache2 SAPI
-RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php5/apache2/php.ini && \
-    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php5/apache2/php.ini && \
-    php5dismod -s ALL xdebug
+RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^track_errors = Off/track_errors = On/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^;error_log = php_errors.log/error_log = \/var\/log\/dockersite\/php_errors.log/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^disable_functions =.*/disable_functions = shell-exec, system, passthru, popen/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^; max_input_vars =.*/max_input_vars = 2000/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^post_max_size =.*/post_max_size = 32M/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 32M/g" /etc/php/7.0/apache2/php.ini && \
+    sed -i "s/^;date\.timezone =.*/date.timezone = 'Europe\/Paris'/g" /etc/php/7.0/apache2/php.ini && \
+    phpdismod -s ALL xdebug
 
 # phpmyadmin
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php && \
     sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php && \
-    sed -i "s/^\$dbpass='.*';/\$dbpass=getenv('MYSQL_FORCED_ROOT_PASSWORD');/g" /etc/phpmyadmin/config-db.php && \
+    sed -i "s/^\$dbpass='.*';/\$dbpass='MYSQL_FORCED_ROOT_PASSWORD';/g" /etc/phpmyadmin/config-db.php && \
     echo '<?php' > /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["MaxNavigationItems"] = 500;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$sessionDuration = 60*60*24*7; // 60*60*24*7 = one week' >> /etc/phpmyadmin/conf.d/devdocker.php && \
@@ -304,24 +320,24 @@ RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     echo '$cfg["LoginCookieStore"] = $sessionDuration;' >> /etc/phpmyadmin/conf.d/devdocker.php
 
 # mysql: enable cache for performance, set charset to utf8, enable binlogs for point in time recovery, allow startup even when corrupt innodb tables are found
-RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/my.cnf && \
-    sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/my.cnf && \
-    sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/my.cnf && \
-    sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/my.cnf && \
-    sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/my.cnf && \
-    sed -i "s/^\[mysqld\]/[mysqld]\ncharacter-set-server = utf8\ncharacter_set_server = utf8\ncollation-server = utf8_unicode_ci\ncollation_server = utf8_unicode_ci/g" /etc/mysql/my.cnf && \
-    sed -i "s/^\[client\]/[client]\ndefault-character-set = utf8/g" /etc/mysql/my.cnf
+RUN sed -i "s/^bind-address.*/bind-address = 0.0.0.0/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^user[[:space:]]*=[[:space:]]*mysql/user = devdocker/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^query_cache_limit.*/slow_query_log = 1\nslow_query_log_file = \/var\/log\/dockersite\/mysql-slow.log\nlong_query_time = 2/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^query_cache_size.*/query_cache_type = 1\nquery_cache_limit = 16M\nquery_cache_size = 256M\nopen_files_limit = 9999\ninnodb_buffer_pool_size = 32M\nmax_allowed_packet = 32M\ninnodb_log_file_size = 32M\n/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^#log_bin[[:space:]]*=.*/log_bin = \/var\/lib\/mysql\/binlog\/mysql-bin.log/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^character-set-server  = utf8mb4/\ncharacter-set-server  = utf8/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^collation-server      = utf8mb4_general_ci/collation-server      = utf8_general_ci/g" /etc/mysql/mariadb.conf.d/50-server.cnf && \
+    sed -i "s/^default-character-set = utf8mb4/default-character-set = utf8/g" /etc/mysql/mariadb.conf.d/50-client.cnf
 COPY perfs.cnf /etc/mysql/conf.d/
 
-# config mail server so websites can send emails
-# TODO: catch all outgoing mails
+# config mail server so websites can send emails (outgoing mails are caught in run.sh)
 RUN sed -i "s/^dc_eximconfig_configtype='local'/dc_eximconfig_configtype='internet'/g" /etc/exim4/update-exim4.conf.conf && \
     sed -i "s/^dc_local_interfaces=.*/dc_local_interfaces='127.0.0.1'/g" /etc/exim4/update-exim4.conf.conf && \
     update-exim4.conf
 
 # ssh
-RUN sed -i "s/^Port 22/Port 8022/g" /etc/ssh/sshd_config && \
-    sed -i "s/^PermitRootLogin without-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
+RUN sed -i "s/^#Port 22/Port 8022/g" /etc/ssh/sshd_config && \
+    sed -i "s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 # copy your *readonly* mounted ssh keys and config everytime you login
 COPY copy-ssh-config.sh /
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
@@ -335,7 +351,8 @@ COPY varnish/prestashop.vcl /etc/varnish/default.vcl
 RUN chmod 700 /etc/varnish/reload-vcl.sh
 
 # allow docker to run without sudo
-RUN gpasswd -a devdocker docker
+#TODO: install docker in docker
+#RUN gpasswd -a devdocker docker
 
 # cleanup
 RUN apt-get -y clean
