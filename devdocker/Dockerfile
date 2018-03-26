@@ -268,6 +268,7 @@ COPY 000-default.conf /etc/apache2/sites-enabled/
 RUN make-ssl-cert generate-default-snakeoil
 RUN a2enmod rewrite && \
     a2enmod headers && \
+    a2enmod http2 && \
     a2enmod proxy && \
     a2enmod proxy_http && \
     a2enmod expires && \
@@ -283,6 +284,7 @@ RUN a2enmod rewrite && \
     sed -i 's/CustomLog ${APACHE_LOG_DIR}\/access.log combined/CustomLog ${APACHE_LOG_DIR}\/access.log dockersite/g' /etc/apache2/sites-available/default-ssl.conf && \
     mkdir -p /etc/apache2/dockersite && \
     echo 'LogFormat "%V:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" dockersite' >> /etc/apache2/apache2.conf && \
+    echo 'Protocols h2 h2c http/1.1' >> /etc/apache2/apache2.conf && \
     echo 'IncludeOptional dockersite/*.conf' >> /etc/apache2/apache2.conf
 
 # mod_security
