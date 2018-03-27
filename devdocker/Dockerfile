@@ -15,9 +15,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # enable docker repository for docker-in-docker
 RUN apt-get update
-RUN apt-get -y install apt-transport-https ca-certificates && \
-    apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-    echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
+RUN apt-get -y install apt-transport-https ca-certificates gnupg curl
+# try with multiple keyservers because some may be unavailable
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
+    apt-key adv --keyserver pgp.mit.edu --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
+    apt-key adv --keyserver keyserver.pgp.com --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
+    apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+RUN echo "deb https://apt.dockerproject.org/repo debian-stretch main" > /etc/apt/sources.list.d/docker.list
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
@@ -41,9 +45,7 @@ RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /e
 # INSTALL DISTRO PACKAGES
 #########################
 
-# install required packages
-RUN apt-get update
-RUN apt-get -y install docker-engine \
+RUN apt-get -y install \
     apt-utils \
     lsb-release \
     screen \
@@ -83,7 +85,7 @@ RUN apt-get -y install docker-engine \
     grep ack-grep silversearcher-ag \
     git tig \
     openssh-server openssh-client rsync \
-    lynx curl wget netcat tor whatweb \
+    lynx wget netcat tor whatweb \
     phpmyadmin \
     man-db manpages manpages-fr manpages-fr-extra \
     blackfire-agent blackfire-php \
@@ -108,6 +110,8 @@ RUN apt-get -y install docker-engine \
     tcpdump \
     tcpflow \
     spfquery
+
+RUN apt-get -y install docker-engine
 
 # decent nodejs version and gulp
 RUN npm install -g n gulp
