@@ -16,9 +16,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 # enable docker repository for docker-in-docker
 RUN apt-get update
 RUN apt-get -y install apt-transport-https ca-certificates gnupg curl
-#TODO: install docker in docker
-#RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-#    echo "deb https://apt.dockerproject.org/repo debian-stretch main" > /etc/apt/sources.list.d/docker.list
+# try with multiple keyservers because some may be unavailable
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
+    apt-key adv --keyserver pgp.mit.edu --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
+    apt-key adv --keyserver keyserver.pgp.com --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
+    apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+RUN echo "deb https://apt.dockerproject.org/repo debian-stretch main" > /etc/apt/sources.list.d/docker.list
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
@@ -48,8 +51,6 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x -o setup_6.x && \
 # INSTALL DISTRO PACKAGES
 #########################
 
-#TODO: install docker in docker
-#RUN apt-get -y install docker-engine
 RUN apt-get -y install \
     apt-utils \
     lsb-release \
@@ -118,6 +119,8 @@ RUN apt-get -y install \
     tcpdump \
     tcpflow \
     spfquery
+
+RUN apt-get -y install docker-engine
 
 # decent nodejs version and gulp
 RUN apt-get -y install nodejs build-essential libssl-dev
@@ -353,8 +356,7 @@ COPY varnish/prestashop.vcl /etc/varnish/default.vcl
 RUN chmod 700 /etc/varnish/reload-vcl.sh
 
 # allow docker to run without sudo
-#TODO: install docker in docker
-#RUN gpasswd -a devdocker docker
+RUN gpasswd -a devdocker docker
 
 # cleanup
 RUN apt-get -y clean

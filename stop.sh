@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
+QUIET="$#"
+
 BASE_PATH="$(dirname "$0")"
+cd $BASE_PATH;
 source $BASE_PATH/inc/init
 
 # checking if docker VM is running ($DEVDOCKER_VM)
