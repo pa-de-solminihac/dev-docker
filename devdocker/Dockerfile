@@ -229,25 +229,18 @@ RUN sed -i -e 's/^bind /#bind /' '/etc/redis/redis.conf'
 WORKDIR /root/
 RUN [ ! -d ".config" ] && mkdir .config && chmod 700 .config
 RUN git clone https://github.com/pa-de-solminihac/configuration.git /root/.config/config-pa-de-solminihac && \
-    echo "source /root/.bashrc_local" >> /root/.bashrc && \
-    ln -s /root/.config/config-pa-de-solminihac/bash/.bashrc_local && \
+    echo "source /root/.bashrc_common" >> /root/.bashrc && \
     ln -s /root/.config/config-pa-de-solminihac/bash/.bashrc_common && \
     echo "source /root/.vimrc_common" >> /root/.vimrc && \
     ln -s /root/.config/config-pa-de-solminihac/vim/.vimrc_common && \
     mkdir -p bin && \
     ln -s /root/.config/config-pa-de-solminihac/bin/diffconflicts bin/
 WORKDIR /home/devdocker/
-RUN [ ! -d ".config" ] && mkdir .config && chmod 700 .config && chown devdocker: .config
-RUN cp -pr /root/.config/config-pa-de-solminihac /home/devdocker/.config && \
-    chown -R devdocker: /home/devdocker/.config/config-pa-de-solminihac && \
-    echo "source /home/devdocker/.bashrc_local" >> /home/devdocker/.bashrc && \
-    ln -s /home/devdocker/.config/config-pa-de-solminihac/bash/.bashrc_local && \
-    ln -s /home/devdocker/.config/config-pa-de-solminihac/bash/.bashrc_common && \
-    echo "source /home/devdocker/.vimrc_common" >> /home/devdocker/.vimrc && \
-    ln -s /home/devdocker/.config/config-pa-de-solminihac/vim/.vimrc_common && \
-    mkdir -p bin && \
-    ln -s /home/devdocker/.config/config-pa-de-solminihac/bin/diffconflicts bin/
-
+RUN sudo -u devdocker bash -c '[ ! -d ".config" ] && mkdir .config && chmod 700 .config'
+RUN sudo -u devdocker bash -c 'git clone https://github.com/pa-de-solminihac/configuration.git ~/.config/config-pa-de-solminihac' && \
+    sudo -u devdocker bash -c 'echo "source ~/.bashrc_common" >> ~/.bashrc && ln -s ~/.config/config-pa-de-solminihac/bash/.bashrc_common ~/.bashrc_common' && \
+    sudo -u devdocker bash -c 'echo "source ~/.vimrc_common" >> ~/.vimrc && ln -s ~/.config/config-pa-de-solminihac/vim/.vimrc_common ~/.vimrc_common' && \
+    sudo -u devdocker bash -c 'mkdir -p bin && ln -s ~/.config/config-pa-de-solminihac/bin/diffconflicts ~/bin/'
 
 ###########
 # CONFIGURE
