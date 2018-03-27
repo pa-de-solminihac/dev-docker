@@ -51,6 +51,7 @@ RUN curl -sL https://deb.nodesource.com/setup_6.x -o setup_6.x && \
 # INSTALL DISTRO PACKAGES
 #########################
 
+#RUN apt-get update # included in setup_6.x script running just before
 RUN apt-get -y install \
     apt-utils \
     lsb-release \
