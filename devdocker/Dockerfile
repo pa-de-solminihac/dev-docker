@@ -21,7 +21,7 @@ RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 581
     apt-key adv --keyserver pgp.mit.edu --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
     apt-key adv --keyserver keyserver.pgp.com --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
     apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-RUN echo "deb https://apt.dockerproject.org/repo debian-stretch main" > /etc/apt/sources.list.d/docker.list
+RUN echo "deb https://apt.dockerproject.org/repo debian-jessie main" > /etc/apt/sources.list.d/docker.list
 
 # enable blackfire.io additional repository
 ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
@@ -45,6 +45,7 @@ RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /e
 # INSTALL DISTRO PACKAGES
 #########################
 
+RUN apt-get update
 RUN apt-get -y install \
     apt-utils \
     lsb-release \
