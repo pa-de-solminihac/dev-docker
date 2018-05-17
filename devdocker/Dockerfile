@@ -62,6 +62,8 @@ RUN apt-get -y install \
     sudo \
     memcached
 
+RUN echo -e "LANG=en_US.UTF-8\nLANGUAGE=en_GB:en" > /etc/default/locale
+
 RUN apt-get -y install \
     apache2 \
     libapache2-mod-php \
@@ -276,6 +278,7 @@ RUN a2enmod rewrite && \
     echo 'ServerName localhost' >> /etc/apache2/apache2.conf && \
     sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf && \
     sed -i 's/export APACHE_LOG_DIR=.*/export APACHE_LOG_DIR=\/var\/log\/dockersite$SUFFIX/g' /etc/apache2/envvars && \
+    sed -i 's@#. /etc/default/locale@. /etc/default/locale@g' /etc/apache2/envvars && \
     sed -i 's/Listen 80/Listen 0.0.0.0:80/g' /etc/apache2/ports.conf && \
     sed -i 's/Listen 443/Listen 0.0.0.0:443/g' /etc/apache2/ports.conf && \
     sed -i 's/CustomLog ${APACHE_LOG_DIR}\/access.log combined/CustomLog ${APACHE_LOG_DIR}\/access.log dockersite/g' /etc/apache2/sites-available/000-default.conf && \
