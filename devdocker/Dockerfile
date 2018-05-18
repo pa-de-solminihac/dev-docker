@@ -62,7 +62,8 @@ RUN apt-get -y install \
     sudo \
     memcached
 
-RUN echo -e "LANG=en_US.UTF-8\nLANGUAGE=en_GB:en" > /etc/default/locale
+RUN echo "LANG=en_US.UTF-8" > /etc/default/locale && \
+    echo "LANGUAGE=en_GB:en" >> /etc/default/locale
 
 RUN apt-get -y install \
     apache2 \
