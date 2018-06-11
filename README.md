@@ -82,7 +82,7 @@ Il vous faut une installation fonctionnelle de Docker
 
 ## Linux
 
-C'est le cas le plus simple. Voir https://docs.docker.com/docker/installation/debian/
+C'est le cas le plus simple. Voir https://docs.docker.com/install/linux/docker-ce/debian/
 
 ### Permettre l'exécution de docker sans sudo
 ```
