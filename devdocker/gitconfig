@@ -6,3 +6,5 @@
     mergeoptions = --no-ff
 [branch "devel"]
     mergeoptions = --no-ff
+[rerere]
+    enabled = true
