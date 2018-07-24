@@ -290,10 +290,10 @@ RUN a2enmod rewrite && \
     echo 'IncludeOptional dockersite/*.conf' >> /etc/apache2/apache2.conf
 
 # mod_security
-#RUN apt-get -y install libapache2-mod-security2 \
-#    a2enmod security2 && \
-#    cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf && \
-#    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' /etc/modsecurity/modsecurity.conf
+RUN apt-get -y install libapache2-mod-security2 \
+    a2enmod security2 && \
+    cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf && \
+    sed -i 's/SecRuleEngine DetectionOnly/SecRuleEngine On/g' /etc/modsecurity/modsecurity.conf
 
 # apache: workaround for write permission
 RUN sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=devdocker/g" /etc/apache2/envvars && \
@@ -315,7 +315,6 @@ RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php/7.0/apache2/
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php && \
     sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php && \
-    sed -i "s/^\$dbpass='.*';/\$dbpass='MYSQL_FORCED_ROOT_PASSWORD';/g" /etc/phpmyadmin/config-db.php && \
     echo '<?php' > /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["MaxNavigationItems"] = 500;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$sessionDuration = 60*60*24*7; // 60*60*24*7 = one week' >> /etc/phpmyadmin/conf.d/devdocker.php && \
