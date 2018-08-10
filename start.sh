@@ -77,7 +77,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         exit 1;
     fi;
     # run container
-    docker network create devdocker 2>&1 > /dev/null || true
+    docker network create devdocker > /dev/null 2>&1 || true
     DEVDOCKER_ID="$(docker run -h $DEVDOCKER_HOSTNAME --rm --privileged -d -i \
         --net devdocker \
         -p 8022:8022 \
