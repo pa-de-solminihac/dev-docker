@@ -388,6 +388,9 @@ RUN apt -y install proftpd \
     && touch /etc/proftpd/ftpd.passwd \
     && chmod 600 /etc/proftpd/ftpd.passwd
 
+# Systemd
+RUN apt -y install proftpd systemd-sysv
+
 # expose ports
 EXPOSE 8022 20 21 80 443 3306 5601 6379 6081 6082 9200 9300 11211 7000-7003
 
