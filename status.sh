@@ -17,8 +17,8 @@ if [ "$DEVDOCKER_CONTAINERS" == "" ]; then
     exit
 fi
 echo -ne "\033$TERM_COLOR_GREEN"
-echo "# Devdocker containers running:"
-echo -ne "\033$TERM_COLOR_NORMAL"
+echo -n "# Devdocker containers running: "
+echo -e "\033$TERM_COLOR_NORMAL"
 docker ps | head -n 1
 echo "$DEVDOCKER_CONTAINERS"
 
