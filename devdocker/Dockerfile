@@ -91,7 +91,7 @@ RUN apt-get -y install \
     phpunit php-xdebug
 
 RUN apt-get -y install \
-    poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
+    poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra pagetools bc \
     bash bash-completion \
     pv \
     ncdu ncurses-bin \
