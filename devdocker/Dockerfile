@@ -36,6 +36,11 @@ RUN apt-key add /tmp/elasticsearch.key && \
 # enable debian jessie backports
 RUN echo "deb http://httpredir.debian.org/debian jessie-backports main" | tee /etc/apt/sources.list.d/backports.list
 
+# backport pagetools from stretch (for pbm_findskew)
+RUN echo "deb http://httpredir.debian.org/debian stretch main contrib" | tee /etc/apt/sources.list.d/stretch.list
+COPY apt_preferences_stretch /etc/apt/preferences.d/stretch
+RUN apt-get update
+
 # enable dotdeb repository for php7
 #ADD https://www.dotdeb.org/dotdeb.gpg /tmp/dotdeb.key
 #RUN apt-key add /tmp/dotdeb.key && \
@@ -78,7 +83,7 @@ RUN apt-get -y install \
     php5-sqlite \
     php-pear \
     phpunit php5-xdebug \
-    poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra bc \
+    poppler-utils tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra pagetools bc \
     bash bash-completion \
     pv \
     ncdu ncurses-bin \
