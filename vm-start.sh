@@ -61,6 +61,7 @@ fi
 
 echo
 . $BASE_PATH/vm-status.sh
+echo
 
 # recreate port forwarding rules
 if [ -x "$(which sudo 2> /dev/null)" ]; then
