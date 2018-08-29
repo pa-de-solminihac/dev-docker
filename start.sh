@@ -179,6 +179,17 @@ docker exec --user devdocker "$DEVDOCKER_ID" sh -c "grep -sq \"$PUBKEY_MID\" /ho
 
 # echo "\$SSH_PORT_FW_CMD: $SSH_PORT_FW_CMD"
 
+# wait for OpenSSH to be ready
+SSH_RUNNING=0
+c=0
+while ! [[ "$SSH_RUNNING" == "1" ]]; do
+    # limit to 600 retries (300s)
+    ((c++)) && ((c==600)) && logger "Warning: giving up ssh connectivity test" && break
+    $SSH_CMD -o PasswordAuthentication=no "echo ping > /dev/null" && SSH_RUNNING=$(( ! $? )) || true
+    echo -n .
+    sleep 0.5
+done
+
 if [ -x "$DOCKERMACHINE_PATH" ]; then
     # no quotes around echo $SSH_PORT_FW_CMD to suppress additionnal spaces, or grep wont grep
     PORT_FW_PID="$(ps auwx | (grep "$(echo $SSH_PORT_FW_CMD)" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
