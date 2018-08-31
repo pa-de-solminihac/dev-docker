@@ -126,8 +126,4 @@ fi
 
 # start apache
 /etc/init.d/apache2 start
-
- # required to be able to use systemd
-exec /sbin/init 5
-
 exec sh -c 'while sleep 3600; do echo; done'

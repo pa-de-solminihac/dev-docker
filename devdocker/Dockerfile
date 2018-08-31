@@ -293,7 +293,6 @@ RUN sed -i "s/^display_errors = Off/display_errors = On/g" /etc/php5/apache2/php
 RUN echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf && \
     sed -i 's/    \/\/ $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/    $cfg\['\''Servers'\''\]\[$i\]\['\''AllowNoPassword'\''\] = TRUE/g' /etc/phpmyadmin/config.inc.php && \
     sed -i "s/^\$dbuser='phpmyadmin';/\$dbuser='root';/g" /etc/phpmyadmin/config-db.php && \
-    sed -i "s/^\$dbserver='';/\$dbserver='127.0.0.1';/g" /etc/phpmyadmin/config-db.php && \
     echo '<?php' > /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$cfg["MaxNavigationItems"] = 500;' >> /etc/phpmyadmin/conf.d/devdocker.php && \
     echo '$sessionDuration = 60*60*24*7; // 60*60*24*7 = one week' >> /etc/phpmyadmin/conf.d/devdocker.php && \
