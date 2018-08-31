@@ -21,7 +21,14 @@ export CACHEBUST="`git ls-remote https://github.com/pa-de-solminihac/configurati
 BUILD_CMD="docker build $@ --build-arg CACHEBUST=$CACHEBUST -f devdocker/Dockerfile -t $DEVDOCKER_IMAGE:$DEVDOCKER_TAG devdocker"
 $BUILD_CMD && BUILD_OK=1
 if [ "$BUILD_OK" == "1" ]; then
-    echo
+    if [ -x "$DOCKERMACHINE_PATH" ]; then
+        echo
+        echo -ne "\033$TERM_COLOR_YELLOW"
+        echo "# Run this command to configure your shell:"
+        echo -ne "\033$TERM_COLOR_NORMAL"
+        echo "eval \"\$(\""$DOCKERMACHINE"\" $DOCKER_ENV_VARS_CMD_OPTS)\""
+        echo
+    fi
     echo -ne "\033$TERM_COLOR_GREEN"
     echo "# Now you can tag and push the image:"
     echo -ne "\033$TERM_COLOR_NORMAL"

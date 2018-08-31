@@ -22,11 +22,11 @@ fi
 DEVDOCKER_IDS="$(docker ps | (grep "\<$DEVDOCKER_IMAGE\>" || true) | awk '{print $1}')"
 if [ "$DEVDOCKER_IDS" == "" ]; then
     echo -ne "\033$TERM_COLOR_YELLOW"
-    echo -n "# All devdocker containers are already stopped"
-    echo -ne "\033$TERM_COLOR_NORMAL\n"
+    echo "# All devdocker containers are already stopped"
+    echo -ne "\033$TERM_COLOR_NORMAL"
 else
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo -n "# Stopping devdocker containers: "
+    echo "# Stopping devdocker containers:"
     echo -ne "\033$TERM_COLOR_NORMAL"
     docker stop "$DEVDOCKER_IDS"
     sleep 1
@@ -48,7 +48,7 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     fi
     echo
     echo -ne "\033$TERM_COLOR_GREEN"
-    echo "# You can stop Docker VM if necessary: "
+    echo "# You can stop Docker VM if necessary:"
     echo -ne "\033$TERM_COLOR_NORMAL"
     echo "./vm-stop.sh"
 fi
