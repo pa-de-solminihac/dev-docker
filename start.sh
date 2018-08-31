@@ -185,7 +185,7 @@ c=0
 while ! [[ "$SSH_RUNNING" == "1" ]]; do
     # limit to 600 retries (300s)
     ((c++)) && ((c==600)) && logger "Warning: giving up ssh connectivity test" && break
-    $SSH_CMD -o PasswordAuthentication=no "echo ping > /dev/null" && SSH_RUNNING=$(( ! $? )) && break || true
+    $SSH_CMD -o PasswordAuthentication=no "echo ping > /dev/null" && SSH_RUNNING=$(( ! $? )) || true
     echo -n .
     sleep 0.5
 done
