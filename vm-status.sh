@@ -22,10 +22,4 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     echo -ne " ($DOCKERMACHINEIP)\n"
     eval "$DOCKER_ENV_VARS"
 
-    echo
-    echo -ne "\033$TERM_COLOR_YELLOW"
-    echo "# Run this command to configure your shell:"
-    echo -ne "\033$TERM_COLOR_NORMAL"
-    echo "eval \"\$(\""$DOCKERMACHINE"\" $DOCKER_ENV_VARS_CMD_OPTS)\""
-
 fi
