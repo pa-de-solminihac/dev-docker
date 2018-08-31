@@ -71,14 +71,14 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     mkdir -p "$DOCKERSITE_ROOT"/conf-sitesync
     # ensure ports are not already used
     for PORT in $(echo $PORTS); do
-        nc -z 127.0.0.1 $PORT 2>/dev/null && PORT_IN_USE=1 && sudo lsof -i -n -P | grep TCP | grep "TCP [^-]*:$PORT " | awk "{print \"Port already in use: $PORT, used by process: \"\$1\", pid: \"\$2\", user: \"\$3}" | sort | uniq;
+        nc -z 127.0.0.1 $PORT 2>/dev/null && echo "Port already in use: $PORT" && PORT_IN_USE=1;
     done
     if [ "${PORT_IN_USE:-}" == "1" ]; then
         exit 1;
     fi;
     # run container
     docker network create devdocker > /dev/null 2>&1 || true
-    DEVDOCKER_RUN_CMD="docker run -h $DEVDOCKER_HOSTNAME --rm --privileged -d -i \
+    DEVDOCKER_ID="$(docker run -h $DEVDOCKER_HOSTNAME --rm --privileged -d -i \
         --net devdocker \
         -p 8022:8022 \
         -p $PORT_20:20 \
@@ -118,13 +118,12 @@ if [ "$DEVDOCKER_ID" == "" ]; then
         -v "$DOCKERSITE_ROOT/crontabs:/var/spool/cron/crontabs" \
         -v "$DOCKERSITE_ROOT/bashrc.d:/home/devdocker/bashrc.d" \
         -v "$DOCKERSITE_ROOT/conf-sitesync:/sitesync/etc" \
-        '$DEVDOCKER_IMAGE:$DEVDOCKER_TAG'"
-    DEVDOCKER_ID=$(/usr/bin/env bash -c "$DEVDOCKER_RUN_CMD")
+        "$DEVDOCKER_IMAGE:$DEVDOCKER_TAG")"
     if [[ "$QUIET" == "0" ]]; then
         echo -ne "\033$TERM_COLOR_GREEN"
-        echo -n "# Attaching to freshly started container: "
+        echo "# Attaching to freshly started container: "
         echo -ne "\033$TERM_COLOR_NORMAL"
-        echo -ne "$DEVDOCKER_ID\n"
+        echo $DEVDOCKER_ID
     fi
     # save container hosts file before we complete it with every login
     docker exec "$DEVDOCKER_ID" sh -c "cp /etc/hosts /etc/hosts.ori"
@@ -132,7 +131,7 @@ if [ "$DEVDOCKER_ID" == "" ]; then
     if [[ "$QUIET" == "0" ]]; then
         echo
         echo -ne "\033$TERM_COLOR_YELLOW"
-        echo "# Mapping permissions: "
+        echo "# Mapping permissions:"
         echo -n "    devdocker";
         sleep 1;
         echo -n " = "
@@ -151,9 +150,9 @@ else
     chmod 755 "$DOCKERSITE_ROOT"/database/* 2> /dev/null || true # fix database permissions at startup
     if [[ "$QUIET" == "0" ]]; then
         echo -ne "\033$TERM_COLOR_YELLOW"
-        echo -n "# Attaching to already running container: "
+        echo "# Attaching to already running container: "
         echo -ne "\033$TERM_COLOR_NORMAL"
-        echo -ne "$DEVDOCKER_ID\n"
+        echo $DEVDOCKER_ID
     fi
 fi
 
@@ -162,6 +161,9 @@ ETC_HOSTS="$(cat /etc/hosts)"
 docker exec "$DEVDOCKER_ID" sh -c "cat /etc/hosts.ori > /etc/hosts && echo \"$ETC_HOSTS\" >> /etc/hosts"
 
 # use SSH to attach to container and forward reserved ports
+if [[ "$QUIET" == "0" ]]; then
+    echo
+fi
 docker exec "$DEVDOCKER_ID" /copy-ssh-config.sh || true
 # fix for weird write permission bug on /hom/devdocker/.ssh directory
 docker exec "$DEVDOCKER_ID" sh -c "mv ~/.ssh ~/.ssh2 && mv ~/.ssh2 ~/.ssh" || true
@@ -183,8 +185,14 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
     # no quotes around echo $SSH_PORT_FW_CMD to suppress additionnal spaces, or grep wont grep
     PORT_FW_PID="$(ps auwx | (grep "$(echo $SSH_PORT_FW_CMD)" | grep -v 'grep' | grep -v 'sudo' || true) | awk '{print $2}')";
     if [ "$PORT_FW_PID" == "" ]; then
-        # wait for ssh server to be ready
-        while ! nc -z $DOCKERMACHINEIP 8022 2> /dev/null; do sleep 0.1; echo -n .; done
+        if [[ "$QUIET" == "0" ]]; then
+            echo -ne "\033$TERM_COLOR_GREEN"
+            echo -n "# Forwarding ports using SSH"
+            # wait for ssh server to be ready
+            while ! nc -z $DOCKERMACHINEIP 8022 2> /dev/null; do sleep 0.1; echo -n .; done
+            echo -e "\n"
+            echo -ne "\033$TERM_COLOR_NORMAL"
+        fi
         if [ -x "$(which sudo 2> /dev/null)" ]; then
             sudo echo -n || exit # ask for root password again if sudo timed out
             # OSX specific: bind 127.0.0.2 to loopback, cf. https://superuser.com/a/458877/496146
@@ -192,6 +200,14 @@ if [ -x "$DOCKERMACHINE_PATH" ]; then
             SILENCE="$(sudo $SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
         else
             SILENCE="$($SSH_PORT_FW_CMD 2>&1 > /dev/null)" &
+        fi
+
+    else
+        if [[ "$QUIET" == "0" ]]; then
+            echo -ne "\033$TERM_COLOR_YELLOW"
+            echo "# Ports are already forwarded using SSH"
+            #echo "# Ports are already forwarded using SSH: $SSH_PORT_FW_CMD"
+            echo -ne "\033$TERM_COLOR_NORMAL"
         fi
     fi
 fi
