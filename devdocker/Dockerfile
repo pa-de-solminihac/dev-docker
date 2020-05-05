@@ -15,16 +15,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # enable docker repository for docker-in-docker
 RUN apt-get update
-RUN apt-get -y install apt-transport-https ca-certificates gnupg curl
-# try with multiple keyservers because some may be unavailable
-RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
-    apt-key adv --keyserver pgp.mit.edu --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
-    apt-key adv --keyserver keyserver.pgp.com --recv-keys 58118E89F3A912897C070ADBF76221572C52609D || \
-    apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-RUN echo "deb https://apt.dockerproject.org/repo debian-stretch main" > /etc/apt/sources.list.d/docker.list
+RUN apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+ADD https://download.docker.com/linux/debian/gpg /tmp/docker.key
+RUN apt-key add /tmp/docker.key && \
+    add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) \
+    stable"
 
 # enable blackfire.io additional repository
-ADD https://packagecloud.io/gpg.key /tmp/blackfire.key
+ADD https://packages.blackfire.io/gpg.key /tmp/blackfire.key
 RUN apt-key add /tmp/blackfire.key && \
     echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list
 
@@ -43,9 +43,9 @@ RUN echo "deb http://httpredir.debian.org/debian stretch-backports main" | tee /
 
 # enable nodejs repository
 WORKDIR /usr/local/src/
-RUN curl -sL https://deb.nodesource.com/setup_6.x -o setup_6.x && \
-    chmod +x setup_6.x && \
-    ./setup_6.x # includes apt-get update
+RUN curl -sL https://deb.nodesource.com/setup_12.x -o setup_12.x && \
+    chmod +x setup_12.x && \
+    ./setup_12.x # includes apt-get update
 
 #########################
 # INSTALL DISTRO PACKAGES
@@ -124,12 +124,14 @@ RUN apt-get -y install \
     tcpflow \
     spfquery
 
-RUN apt-get -y install docker-engine
+RUN apt-get -y install docker-ce docker-ce-cli containerd.io
 
 # decent nodejs version and gulp
 RUN apt-get -y install nodejs build-essential libssl-dev
 RUN npm install -g n gulp
-RUN n stable
+RUN n lts
+
+RUN npm install -g pm2
 
 # TODO: more tools (http://agile.dzone.com/news/continuous-integration-php
 
@@ -179,6 +181,10 @@ WORKDIR /usr/local/bin
 RUN curl -O "https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar" && \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar wp
+WORKDIR /usr/local/src/
+RUN curl -O "https://raw.githubusercontent.com/wp-cli/wp-cli/v2.4.0/utils/wp-completion.bash" && \
+    echo "source /usr/local/src/wp-completion.bash" >> /root/.bashrc && \
+    sudo -u devdocker bash -c 'echo "source /usr/local/src/wp-completion.bash"' >> /home/devdocker/.bashrc
 
 # install drush
 WORKDIR /usr/local/src/
@@ -230,7 +236,6 @@ RUN sed -i -e 's/^bind /#bind /' '/etc/redis/redis.conf'
 
 # better shell config
 WORKDIR /root/
-RUN [ ! -d ".config" ] && mkdir .config && chmod 700 .config
 RUN git clone https://github.com/pa-de-solminihac/configuration.git /root/.config/config-pa-de-solminihac && \
     echo "source /root/.bashrc_common" >> /root/.bashrc && \
     ln -s /root/.config/config-pa-de-solminihac/bash/.bashrc_common && \
